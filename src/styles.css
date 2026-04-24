@@ -490,6 +490,399 @@ img {
   text-align: center;
 }
 
+.habitaciones-main {
+  padding: 54px 7vw 76px;
+}
+
+.habitaciones-heading {
+  margin: 0 auto 40px;
+  max-width: 1120px;
+}
+
+.habitaciones-heading h1 {
+  color: #061525;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 400;
+  line-height: 1.08;
+  margin: 0 0 14px;
+}
+
+.habitaciones-heading > p:last-child {
+  color: #45546a;
+  font-size: 1rem;
+  margin: 0;
+  max-width: 640px;
+}
+
+.habitaciones-layout {
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 280px minmax(0, 1fr);
+  margin: 0 auto;
+  max-width: 1120px;
+}
+
+.filters-panel {
+  display: grid;
+  gap: 22px;
+  align-content: start;
+}
+
+.filter-card,
+.discount-panel,
+.catalog-card {
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(12, 24, 40, 0.06);
+}
+
+.filter-card {
+  display: grid;
+  gap: 24px;
+  padding: 24px;
+}
+
+.filter-card h2,
+.catalog-toolbar h2 {
+  color: #061525;
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.filter-group {
+  display: grid;
+  gap: 12px;
+}
+
+.filter-group > span {
+  color: #707885;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.filter-group input[type="range"] {
+  accent-color: #8a6416;
+  width: 100%;
+}
+
+.range-labels,
+.availability-row,
+.catalog-toolbar,
+.catalog-title-row,
+.catalog-footer,
+.room-meta,
+.pagination-row {
+  align-items: center;
+  display: flex;
+}
+
+.range-labels,
+.catalog-title-row,
+.catalog-footer {
+  justify-content: space-between;
+}
+
+.range-labels small {
+  color: #707885;
+  font-size: 0.78rem;
+}
+
+.check-list {
+  display: grid;
+  gap: 10px;
+}
+
+.check-list label {
+  align-items: center;
+  color: #273348;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  font-size: 0.95rem;
+}
+
+.check-list input {
+  accent-color: #8a6416;
+  height: 18px;
+  width: 18px;
+}
+
+.availability-row {
+  background: #f4f7fd;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  color: #273348;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 0 14px;
+}
+
+.availability-row button {
+  background: #8a6416;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  height: 22px;
+  position: relative;
+  width: 44px;
+}
+
+.availability-row button::after {
+  background: #ffffff;
+  border-radius: 50%;
+  content: "";
+  height: 14px;
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 14px;
+}
+
+.filter-button {
+  background: #041120;
+  border: 0;
+  border-radius: 7px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 800;
+  min-height: 48px;
+  text-transform: uppercase;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.filter-button:hover,
+.catalog-footer a:hover {
+  background: #8a6416;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.discount-panel {
+  background: #fff8eb;
+  border-color: #f1d8a7;
+  padding: 22px;
+}
+
+.discount-panel > span {
+  color: #8a6416;
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.discount-panel h3 {
+  color: #5d4201;
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+
+.discount-panel p {
+  color: #5d4201;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.rooms-catalog {
+  min-width: 0;
+}
+
+.catalog-toolbar {
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.catalog-toolbar p {
+  color: #707885;
+  margin: 8px 0 0;
+}
+
+.view-toggle {
+  background: #edf2f8;
+  border-radius: 7px;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+}
+
+.view-toggle button,
+.pagination-row button {
+  border: 0;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.view-toggle button {
+  background: transparent;
+  border-radius: 5px;
+  color: #687386;
+  height: 34px;
+  width: 34px;
+}
+
+.view-toggle .active {
+  background: #ffffff;
+  box-shadow: 0 6px 14px rgba(12, 24, 40, 0.08);
+  color: #061525;
+}
+
+.catalog-grid {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.catalog-card {
+  min-width: 0;
+  overflow: hidden;
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.catalog-card:hover {
+  box-shadow: 0 18px 44px rgba(12, 24, 40, 0.12);
+  transform: translateY(-2px);
+}
+
+.catalog-image {
+  aspect-ratio: 1.55;
+  overflow: hidden;
+  position: relative;
+}
+
+.catalog-image img {
+  height: 100%;
+  object-fit: cover;
+  transition: transform 260ms ease;
+  width: 100%;
+}
+
+.catalog-card:hover .catalog-image img {
+  transform: scale(1.05);
+}
+
+.catalog-image span {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  color: #8a6416;
+  font-size: 0.7rem;
+  font-weight: 800;
+  left: 14px;
+  padding: 6px 11px;
+  position: absolute;
+  text-transform: uppercase;
+  top: 14px;
+}
+
+.catalog-image button {
+  align-items: center;
+  background: rgba(4, 17, 32, 0.46);
+  border: 0;
+  border-radius: 50%;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  font-size: 1rem;
+  height: 34px;
+  justify-content: center;
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 34px;
+}
+
+.catalog-content {
+  padding: 20px;
+}
+
+.catalog-title-row {
+  gap: 14px;
+}
+
+.catalog-title-row h3 {
+  color: #061525;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.catalog-title-row > span {
+  color: #8a6416;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.room-meta {
+  color: #707885;
+  gap: 16px;
+  font-size: 0.82rem;
+  margin: 12px 0 20px;
+}
+
+.catalog-footer {
+  border-top: 1px solid #edf2f8;
+  gap: 14px;
+  padding-top: 16px;
+}
+
+.catalog-footer small {
+  color: #8b93a1;
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.catalog-footer strong {
+  color: #061525;
+  display: block;
+  font-size: 1.25rem;
+}
+
+.catalog-footer a {
+  background: #041120;
+  border-radius: 7px;
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 800;
+  min-width: 104px;
+  padding: 9px 14px;
+  text-align: center;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.pagination-row {
+  gap: 8px;
+  justify-content: center;
+  margin-top: 34px;
+}
+
+.pagination-row button {
+  background: #ffffff;
+  border: 1px solid #dfe4ec;
+  border-radius: 7px;
+  color: #687386;
+  height: 40px;
+  width: 40px;
+}
+
+.pagination-row .active {
+  background: #8a6416;
+  border-color: #8a6416;
+  color: #ffffff;
+}
+
 .stat-item strong {
   color: #061525;
   display: block;
@@ -639,7 +1032,16 @@ img {
 
   .offers-grid,
   .rooms-grid,
+  .catalog-grid,
   .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .habitaciones-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .filters-panel {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -668,6 +1070,8 @@ img {
   .search-panel,
   .offers-grid,
   .rooms-grid,
+  .catalog-grid,
+  .filters-panel,
   .footer-grid,
   .stats-strip {
     grid-template-columns: 1fr;
@@ -685,9 +1089,16 @@ img {
 
   .section-block,
   .rooms-section,
+  .habitaciones-main,
   .site-footer {
     padding-left: 22px;
     padding-right: 22px;
+  }
+
+  .catalog-toolbar {
+    align-items: start;
+    flex-direction: column;
+    gap: 16px;
   }
 
   .room-card {
