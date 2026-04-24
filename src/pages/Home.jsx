@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import hotelApi from '../services/hotelApi';
@@ -84,18 +84,18 @@ function Icon({ type }) {
   );
 }
 
-function Header() {
+export function Header() {
   return (
     <header className="site-header">
       <Link className="brand" to="/">
         LUXESTAY
       </Link>
       <nav className="main-nav" aria-label="Navegacion principal">
-        <Link className="active" to="/">
+        <NavLink to="/" end>
           Home
-        </Link>
-        <Link to="/habitaciones">Rooms</Link>
-        <Link to="/mis-reservas">My Bookings</Link>
+        </NavLink>
+        <NavLink to="/habitaciones">Rooms</NavLink>
+        <NavLink to="/mis-reservas">My Bookings</NavLink>
       </nav>
       <div className="header-actions">
         <Link className="ghost-link" to="/login">
