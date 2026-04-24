@@ -490,6 +490,96 @@ img {
   text-align: center;
 }
 
+.about-page {
+  background: #f5f7fc;
+}
+
+.about-hero {
+  align-items: center;
+  background:
+    linear-gradient(90deg, rgba(3, 17, 32, 0.78), rgba(3, 17, 32, 0.28)),
+    url("https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1900&q=80")
+      center / cover;
+  color: #ffffff;
+  display: flex;
+  min-height: 540px;
+  padding: 92px 7vw 86px;
+}
+
+.about-hero-content {
+  max-width: 720px;
+}
+
+.about-hero .section-kicker {
+  color: #f5a524;
+}
+
+.about-hero h1 {
+  font-size: clamp(2.25rem, 5vw, 4.25rem);
+  font-weight: 300;
+  line-height: 1.08;
+  margin: 0 0 22px;
+}
+
+.about-hero p:not(.section-kicker) {
+  color: #eef4fb;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  margin: 0 0 28px;
+  max-width: 650px;
+}
+
+.about-section {
+  display: grid;
+  gap: 46px;
+  grid-template-columns: minmax(260px, 0.85fr) minmax(0, 1.15fr);
+  margin: 0 auto;
+  max-width: 1120px;
+  padding: 68px 7vw 76px;
+}
+
+.about-copy h2 {
+  color: #061525;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 0 0 18px;
+}
+
+.about-copy p:not(.section-kicker) {
+  color: #273348;
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.about-pillars {
+  display: grid;
+  gap: 18px;
+}
+
+.about-pillar {
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(12, 24, 40, 0.06);
+  padding: 26px 28px;
+}
+
+.about-pillar h3 {
+  color: #061525;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.about-pillar p {
+  color: #3c485a;
+  font-size: 0.96rem;
+  line-height: 1.65;
+  margin: 0;
+}
+
 .stat-item strong {
   color: #061525;
   display: block;
@@ -639,6 +729,7 @@ img {
 
   .offers-grid,
   .rooms-grid,
+  .about-section,
   .footer-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -685,9 +776,15 @@ img {
 
   .section-block,
   .rooms-section,
+  .about-hero,
+  .about-section,
   .site-footer {
     padding-left: 22px;
     padding-right: 22px;
+  }
+
+  .about-section {
+    grid-template-columns: 1fr;
   }
 
   .room-card {
