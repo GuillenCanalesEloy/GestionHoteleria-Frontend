@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Bookings | LuxeStay</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "primary-container": "#1a2b3c",
+                        "surface-container": "#e7eeff",
+                        "background": "#f9f9ff",
+                        "surface-variant": "#d8e3fa",
+                        "surface-dim": "#cfdaf1",
+                        "secondary-fixed-dim": "#e9c176",
+                        "on-error": "#ffffff",
+                        "secondary": "#775a19",
+                        "surface-bright": "#f9f9ff",
+                        "on-tertiary-fixed": "#191c1d",
+                        "on-primary-fixed": "#0b1d2d",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "outline": "#74777d",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#261900",
+                        "on-tertiary-container": "#8f9192",
+                        "tertiary-fixed-dim": "#c5c7c8",
+                        "inverse-surface": "#263142",
+                        "inverse-on-surface": "#ebf1ff",
+                        "on-secondary-container": "#785a1a",
+                        "on-surface": "#111c2c",
+                        "secondary-container": "#fed488",
+                        "surface-container-highest": "#d8e3fa",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#38485a",
+                        "surface-container-low": "#f0f3ff",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#8192a7",
+                        "surface-container-high": "#dee8ff",
+                        "tertiary-container": "#272a2b",
+                        "surface": "#f9f9ff",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#4f6073",
+                        "primary": "#041627",
+                        "outline-variant": "#c4c6cd",
+                        "on-surface-variant": "#44474c",
+                        "primary-fixed-dim": "#b7c8de",
+                        "tertiary-fixed": "#e1e3e4",
+                        "on-background": "#111c2c",
+                        "on-tertiary-fixed-variant": "#454748",
+                        "inverse-primary": "#b7c8de",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#d2e4fb",
+                        "secondary-fixed": "#ffdea5",
+                        "tertiary": "#131617"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "16px",
+                        "base": "4px",
+                        "xl": "64px",
+                        "xs": "8px",
+                        "lg": "40px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "margin": "32px"
+                    },
+                    "fontFamily": {
+                        "h3": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "h1": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "h2": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "button": ["Inter"]
+                    },
+                    "fontSize": {
+                        "h3": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "h1": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "h2": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "button": ["16px", {"lineHeight": "1", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tap-highlight-transparent {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full flex justify-between items-center px-6 py-4 md:px-12 max-w-7xl mx-auto bg-white/90 dark:bg-slate-950/90 backdrop-blur-md shadow-sm border-b border-slate-200 dark:border-slate-800 z-50">
+<div class="text-xl font-bold tracking-tighter text-slate-900 dark:text-slate-50 uppercase">LuxeStay</div>
+<nav class="hidden md:flex items-center space-x-8">
+<a class="font-h3 text-sm font-medium tracking-wide text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all duration-300" href="#">Home</a>
+<a class="font-h3 text-sm font-medium tracking-wide text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all duration-300" href="#">Rooms</a>
+<a class="font-h3 text-sm font-medium tracking-wide text-amber-600 dark:text-amber-500 border-b-2 border-amber-600 pb-1 transition-all duration-300" href="#">My Bookings</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="hidden md:block font-button text-body-sm px-4 py-2 text-slate-900 dark:text-slate-50 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all duration-300 active:scale-95">Sign In</button>
+<button class="font-button text-body-sm px-6 py-2 bg-primary text-on-primary rounded-lg shadow-sm hover:opacity-90 transition-all duration-300 active:scale-95">Book Now</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-24 pb-32 px-6 md:px-12 max-w-7xl mx-auto w-full">
+<div class="mb-10">
+<h1 class="font-h1 text-h1 text-on-surface mb-2">My Bookings</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Manage your upcoming stays and review your past luxury experiences with LuxeStay.</p>
+</div>
+<!-- Filters/Tabs -->
+<div class="flex gap-4 mb-8 overflow-x-auto hide-scrollbar">
+<button class="whitespace-nowrap px-6 py-2 rounded-full bg-primary text-on-primary font-button text-body-sm transition-all shadow-sm">All Reservations</button>
+<button class="whitespace-nowrap px-6 py-2 rounded-full bg-surface-container-low text-on-surface-variant font-button text-body-sm hover:bg-surface-container transition-all">Upcoming</button>
+<button class="whitespace-nowrap px-6 py-2 rounded-full bg-surface-container-low text-on-surface-variant font-button text-body-sm hover:bg-surface-container transition-all">Completed</button>
+<button class="whitespace-nowrap px-6 py-2 rounded-full bg-surface-container-low text-on-surface-variant font-button text-body-sm hover:bg-surface-container transition-all">Cancelled</button>
+</div>
+<!-- Bookings List/Table -->
+<div class="flex flex-col gap-6">
+<!-- Reservation Entry 1: Confirmed -->
+<div class="bg-surface-container-lowest rounded-xl p-4 md:p-6 border border-outline-variant shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row gap-6 items-center">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Luxe Suite" class="w-full h-full object-cover" data-alt="ultra-modern luxury hotel suite with floor-to-ceiling windows overlooking a sunset cityscape, soft ambient lighting, and plush bedding" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrlRQHUUNvq62wV1YpWThz5ZrjOHOXrKELCrWvq2brm916kTrFZMeEwvlABighNmwWHYPjYT5GwtaHjcNrdQniDMGg3hK7G0sYJweHh-hVph9ghZXUDtjNzAMtXIRN3p7zNAQzOzL-m60ivQMhP5OKNtWbKMdmsfbeiONf1D0WsrQV9lQIlcJUddpOJWWwAM8dCK2D6Xq2P4xYrEipleH4BZDqt1LMaEQItb9slzc6ophojiLW0OYYF9khP0fBu3ovjkGm7HPOGRs"/>
+</div>
+<div class="flex-grow flex flex-col md:flex-row justify-between w-full gap-4">
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-secondary">Upcoming stay</span>
+<h3 class="font-h3 text-h3 text-on-surface">The Presidential Suite</h3>
+<div class="flex items-center gap-2 text-on-surface-variant mt-2">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span class="font-body-sm text-body-sm">Dec 12 - Dec 18, 2024</span>
+</div>
+</div>
+<div class="flex flex-col md:items-end justify-center gap-2">
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wider">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+                            Confirmed
+                        </div>
+<div class="font-h3 text-h3 text-primary mt-1">$4,250.00</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Paid via Visa **** 4242</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex-1 md:flex-none font-button text-body-sm border border-outline text-on-surface px-4 py-2 rounded-lg hover:bg-surface-container transition-all active:scale-95">View Details</button>
+</div>
+</div>
+</div>
+<!-- Reservation Entry 2: Pending -->
+<div class="bg-surface-container-lowest rounded-xl p-4 md:p-6 border border-outline-variant shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row gap-6 items-center">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Ocean View Room" class="w-full h-full object-cover" data-alt="serene coastal hotel room with light wood furniture, white linens, and a private balcony showing turquoise ocean waters at midday" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZwg59JfynnZEL1qxQlxXarjPh7-Ln1W3aCcOOM2CBYRZ5bhAl1DHdDtnHMGKSn1t9sVDtFn3_EgiA0kY_o-FhvxHVgC8xBEFGFjPbmioVJxIv27okD5qwEktkSoVAi_bzsX0LkZVTncvq4-XjVnfhwrOrLIDylEqjvqn10mpcAa78r1Ace-x4eaVCdEp8trMJCAh-hISC70J326Tll7ojOLzyRzeLLpXAQFTfoHvPe8hhL1DcymNQRnlLxW0RF-goE_-fmtfohng"/>
+</div>
+<div class="flex-grow flex flex-col md:flex-row justify-between w-full gap-4">
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-secondary-container text-on-secondary-container px-2 py-0.5 rounded bg-secondary-container w-fit">In Review</span>
+<h3 class="font-h3 text-h3 text-on-surface">Ocean View Deluxe</h3>
+<div class="flex items-center gap-2 text-on-surface-variant mt-2">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span class="font-body-sm text-body-sm">Jan 05 - Jan 10, 2025</span>
+</div>
+</div>
+<div class="flex flex-col md:items-end justify-center gap-2">
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold uppercase tracking-wider">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            Pending
+                        </div>
+<div class="font-h3 text-h3 text-primary mt-1">$2,180.00</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Awaiting Confirmation</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex-1 md:flex-none font-button text-body-sm border border-outline text-on-surface px-4 py-2 rounded-lg hover:bg-surface-container transition-all active:scale-95">Modify</button>
+</div>
+</div>
+</div>
+<!-- Reservation Entry 3: Cancelled -->
+<div class="bg-surface-container-lowest/60 rounded-xl p-4 md:p-6 border border-outline-variant/50 shadow-sm opacity-80 flex flex-col md:flex-row gap-6 items-center">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0 grayscale">
+<img alt="Garden Studio" class="w-full h-full object-cover" data-alt="cozy boutique hotel garden room with industrial chic decor, exposed brick walls, and lush green plants in large ceramic pots" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD97MVAKSog7TdjKjrieFPmkOPkf5RyMpQDMHxDqiomMfzKUbudRsKwdsgsM3Qv_zLA9nJciVc_if6yG68Oz4Dte1kPEsv6gtp9WdLzVMkrUktZkhS6AcA8y1EpWMtj4XYN0OGJg-3uWm-vPiqi1lmGqI5tEaqjgyI-YU8PIT9SLlvx5bF2y6nT-0cqNO2DTC3rIzgtB4N-5J3sdX8t_QMhQSJRFyr5O7JBufD06NBTKHUfDhy9cjBmVAArwchauqkhFV_ZD6KeUM4"/>
+</div>
+<div class="flex-grow flex flex-col md:flex-row justify-between w-full gap-4">
+<div class="flex flex-col gap-1 text-on-surface-variant">
+<span class="font-label-caps text-label-caps opacity-70">Past Reservation</span>
+<h3 class="font-h3 text-h3">Garden Terrace Studio</h3>
+<div class="flex items-center gap-2 mt-2">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span class="font-body-sm text-body-sm">Oct 20 - Oct 22, 2024</span>
+</div>
+</div>
+<div class="flex flex-col md:items-end justify-center gap-2">
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-xs font-bold uppercase tracking-wider">
+<span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                            Cancelled
+                        </div>
+<div class="font-h3 text-h3 text-on-surface-variant mt-1">$840.00</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Refunded</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex-1 md:flex-none font-button text-body-sm border border-outline text-on-surface-variant px-4 py-2 rounded-lg hover:bg-surface-container transition-all active:scale-95">Rebook</button>
+</div>
+</div>
+</div>
+<!-- Reservation Entry 4: Past Success -->
+<div class="bg-surface-container-lowest rounded-xl p-4 md:p-6 border border-outline-variant shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row gap-6 items-center">
+<div class="w-full md:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Penthouse" class="w-full h-full object-cover" data-alt="glamorous penthouse living room with modern art pieces, dark velvet sofa, and warm spot lighting highlighting architectural details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-ixRqEr3a59ZD-oXcaTtu8xGVUJqUZDCnVF15uppkQsiwRNueEbl0D9yWDx_q8MV8H00RjpOcsGuq3EOCxE1nD_OWhl2fx_qYHFsLslgDPdMv__CAoxoEDi1natDxVoaNpnxKLmF3DASy4Jyp0yCbMC6LP1m1a6E9_raldRyXMd9Mpf0lWPt8na8OOr3RAng3EDASfsBhprBgYgHw-LCPRN23jBoxMhOSrlwkn82cKtISm7TWivDEtWL86yVp5Q9TevImOuQAc0k"/>
+</div>
+<div class="flex-grow flex flex-col md:flex-row justify-between w-full gap-4">
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Stay Completed</span>
+<h3 class="font-h3 text-h3 text-on-surface">Skyline Penthouse</h3>
+<div class="flex items-center gap-2 text-on-surface-variant mt-2">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span class="font-body-sm text-body-sm">Aug 14 - Aug 20, 2024</span>
+</div>
+</div>
+<div class="flex flex-col md:items-end justify-center gap-2">
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                            Completed
+                        </div>
+<div class="font-h3 text-h3 text-primary mt-1">$12,400.00</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Receipt Available</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex-1 md:flex-none font-button text-body-sm bg-secondary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all active:scale-95">Review Stay</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-auto bg-slate-900 dark:bg-black py-12 px-6 md:px-12 flex flex-col items-center gap-6 border-t border-slate-800">
+<div class="text-lg font-bold text-amber-500 uppercase">LuxeStay</div>
+<nav class="flex flex-wrap justify-center gap-8">
+<a class="font-['Inter'] text-xs font-light tracking-normal text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer" href="#">About Us</a>
+<a class="font-['Inter'] text-xs font-light tracking-normal text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer" href="#">Terms of Service</a>
+<a class="font-['Inter'] text-xs font-light tracking-normal text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer" href="#">Privacy Policy</a>
+<a class="font-['Inter'] text-xs font-light tracking-normal text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer" href="#">Contact Support</a>
+</nav>
+<p class="font-['Inter'] text-xs font-light tracking-normal text-slate-500 text-center">
+            © 2024 LuxeStay Hospitality Group. All rights reserved.
+        </p>
+</footer>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center pt-3 pb-6 px-4 bg-white dark:bg-slate-950 rounded-t-2xl md:hidden border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+<button class="flex flex-col items-center text-slate-400 dark:text-slate-500 tap-highlight-transparent transition-transform active:scale-90">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-semibold">Home</span>
+</button>
+<button class="flex flex-col items-center text-slate-400 dark:text-slate-500 tap-highlight-transparent transition-transform active:scale-90">
+<span class="material-symbols-outlined">search</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-semibold">Explore</span>
+</button>
+<button class="flex flex-col items-center text-amber-600 dark:text-amber-500 tap-highlight-transparent transition-transform active:scale-90">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bed</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-semibold">Stays</span>
+</button>
+<button class="flex flex-col items-center text-slate-400 dark:text-slate-500 tap-highlight-transparent transition-transform active:scale-90">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-semibold">Profile</span>
+</button>
+</nav>
+</body></html>
