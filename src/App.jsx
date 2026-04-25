@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-=======
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
->>>>>>> ad354f07c6aa253ed1b75af4b28923865c9139e0
 import Habitaciones from './pages/Habitaciones.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
@@ -14,14 +10,17 @@ function AppRoutes() {
 
   return (
     <>
+      {/* Este bloque maneja la navegación principal */}
       <Routes location={backgroundLocation || location}>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/habitaciones" element={<Habitaciones />} />
+        {/* Redirección por defecto si la ruta no existe */}
         <Route path="*" element={<Home />} />
       </Routes>
 
+      {/* Lógica para mostrar el Login como modal sobre la página actual si existe backgroundLocation */}
       {backgroundLocation && (
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -34,11 +33,9 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/habitaciones" element={<Habitaciones />} />
-        <Route path="*" element={<Home />} />
-      </Routes>
+      {/* IMPORTANTE: Aquí solo llamamos a AppRoutes una vez. 
+        Antes tenías otro bloque <Routes> aquí arriba que causaba el duplicado.
+      */}
       <AppRoutes />
     </BrowserRouter>
   );
