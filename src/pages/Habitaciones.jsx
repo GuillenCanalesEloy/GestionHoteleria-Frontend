@@ -34,6 +34,66 @@ const rooms = [
     image:
       "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=900",
   },
+  {
+    title: "Royal Garden Suite",
+    tag: "Suite",
+    price: 520,
+    rating: "4.9",
+    guests: "3 Adults",
+    size: "78 m2",
+    image:
+      "https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&q=80&w=900",
+  },
+  {
+    title: "Deluxe Ocean View",
+    tag: "Deluxe",
+    price: 360,
+    rating: "4.8",
+    guests: "2 Adults",
+    size: "46 m2",
+    image:
+      "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=900",
+  },
+  {
+    title: "Business Premier Room",
+    tag: "Business",
+    price: 295,
+    rating: "4.6",
+    guests: "2 Adults",
+    size: "44 m2",
+    image:
+      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&q=80&w=900",
+  },
+  {
+    title: "Family Deluxe Room",
+    tag: "Deluxe",
+    price: 390,
+    rating: "4.7",
+    guests: "4 Adults",
+    size: "58 m2",
+    image:
+      "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&q=80&w=900",
+  },
+  {
+    title: "Skyline Luxury Suite",
+    tag: "Suite",
+    price: 680,
+    rating: "5.0",
+    guests: "4 Adults",
+    size: "96 m2",
+    image:
+      "https://images.unsplash.com/photo-1609949279531-cf48d64bed89?auto=format&fit=crop&q=80&w=900",
+  },
+  {
+    title: "Executive Work Studio",
+    tag: "Business",
+    price: 240,
+    rating: "4.5",
+    guests: "1 Adult",
+    size: "36 m2",
+    image:
+      "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&q=80&w=900",
+  },
 ];
 
 function Habitaciones() {
