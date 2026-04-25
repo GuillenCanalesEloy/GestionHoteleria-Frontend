@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import hotelApi from '../services/hotelApi';
@@ -60,7 +61,7 @@ const stats = [
 
 const today = new Date().toISOString().slice(0, 10);
 
-function Icon({ type }) {
+export function Icon({ type }) {
   const icons = {
     location: (
       <path d="M12 2.5c-3.2 0-5.8 2.4-5.8 5.6 0 4.1 5.1 9.1 5.3 9.3.3.3.7.3 1 0 .2-.2 5.3-5.2 5.3-9.3 0-3.2-2.6-5.6-5.8-5.6Zm0 7.6a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z" />
@@ -85,6 +86,8 @@ function Icon({ type }) {
 }
 
 export function Header() {
+  const location = useLocation();
+
   return (
     <header className="site-header">
       <Link className="brand" to="/">
@@ -94,11 +97,16 @@ export function Header() {
         <NavLink to="/" end>
           Home
         </NavLink>
+        <NavLink to="/nosotros">Nosotros</NavLink>
         <NavLink to="/habitaciones">Rooms</NavLink>
         <NavLink to="/mis-reservas">My Bookings</NavLink>
       </nav>
       <div className="header-actions">
-        <Link className="ghost-link" to="/login">
+        <Link
+          className="ghost-link"
+          to="/login"
+          state={{ backgroundLocation: location }}
+        >
           Sign In
         </Link>
         <Link className="book-link" to="/reservar">
@@ -298,7 +306,7 @@ function Home() {
           </div>
           <div>
             <h3>Navegacion</h3>
-            <Link to="/">About Us</Link>
+            <Link to="/nosotros">Nosotros</Link>
             <Link to="/habitaciones">Habitaciones</Link>
             <Link to="/servicios">Servicios</Link>
             <Link to="/contacto">Contacto</Link>
