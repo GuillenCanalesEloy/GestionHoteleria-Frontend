@@ -10,14 +10,17 @@ function AppRoutes() {
 
   return (
     <>
+      {/* Este bloque maneja la navegación principal */}
       <Routes location={backgroundLocation || location}>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/habitaciones" element={<Habitaciones />} />
+        {/* Redirección por defecto si la ruta no existe */}
         <Route path="*" element={<Home />} />
       </Routes>
 
+      {/* Lógica para mostrar el Login como modal sobre la página actual si existe backgroundLocation */}
       {backgroundLocation && (
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -30,6 +33,9 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
+      {/* IMPORTANTE: Aquí solo llamamos a AppRoutes una vez. 
+        Antes tenías otro bloque <Routes> aquí arriba que causaba el duplicado.
+      */}
       <AppRoutes />
     </BrowserRouter>
   );
