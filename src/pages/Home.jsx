@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import hotelApi from '../services/hotelApi';
@@ -85,6 +85,8 @@ export function Icon({ type }) {
 }
 
 export function Header() {
+  const location = useLocation();
+
   return (
     <header className="site-header">
       <Link className="brand" to="/">
@@ -99,7 +101,11 @@ export function Header() {
         <NavLink to="/mis-reservas">My Bookings</NavLink>
       </nav>
       <div className="header-actions">
-        <Link className="ghost-link" to="/login">
+        <Link
+          className="ghost-link"
+          to="/login"
+          state={{ backgroundLocation: location }}
+        >
           Sign In
         </Link>
         <Link className="book-link" to="/reservar">

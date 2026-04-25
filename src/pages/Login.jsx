@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import './Login.css';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 function Icon({ type }) {
   const icons = {
+    close: (
+      <path d="M6.3 5 12 10.7 17.7 5 19 6.3 13.3 12 19 17.7 17.7 19 12 13.3 6.3 19 5 17.7 10.7 12 5 6.3 6.3 5Z" />
+    ),
     mail: (
       <path d="M4.8 5h14.4A2.8 2.8 0 0 1 22 7.8v8.4a2.8 2.8 0 0 1-2.8 2.8H4.8A2.8 2.8 0 0 1 2 16.2V7.8A2.8 2.8 0 0 1 4.8 5Zm.1 2 7.1 5 7.1-5H4.9Zm15.1 1.7-7.4 5.2a1 1 0 0 1-1.2 0L4 8.7v7.5c0 .4.4.8.8.8h14.4c.4 0 .8-.4.8-.8V8.7Z" />
     ),
@@ -25,30 +27,9 @@ function Icon({ type }) {
   );
 }
 
-function Header() {
-  return (
-    <header className="site-header login-site-header">
-      <Link className="brand" to="/">
-        LUXESTAY
-      </Link>
-      <nav className="main-nav" aria-label="Navegacion principal">
-        <Link to="/">Home</Link>
-        <Link to="/habitaciones">Rooms</Link>
-        <Link to="/mis-reservas">My Bookings</Link>
-      </nav>
-      <div className="header-actions">
-        <Link className="ghost-link active" to="/login">
-          Sign In
-        </Link>
-        <Link className="book-link" to="/reservar">
-          Book Now
-        </Link>
-      </div>
-    </header>
-  );
-}
-
 function Login() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -70,97 +51,98 @@ function Login() {
     }
   };
 
+  const handleClose = () => {
+    if (location.state?.backgroundLocation) {
+      navigate(-1);
+      return;
+    }
+
+    navigate('/');
+  };
+
   return (
-    <div className="login-page">
-      <Header />
+    <div className="login-modal-backdrop" role="presentation">
+      <section
+        className="login-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="login-title"
+      >
+        <button
+          className="login-modal-close"
+          type="button"
+          onClick={handleClose}
+          aria-label="Cerrar inicio de sesion"
+        >
+          <Icon type="close" />
+        </button>
 
-      <main className="login-main">
-        <section className="login-hero" aria-label="Acceso de huespedes">
-          <div className="login-hero-content">
-            <p className="section-kicker">Portal de Huespedes</p>
-            <h1>Accede a tu experiencia LuxeStay</h1>
-            <p>
-              Consulta tus reservas, administra tus datos y prepara cada detalle
-              de tu proxima estadia.
-            </p>
+        <div className="login-panel">
+          <div className="login-title">
+            <p className="section-kicker">Bienvenido</p>
+            <h2 id="login-title">Inicia sesion</h2>
+            <p>Ingresa con tu correo para continuar con tus reservas.</p>
           </div>
-        </section>
 
-        <section className="login-panel-section">
-          <div className="login-panel">
-            <div className="login-title">
-              <p className="section-kicker">Bienvenido</p>
-              <h2>Inicia sesion</h2>
-              <p>Ingresa con tu correo para continuar con tus reservas.</p>
+          {error && <p className="login-error">{error}</p>}
+
+          <form onSubmit={handleSubmit}>
+            <div className="login-field">
+              <label htmlFor="email">Correo electronico</label>
+              <div className="login-control">
+                <Icon type="mail" />
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="tuemail@correo.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
-            {error && <p className="login-error">{error}</p>}
-
-            <form onSubmit={handleSubmit}>
-              <div className="login-field">
-                <label htmlFor="email">Correo electronico</label>
-                <div className="login-control">
-                  <Icon type="mail" />
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="tuemail@correo.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
+            <div className="login-field">
+              <div className="login-field-header">
+                <label htmlFor="password">Contrasena</label>
+                <Link to="/recuperar-contrasena">Olvide mi contrasena</Link>
               </div>
-
-              <div className="login-field">
-                <div className="login-field-header">
-                  <label htmlFor="password">Contrasena</label>
-                  <Link to="/recuperar-contrasena">Olvide mi contrasena</Link>
-                </div>
-                <div className="login-control password-wrapper">
-                  <Icon type="lock" />
-                  <input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="********"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="password-toggle"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
-                  >
-                    <Icon type={showPassword ? 'eyeOff' : 'eye'} />
-                  </button>
-                </div>
+              <div className="login-control password-wrapper">
+                <Icon type="lock" />
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="********"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                >
+                  <Icon type={showPassword ? 'eyeOff' : 'eye'} />
+                </button>
               </div>
+            </div>
 
-              <div className="login-remember">
-                <input type="checkbox" id="remember" />
-                <label htmlFor="remember">Mantener sesion iniciada</label>
-              </div>
+            <div className="login-remember">
+              <input type="checkbox" id="remember" />
+              <label htmlFor="remember">Mantener sesion iniciada</label>
+            </div>
 
-              <button type="submit" className="login-submit" disabled={loading}>
-                {loading ? 'Ingresando...' : 'Ingresar'}
-              </button>
-            </form>
+            <button type="submit" className="login-submit" disabled={loading}>
+              {loading ? 'Ingresando...' : 'Ingresar'}
+            </button>
+          </form>
 
-            <p className="login-support">
-              Aun no tienes cuenta? <Link to="/registro">Crear cuenta</Link>
-            </p>
-          </div>
-        </section>
-      </main>
-
-      <footer className="site-footer login-footer">
-        <div className="footer-bottom login-footer-bottom">
-          <span>(c) 2026 LuxeStay Hospitality Group. All rights reserved.</span>
-          <Link to="/soporte">Contact Support</Link>
+          <p className="login-support">
+            Aun no tienes cuenta? <Link to="/registro">Crear cuenta</Link>
+          </p>
         </div>
-      </footer>
+      </section>
     </div>
   );
 }
