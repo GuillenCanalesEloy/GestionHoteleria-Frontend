@@ -171,7 +171,6 @@ function ReservasAdmin() {
             Reservas
           </Link>
           <button type="button">Pagos</button>
-          <button type="button">Empleados</button>
           <Link className={location.pathname === "/admin/reportes" ? "active" : ""} to="/admin/reportes">
             Reportes
           </Link>

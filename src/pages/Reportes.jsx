@@ -65,7 +65,12 @@ const Reportes = () => {
             Habitaciones
           </Link>
           <button type="button">Clientes</button>
-          <button type="button">Reservas</button>
+          <Link
+            className={location.pathname === "/admin/reservas" ? "active" : ""}
+            to="/admin/reservas"
+          >
+            Reservas
+          </Link>
           <button type="button">Pagos</button>
           <Link
             className={location.pathname === "/admin/reportes" ? "active" : ""}
