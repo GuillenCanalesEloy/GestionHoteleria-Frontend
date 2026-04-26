@@ -37,9 +37,11 @@ function AdminDashboard() {
 
         <nav className="admin-nav" aria-label="Panel administrativo">
           <Link className="active" to="/admin/dashboard">Dashboard</Link>
-          <button type="button">Habitaciones</button>
+          <Link to="/admin/habitaciones">Habitaciones</Link>
+          <button type="button">Clientes</button>
           <button type="button">Reservas</button>
           <button type="button">Pagos</button>
+          <button type="button">Empleados</button>
           <button type="button">Reportes</button>
         </nav>
 
