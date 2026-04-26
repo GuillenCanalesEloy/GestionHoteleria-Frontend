@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const stats = [
   { label: "Ingresos totales", value: "$124,500", note: "+12%" },
@@ -52,6 +52,7 @@ const tasks = [
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [profileOpen, setProfileOpen] = useState(false);
 
   return (
@@ -72,9 +73,16 @@ function AdminDashboard() {
           >
             Dashboard
           </Link>
-          <button type="button">Habitaciones</button>
+          <Link
+            className={location.pathname === "/admin/habitaciones" ? "active" : ""}
+            to="/admin/habitaciones"
+          >
+            Habitaciones
+          </Link>
+          <button type="button">Clientes</button>
           <button type="button">Reservas</button>
           <button type="button">Pagos</button>
+          <button type="button">Empleados</button>
           <Link
             className={location.pathname === "/admin/reportes" ? "active" : ""}
             to="/admin/reportes"
