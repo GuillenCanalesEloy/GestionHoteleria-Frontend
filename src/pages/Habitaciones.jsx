@@ -1,6 +1,7 @@
 import { Header } from "./Home.jsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DetallesDeHabitacion from "./DetallesDeHabitacion.jsx";
+import { getStoredRooms, ROOMS_STORAGE_KEY } from "../services/roomsStorage.js";
 
 // 1. Datos de las habitaciones con precios como números
 const rooms = [
@@ -128,9 +129,29 @@ function Habitaciones() {
   const [maxPrice, setMaxPrice] = useState(1000);
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  const [catalogRooms, setCatalogRooms] = useState(() => getStoredRooms());
+
+  useEffect(() => {
+    const refreshRooms = () => setCatalogRooms(getStoredRooms());
+    const handleStorageChange = (event) => {
+      if (event.key === ROOMS_STORAGE_KEY) {
+        refreshRooms();
+      }
+    };
+
+    window.addEventListener("focus", refreshRooms);
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("focus", refreshRooms);
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   // 3. Lógica de filtrado (se ejecuta en cada render)
-  const filteredRooms = rooms.filter((room) => {
+  const availableRooms = catalogRooms.filter((room) => room.status === "disponible");
+
+  const filteredRooms = availableRooms.filter((room) => {
     const matchesPrice = room.price <= maxPrice;
     const matchesType =
       selectedTypes.length === 0 || selectedTypes.includes(room.tag);

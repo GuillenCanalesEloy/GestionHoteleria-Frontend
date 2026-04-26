@@ -1,426 +1,547 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
-const guests = [
+const initialClients = [
   {
-    id: "#LM-9021",
-    initials: "EH",
+    id: "LM-9021",
     name: "Eleanor Henderson",
     email: "e.henderson@example.com",
     phone: "+1 (555) 012-3456",
     bookings: 12,
-    bookingsBadge: "↑ 2",
-    status: "VIP",
+    status: "vip",
     latestStay: "Oct 12 - Oct 15, 2023",
+    city: "London",
+    spend: 8420,
+    notes: "Prefiere check-in temprano y habitacion en piso alto.",
   },
   {
-    id: "#LM-8842",
-    initials: "JV",
+    id: "LM-8842",
     name: "Julian Vance",
     email: "julian.v@techcorp.com",
     phone: "+44 20 7946 0123",
     bookings: 4,
-    bookingsBadge: null,
-    status: "ACTIVE",
+    status: "activo",
     latestStay: "Nov 02 - Nov 05, 2023",
+    city: "Manchester",
+    spend: 2860,
+    notes: "Viajes corporativos frecuentes.",
   },
   {
-    id: "#LM-9055",
-    initials: "SC",
+    id: "LM-9055",
     name: "Sofia Castillo",
     email: "sofia.castillo@global.net",
     phone: "+34 912 34 56 78",
     bookings: 28,
-    bookingsBadge: null,
-    status: "VIP",
-    latestStay: "In-house (Checking out tomorrow)",
+    status: "vip",
+    latestStay: "En hotel - salida manana",
+    city: "Madrid",
+    spend: 16840,
+    notes: "Cliente de alto valor, solicita amenities premium.",
   },
   {
-    id: "#LM-9102",
-    initials: "AO",
+    id: "LM-9102",
     name: "Amara Okafor",
     email: "amara.okafor@agency.com",
     phone: "+234 803 123 4567",
     bookings: 2,
-    bookingsBadge: null,
-    status: "ACTIVE",
-    latestStay: "First Stay (Completed Oct 05)",
+    status: "activo",
+    latestStay: "Primera estadia - Oct 05",
+    city: "Lagos",
+    spend: 980,
+    notes: "Interesada en promociones familiares.",
+  },
+  {
+    id: "LM-9218",
+    name: "Mateo Rivas",
+    email: "mateo.rivas@example.com",
+    phone: "+51 955 019 221",
+    bookings: 0,
+    status: "inactivo",
+    latestStay: "Sin estadias recientes",
+    city: "Lima",
+    spend: 0,
+    notes: "Registro pendiente de confirmacion.",
   },
 ];
 
-const stats = [
-  {
-    icon: "groups",
-    iconBg: "bg-slate-50 text-[#041627]",
-    label: "TOTAL GUESTS",
-    value: "2,482",
-  },
-  {
-    icon: "star",
-    iconBg: "bg-amber-50 text-[#775a19]",
-    label: "VIP MEMBERS",
-    value: "156",
-    filled: true,
-  },
-  {
-    icon: "event_available",
-    iconBg: "bg-green-50 text-green-600",
-    label: "CURRENTLY IN-HOUSE",
-    value: "42",
-  },
-  {
-    icon: "trending_up",
-    iconBg: "bg-slate-50 text-[#041627]",
-    label: "NEW THIS MONTH",
-    value: "+12.5%",
-  },
-];
+const emptyClientForm = {
+  name: "",
+  email: "",
+  phone: "",
+  bookings: "0",
+  status: "activo",
+  latestStay: "",
+  city: "",
+  spend: "0",
+  notes: "",
+};
 
-const navItems = [
-  { icon: "dashboard", label: "Dashboard" },
-  { icon: "bed", label: "Rooms" },
-  { icon: "group", label: "Clients", active: true },
-  { icon: "calendar_month", label: "Bookings" },
-  { icon: "payments", label: "Payments" },
-  { icon: "badge", label: "Employees" },
-  { icon: "analytics", label: "Reports" },
-];
+const statusLabels = {
+  vip: "VIP",
+  activo: "Activo",
+  inactivo: "Inactivo",
+};
 
-const inquiries = [
-  {
-    dotColor: "bg-[#775a19]",
-    title: "Eleanor Henderson requested early check-in",
-    sub: "Requested for reservation #LM-BOOK-4201 • 2 hours ago",
-    message:
-      "Arriving on the 10:30 AM flight from London. Would appreciate if Room 402 is ready slightly earlier.",
-    showReply: true,
-  },
-  {
-    dotColor: "bg-green-500",
-    title: "Julian Vance confirmed spa booking",
-    sub: "Confirmed for Nov 03, 4:00 PM • 5 hours ago",
-    message: null,
-    showReply: false,
-  },
-];
+const sortLabels = {
+  name: "Cliente",
+  bookings: "Reservas",
+  status: "Estado",
+  latestStay: "Ultima estadia",
+};
 
-export default function ClientesAdmin() {
-  const [hoveredRow, setHoveredRow] = useState(null);
+function getInitials(name) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
 
+function formatCurrency(value) {
+  return `$${Number(value).toLocaleString("en-US")}`;
+}
+
+function SidebarNav({ location }) {
   return (
-    <div className="flex min-h-screen bg-[#f9f9ff] font-sans text-[#111c2c]">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-screen w-[280px] border-r border-slate-200 bg-white shadow-sm flex flex-col py-6 px-4 z-50">
-        <div className="mb-10 px-2 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-[#041627] flex items-center justify-center text-white">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
-              apartment
-            </span>
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 leading-none">LuxeManage</h1>
-            <p className="text-[10px] uppercase tracking-widest text-[#775a19] font-bold mt-1">Premium Operations</p>
-          </div>
+    <aside className="admin-sidebar clients-sidebar">
+      <Link className="admin-brand" to="/admin/dashboard">
+        <span>LM</span>
+        <div>
+          <strong>LuxeManage</strong>
+          <small>Premium operations</small>
         </div>
+      </Link>
 
-        <nav className="flex-1 space-y-1">
-          {navItems.map((item) => (
-            <a
-              key={item.label}
-              href="#"
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
-                item.active
-                  ? "bg-slate-50 text-slate-900 font-semibold border-r-2 border-slate-900 shadow-sm"
-                  : "text-slate-500 hover:bg-slate-50"
-              }`}
-            >
-              <span
-                className="material-symbols-outlined"
-                style={item.active ? { fontVariationSettings: "'FILL' 1" } : {}}
-              >
-                {item.icon}
-              </span>
-              <span>{item.label}</span>
-            </a>
-          ))}
-        </nav>
+      <nav className="admin-nav" aria-label="Panel administrativo">
+        <Link className={location.pathname === "/admin/dashboard" ? "active" : ""} to="/admin/dashboard">
+          Dashboard
+        </Link>
+        <Link className={location.pathname === "/admin/habitaciones" ? "active" : ""} to="/admin/habitaciones">
+          Habitaciones
+        </Link>
+        <Link className="active" to="/admin/clientes">
+          Clientes
+        </Link>
+        <Link className={location.pathname === "/admin/reservas" ? "active" : ""} to="/admin/reservas">
+          Reservas
+        </Link>
+        <button type="button">Pagos</button>
+        <Link className={location.pathname === "/admin/reportes" ? "active" : ""} to="/admin/reportes">
+          Reportes
+        </Link>
+      </nav>
 
-        <div className="pt-6 border-t border-slate-100">
-          <div className="flex items-center gap-3 px-4">
-            <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-sm text-slate-600">
-              MS
-            </div>
-            <div className="overflow-hidden">
-              <p className="font-semibold text-slate-900 truncate">Marcus Sterling</p>
-              <p className="text-xs text-slate-500 truncate">General Manager</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main */}
-      <div className="ml-[280px] flex flex-col flex-1">
-        {/* TopBar */}
-        <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md flex justify-between items-center h-16 px-8">
-          <div className="flex items-center flex-1 max-w-xl">
-            <div className="relative w-full">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                search
-              </span>
-              <input
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300 placeholder:text-slate-400"
-                placeholder="Search guests, email, or reservation ID..."
-                type="text"
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-6 ml-8">
-            <div className="flex items-center gap-4 text-slate-500">
-              <button className="hover:text-slate-900 transition-colors p-1 relative">
-                <span className="material-symbols-outlined">notifications</span>
-                <span className="absolute top-0 right-0 w-2 h-2 bg-red-600 rounded-full border-2 border-white"></span>
-              </button>
-              <button className="hover:text-slate-900 transition-colors p-1">
-                <span className="material-symbols-outlined">help_outline</span>
-              </button>
-            </div>
-            <div className="h-8 w-px bg-slate-200"></div>
-            <button className="flex items-center gap-2 text-sm font-medium text-slate-900 hover:opacity-80 transition-opacity">
-              <span>Admin Profile</span>
-              <span className="material-symbols-outlined text-sm">keyboard_arrow_down</span>
-            </button>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="p-8">
-          {/* Page Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
-            <div>
-              <nav className="flex items-center gap-2 text-xs font-bold text-[#775a19] uppercase tracking-widest mb-2">
-                <span>Directory</span>
-                <span className="material-symbols-outlined text-[10px]">chevron_right</span>
-                <span className="text-slate-400 tracking-widest">All Guests</span>
-              </nav>
-              <h2 className="text-4xl font-bold text-[#041627]">Guest Directory</h2>
-              <p className="text-slate-500 mt-2 text-sm">
-                Manage your guest relationships and detailed stay history across all properties.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-slate-200 bg-white font-semibold text-[#041627] hover:bg-slate-50 transition-all shadow-sm">
-                <span className="material-symbols-outlined text-lg">file_download</span>
-                Export CSV
-              </button>
-              <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#041627] text-white font-semibold hover:opacity-90 transition-all shadow-md">
-                <span className="material-symbols-outlined text-lg">person_add</span>
-                Register New Guest
-              </button>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-            {stats.map((s) => (
-              <div key={s.label} className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${s.iconBg}`}>
-                  <span
-                    className="material-symbols-outlined"
-                    style={s.filled ? { fontVariationSettings: "'FILL' 1" } : {}}
-                  >
-                    {s.icon}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{s.label}</p>
-                  <p className="text-2xl font-bold text-[#041627]">{s.value}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Table */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 text-sm text-slate-500">
-                  <span>Show:</span>
-                  <select className="bg-transparent border-none focus:ring-0 font-medium text-slate-900 py-0 pr-8">
-                    <option>25 entries</option>
-                    <option>50 entries</option>
-                    <option>100 entries</option>
-                  </select>
-                </div>
-                <div className="w-px h-4 bg-slate-200"></div>
-                <div className="flex items-center gap-1">
-                  <button className="p-1.5 rounded-md hover:bg-white transition-colors text-slate-500">
-                    <span className="material-symbols-outlined text-lg">filter_list</span>
-                  </button>
-                  <span className="text-sm font-medium text-slate-600">Filters</span>
-                </div>
-              </div>
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Displaying 1-25 of 2,482 Guests
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-white border-b border-slate-100">
-                    {["Guest Name", "Contact Information", "Total Bookings", "Loyalty Status", "Latest Stay", "Actions"].map((h) => (
-                      <th
-                        key={h}
-                        className={`px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider ${h === "Actions" ? "text-right" : ""}`}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {guests.map((g, i) => (
-                    <tr
-                      key={g.id}
-                      className="hover:bg-slate-50/80 transition-colors"
-                      onMouseEnter={() => setHoveredRow(i)}
-                      onMouseLeave={() => setHoveredRow(null)}
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-sm text-[#041627]">
-                            {g.initials}
-                          </div>
-                          <div>
-                            <div className="font-semibold text-slate-900">{g.name}</div>
-                            <div className="text-xs text-slate-500">Guest ID: {g.id}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-slate-900">{g.email}</div>
-                        <div className="text-xs text-slate-500">{g.phone}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-slate-900">{g.bookings}</span>
-                          {g.bookingsBadge && (
-                            <span className="text-[10px] text-green-600 font-bold bg-green-50 px-1.5 py-0.5 rounded">
-                              {g.bookingsBadge}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        {g.status === "VIP" ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
-                            <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                              star
-                            </span>
-                            VIP
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">
-                            ACTIVE
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-500">{g.latestStay}</td>
-                      <td className="px-6 py-4 text-right">
-                        <div className={`flex items-center justify-end gap-2 transition-opacity ${hoveredRow === i ? "opacity-100" : "opacity-0"}`}>
-                          <button className="p-2 text-slate-400 hover:text-[#041627] hover:bg-slate-100 rounded-lg transition-all" title="View Profile">
-                            <span className="material-symbols-outlined">visibility</span>
-                          </button>
-                          <button className="p-2 text-slate-400 hover:text-[#041627] hover:bg-slate-100 rounded-lg transition-all" title="History">
-                            <span className="material-symbols-outlined">history</span>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            <div className="px-6 py-4 bg-white border-t border-slate-100 flex items-center justify-between">
-              <div className="text-sm text-slate-500">
-                Showing <span className="font-medium text-slate-900">1</span> to{" "}
-                <span className="font-medium text-slate-900">25</span> of{" "}
-                <span className="font-medium text-slate-900">2,482</span> results
-              </div>
-              <div className="flex items-center gap-1">
-                <button className="p-2 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 transition-all opacity-50 cursor-not-allowed" disabled>
-                  <span className="material-symbols-outlined text-lg">chevron_left</span>
-                </button>
-                {[1, 2, 3].map((p) => (
-                  <button
-                    key={p}
-                    className={`w-8 h-8 rounded-lg text-xs font-bold ${
-                      p === 1 ? "bg-[#041627] text-white" : "hover:bg-slate-50 text-slate-600"
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
-                <span className="px-2 text-slate-400">...</span>
-                <button className="w-8 h-8 rounded-lg hover:bg-slate-50 text-slate-600 font-bold text-xs">100</button>
-                <button className="p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all">
-                  <span className="material-symbols-outlined text-lg">chevron_right</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-10">
-            {/* Recent Inquiries */}
-            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-              <h3 className="text-2xl font-bold text-[#041627] mb-6">Recent Guest Inquiries</h3>
-              <div className="space-y-6">
-                {inquiries.map((inq, i) => (
-                  <div key={i} className="flex gap-4 items-start">
-                    <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${inq.dotColor}`}></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-slate-900">{inq.title}</p>
-                      <p className="text-xs text-slate-500 mt-1">{inq.sub}</p>
-                      {inq.message && (
-                        <div className="mt-3 p-3 bg-slate-50 rounded-lg text-sm text-slate-600 italic">
-                          "{inq.message}"
-                        </div>
-                      )}
-                    </div>
-                    {inq.showReply && (
-                      <button className="text-xs font-bold text-[#775a19] uppercase tracking-wider hover:underline flex-shrink-0">
-                        REPLY
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Loyalty Insights */}
-            <div className="bg-[#1a2b3c] text-white rounded-xl p-8 shadow-lg relative overflow-hidden flex flex-col justify-between">
-              <div className="relative z-10">
-                <span className="text-[10px] font-bold text-[#775a19] tracking-widest bg-white/10 px-2 py-1 rounded uppercase">
-                  Insights
-                </span>
-                <h3 className="text-2xl font-bold mt-4 mb-2 text-white">Loyalty Growth</h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  VIP conversions are up{" "}
-                  <span className="text-[#e9c176] font-bold">14%</span> this quarter. Consider offering
-                  complimentary lounge access to "Active" status guests with &gt;10 bookings.
-                </p>
-              </div>
-              <button className="relative z-10 mt-8 w-full py-3 bg-[#775a19] text-white font-semibold rounded-lg hover:brightness-110 transition-all">
-                Generate Campaign
-              </button>
-              <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
-              <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#775a19]/10 rounded-full blur-3xl"></div>
-            </div>
-          </div>
-        </main>
+      <div className="admin-user">
+        <strong>Admin Profile</strong>
+        <span>General manager</span>
       </div>
+    </aside>
+  );
+}
+
+function MetricCard({ label, value, description, change, tone }) {
+  return (
+    <article className={`client-metric-card ${tone}`}>
+      <div>
+        <span>{label}</span>
+        <strong>{value}</strong>
+        <small>{description}</small>
+      </div>
+      <em>{change}</em>
+    </article>
+  );
+}
+
+function ClientStatusBadge({ status }) {
+  return <span className={`client-status ${status}`}>{statusLabels[status]}</span>;
+}
+
+function SkeletonRows() {
+  return (
+    <div className="clients-skeleton-list" aria-label="Cargando clientes">
+      {[1, 2, 3, 4].map((item) => (
+        <div className="clients-skeleton-row" key={item}>
+          <span />
+          <span />
+          <span />
+          <span />
+        </div>
+      ))}
     </div>
   );
 }
+
+function ClientDrawer({ client, activeTab, form, onChange, onClose, onDelete, onSave, onTabChange }) {
+  if (!client) {
+    return null;
+  }
+
+  return (
+    <div className="client-drawer-backdrop" role="presentation">
+      <aside className="client-drawer" aria-label={`Detalle de ${client.name}`}>
+        <header>
+          <button type="button" onClick={onClose} aria-label="Cerrar panel de cliente">
+            x
+          </button>
+          <div className="client-drawer-avatar">{getInitials(client.name)}</div>
+          <h2>{client.name}</h2>
+          <p>{client.id} - {client.email}</p>
+          <ClientStatusBadge status={client.status} />
+        </header>
+
+        <nav className="client-drawer-tabs" aria-label="Detalle del cliente">
+          {["datos", "reservas", "historial"].map((tab) => (
+            <button
+              className={activeTab === tab ? "active" : ""}
+              key={tab}
+              type="button"
+              onClick={() => onTabChange(tab)}
+            >
+              {tab}
+            </button>
+          ))}
+        </nav>
+
+        {activeTab === "datos" && (
+          <form className="client-drawer-form" onSubmit={onSave}>
+            <label>
+              Nombre
+              <input name="name" value={form.name} onChange={onChange} required />
+            </label>
+            <label>
+              Email
+              <input name="email" type="email" value={form.email} onChange={onChange} required />
+            </label>
+            <label>
+              Telefono
+              <input name="phone" value={form.phone} onChange={onChange} required />
+            </label>
+            <label>
+              Ciudad
+              <input name="city" value={form.city} onChange={onChange} />
+            </label>
+            <label>
+              Estado
+              <select name="status" value={form.status} onChange={onChange}>
+                <option value="activo">Activo</option>
+                <option value="vip">VIP</option>
+                <option value="inactivo">Inactivo</option>
+              </select>
+            </label>
+            <label>
+              Notas
+              <textarea name="notes" value={form.notes} onChange={onChange} />
+            </label>
+            <div className="client-drawer-actions">
+              <button type="submit">Guardar cambios</button>
+              <button type="button" onClick={() => onDelete(client.id)}>
+                Eliminar cliente
+              </button>
+            </div>
+          </form>
+        )}
+
+        {activeTab === "reservas" && (
+          <div className="client-drawer-panel">
+            <div>
+              <span>Reservas totales</span>
+              <strong>{client.bookings}</strong>
+            </div>
+            <div>
+              <span>Gasto historico</span>
+              <strong>{formatCurrency(client.spend)}</strong>
+            </div>
+            <p>Ultima estadia: {client.latestStay}</p>
+          </div>
+        )}
+
+        {activeTab === "historial" && (
+          <div className="client-drawer-panel">
+            <p>Perfil creado desde el directorio administrativo.</p>
+            <p>Ultima actualizacion realizada desde el panel de clientes.</p>
+            <p>{client.notes}</p>
+          </div>
+        )}
+      </aside>
+    </div>
+  );
+}
+
+function ClienteAdmin() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [clients, setClients] = useState(initialClients);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("todos");
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [minBookings, setMinBookings] = useState("0");
+  const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
+  const [selectedClientId, setSelectedClientId] = useState(null);
+  const [drawerTab, setDrawerTab] = useState("datos");
+  const [drawerForm, setDrawerForm] = useState(emptyClientForm);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setLoading(false), 420);
+    return () => window.clearTimeout(timeout);
+  }, []);
+
+  const selectedClient = clients.find((client) => client.id === selectedClientId) || null;
+
+  const filteredClients = useMemo(() => {
+    const filtered = clients.filter((client) => {
+      const searchText = `${client.id} ${client.name} ${client.email} ${client.phone}`.toLowerCase();
+      const matchesSearch = searchText.includes(search.toLowerCase());
+      const matchesStatus = statusFilter === "todos" || client.status === statusFilter;
+      const matchesBookings = client.bookings >= Number(minBookings || 0);
+
+      return matchesSearch && matchesStatus && matchesBookings;
+    });
+
+    return filtered.sort((firstClient, secondClient) => {
+      const firstValue = firstClient[sortConfig.key];
+      const secondValue = secondClient[sortConfig.key];
+      const direction = sortConfig.direction === "asc" ? 1 : -1;
+
+      if (typeof firstValue === "number" && typeof secondValue === "number") {
+        return (firstValue - secondValue) * direction;
+      }
+
+      return String(firstValue).localeCompare(String(secondValue)) * direction;
+    });
+  }, [clients, search, statusFilter, minBookings, sortConfig]);
+
+  const totals = useMemo(() => {
+    return clients.reduce(
+      (accumulator, client) => {
+        accumulator.total += 1;
+        accumulator[client.status] += 1;
+        accumulator.bookings += client.bookings;
+        return accumulator;
+      },
+      { total: 0, vip: 0, activo: 0, inactivo: 0, bookings: 0 },
+    );
+  }, [clients]);
+
+  const handleDrawerInputChange = (event) => {
+    const { name, value } = event.target;
+    setDrawerForm((currentForm) => ({ ...currentForm, [name]: value }));
+  };
+
+  const buildClientData = (sourceForm, id) => ({
+    id,
+    name: sourceForm.name.trim(),
+    email: sourceForm.email.trim(),
+    phone: sourceForm.phone.trim(),
+    bookings: Number(sourceForm.bookings),
+    status: sourceForm.status,
+    latestStay: sourceForm.latestStay.trim() || "Sin estadias registradas",
+    city: sourceForm.city.trim(),
+    spend: Number(sourceForm.spend),
+    notes: sourceForm.notes.trim(),
+  });
+
+  const openDrawer = (client) => {
+    setSelectedClientId(client.id);
+    setDrawerTab("datos");
+    setDrawerForm({
+      name: client.name,
+      email: client.email,
+      phone: client.phone,
+      bookings: String(client.bookings),
+      status: client.status,
+      latestStay: client.latestStay,
+      city: client.city,
+      spend: String(client.spend),
+      notes: client.notes,
+    });
+  };
+
+  const handleDelete = (clientId) => {
+    setClients((currentClients) => currentClients.filter((client) => client.id !== clientId));
+    if (selectedClientId === clientId) {
+      setSelectedClientId(null);
+    }
+  };
+
+  const handleDrawerSave = (event) => {
+    event.preventDefault();
+    const clientData = buildClientData(drawerForm, selectedClientId);
+    setClients((currentClients) =>
+      currentClients.map((client) => (client.id === selectedClientId ? clientData : client)),
+    );
+  };
+
+  const handleSort = (key) => {
+    setSortConfig((currentSort) => ({
+      key,
+      direction: currentSort.key === key && currentSort.direction === "asc" ? "desc" : "asc",
+    }));
+  };
+
+  const handleResetFilters = () => {
+    setSearch("");
+    setStatusFilter("todos");
+    setMinBookings("0");
+  };
+
+  return (
+    <div className="admin-shell clients-admin-shell">
+      <SidebarNav location={location} />
+
+      <main className="admin-main clients-admin-main">
+        <header className="admin-topbar clients-admin-topbar">
+          <input
+            type="search"
+            placeholder="Buscar clientes, email o ID..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+          <div className="admin-profile-menu">
+            <button type="button" onClick={() => setProfileOpen((open) => !open)}>
+              Admin Profile
+            </button>
+            {profileOpen && (
+              <div className="admin-profile-dropdown">
+                <button type="button" onClick={() => navigate("/")}>
+                  Cerrar sesion
+                </button>
+              </div>
+            )}
+          </div>
+        </header>
+
+        <section className="rooms-admin-heading clients-hero">
+          <div>
+            <p className="section-kicker">Directory - All guests</p>
+            <h1>Directorio de clientes</h1>
+            <p>Gestiona perfiles, contacto, estado de fidelidad e historial de reservas.</p>
+          </div>
+          <div className="clients-admin-heading-actions">
+            <button type="button">Exportar CSV</button>
+          </div>
+        </section>
+
+        <section className="clients-metrics" aria-label="Resumen de clientes">
+          <MetricCard label="Total clientes" value={totals.total} description="Clientes registrados" change="+8.2%" tone="slate" />
+          <MetricCard label="Clientes VIP" value={totals.vip} description="Alta recurrencia" change="+3.1%" tone="gold" />
+          <MetricCard label="Clientes activos" value={totals.activo} description="Listos para reservas" change="+5.4%" tone="green" />
+          <MetricCard label="Reservas totales" value={totals.bookings} description="Historial acumulado" change="+12.5%" tone="blue" />
+        </section>
+
+        <section className="clients-filter-card" aria-label="Filtros de clientes">
+          <label>
+            <span>Buscar</span>
+            <input
+              type="search"
+              placeholder="Nombre, email o ID..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </label>
+          <label>
+            <span>Estado</span>
+            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+              <option value="todos">Todos</option>
+              <option value="vip">VIP</option>
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
+          </label>
+          <div className="clients-advanced-filter">
+            <button type="button" onClick={() => setAdvancedOpen((open) => !open)}>
+              Filtros avanzados
+            </button>
+            {advancedOpen && (
+              <div className="clients-advanced-menu">
+                <label>
+                  Reservas minimas
+                  <input
+                    min="0"
+                    type="number"
+                    value={minBookings}
+                    onChange={(event) => setMinBookings(event.target.value)}
+                  />
+                </label>
+                <button type="button" onClick={handleResetFilters}>
+                  Limpiar todo
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="clients-admin-layout">
+          <article className="clients-admin-table-card clients-admin-table-card-wide">
+            <div className="clients-admin-table-header">
+              {[
+                ["name", "Cliente"],
+                ["email", "Contacto"],
+                ["bookings", "Reservas"],
+                ["status", "Estado"],
+                ["latestStay", "Ultima estadia"],
+              ].map(([key, label]) => (
+                <button key={key} type="button" onClick={() => handleSort(key)}>
+                  {label}
+                  {sortConfig.key === key && <span>{sortConfig.direction === "asc" ? "↑" : "↓"}</span>}
+                </button>
+              ))}
+              <span>Acciones</span>
+            </div>
+
+            {loading ? (
+              <SkeletonRows />
+            ) : (
+              <div className="rooms-admin-table-body">
+                {filteredClients.map((client) => (
+                  <div className="clients-admin-row" key={client.id} onDoubleClick={() => openDrawer(client)}>
+                    <button className="clients-admin-guest" type="button" onClick={() => openDrawer(client)}>
+                      <span>{getInitials(client.name)}</span>
+                      <div>
+                        <strong>{client.name}</strong>
+                        <small>ID: {client.id}</small>
+                      </div>
+                    </button>
+                    <div className="clients-admin-contact">
+                      <span>{client.email}</span>
+                      <small>{client.phone}</small>
+                    </div>
+                    <strong>{client.bookings}</strong>
+                    <ClientStatusBadge status={client.status} />
+                    <span>{client.latestStay}</span>
+                    <div className="rooms-admin-actions clients-row-actions">
+                      <button type="button" onClick={() => openDrawer(client)}>
+                        Ver
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <footer className="rooms-admin-table-footer">
+              Mostrando <strong>{filteredClients.length}</strong> de <strong>{clients.length}</strong> clientes
+              <span>Ordenado por {sortLabels[sortConfig.key]}</span>
+            </footer>
+          </article>
+        </section>
+
+        <ClientDrawer
+          activeTab={drawerTab}
+          client={selectedClient}
+          form={drawerForm}
+          onChange={handleDrawerInputChange}
+          onClose={() => setSelectedClientId(null)}
+          onDelete={handleDelete}
+          onSave={handleDrawerSave}
+          onTabChange={setDrawerTab}
+        />
+      </main>
+    </div>
+  );
+}
+
+export default ClienteAdmin;
