@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
 import { Header } from "./Home.jsx";
 import { useState } from "react";
+import DetallesDeHabitacion from "./DetallesDeHabitacion.jsx";
 
 // 1. Datos de las habitaciones con precios como números
 const rooms = [
@@ -13,6 +13,9 @@ const rooms = [
     size: "85 m2",
     image:
       "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&q=80&w=900",
+    description:
+      "Suite amplia con dormitorio principal, cama king, sala privada con sillones, comedor pequeno, bano completo con tina, televisor smart, internet de alta velocidad y vista panoramica.",
+    features: ["1 cama king", "Sala con sillones", "Bano con tina", "Smart TV", "Internet"],
   },
   {
     title: "Deluxe Classic Room",
@@ -23,6 +26,9 @@ const rooms = [
     size: "42 m2",
     image:
       "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=900",
+    description:
+      "Habitacion elegante para dos personas con cama queen, escritorio de trabajo, silla ergonomica, bano privado, televisor, minibar e internet incluido.",
+    features: ["1 cama queen", "Escritorio", "Bano privado", "Televisor", "Minibar"],
   },
   {
     title: "Executive City View",
@@ -33,6 +39,9 @@ const rooms = [
     size: "50 m2",
     image:
       "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=900",
+    description:
+      "Habitacion ejecutiva con cama queen, zona de trabajo, sillon de lectura, bano moderno, televisor smart, internet rapido y vista a la ciudad.",
+    features: ["1 cama queen", "Zona de trabajo", "Sillon", "Bano moderno", "Internet"],
   },
   {
     title: "Royal Garden Suite",
@@ -43,6 +52,9 @@ const rooms = [
     size: "78 m2",
     image:
       "https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&q=80&w=900",
+    description:
+      "Suite con vista al jardin, cama king, sofa cama, mesa auxiliar, bano completo, televisor smart, internet y amenidades premium para una estadia tranquila.",
+    features: ["1 cama king", "Sofa cama", "Vista al jardin", "Bano completo", "Smart TV"],
   },
   {
     title: "Deluxe Ocean View",
@@ -53,6 +65,9 @@ const rooms = [
     size: "46 m2",
     image:
       "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=900",
+    description:
+      "Habitacion deluxe con vista al mar, cama king, sillas lounge, balcon privado, bano con ducha amplia, televisor, aire acondicionado e internet.",
+    features: ["1 cama king", "Balcon", "Sillas lounge", "Bano privado", "Internet"],
   },
   {
     title: "Business Premier Room",
@@ -63,6 +78,9 @@ const rooms = [
     size: "44 m2",
     image:
       "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&q=80&w=900",
+    description:
+      "Habitacion business con cama queen, escritorio ejecutivo, silla ergonomica, bano privado, televisor smart, caja fuerte e internet de alta velocidad.",
+    features: ["1 cama queen", "Escritorio ejecutivo", "Caja fuerte", "Bano privado", "Smart TV"],
   },
   {
     title: "Family Deluxe Room",
@@ -73,6 +91,9 @@ const rooms = [
     size: "58 m2",
     image:
       "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&q=80&w=900",
+    description:
+      "Habitacion familiar con dos camas queen, sofa, mesa de apoyo, bano completo, televisor, internet y espacio comodo para cuatro huespedes.",
+    features: ["2 camas queen", "Sofa", "Bano completo", "Televisor", "Internet"],
   },
   {
     title: "Skyline Luxury Suite",
@@ -83,6 +104,9 @@ const rooms = [
     size: "96 m2",
     image:
       "https://images.unsplash.com/photo-1609949279531-cf48d64bed89?auto=format&fit=crop&q=80&w=900",
+    description:
+      "Suite de lujo en piso alto con cama king, sala independiente, sillones, bano con tina, televisor smart, internet premium y vista skyline.",
+    features: ["1 cama king", "Sala independiente", "Tina", "Vista skyline", "Internet premium"],
   },
   {
     title: "Executive Work Studio",
@@ -93,6 +117,9 @@ const rooms = [
     size: "36 m2",
     image:
       "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&q=80&w=900",
+    description:
+      "Studio ejecutivo compacto con cama full, escritorio, silla de trabajo, bano privado, televisor, cafetera e internet estable para viajes laborales.",
+    features: ["1 cama full", "Escritorio", "Cafetera", "Bano privado", "Internet"],
   },
 ];
 
@@ -100,6 +127,7 @@ function Habitaciones() {
   // 2. Estados para los filtros
   const [maxPrice, setMaxPrice] = useState(1000);
   const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedRoom, setSelectedRoom] = useState(null);
 
   // 3. Lógica de filtrado (se ejecuta en cada render)
   const filteredRooms = rooms.filter((room) => {
@@ -232,9 +260,13 @@ function Habitaciones() {
                           <small>Por noche</small>
                           <strong>${room.price}</strong>
                         </div>
-                        <Link to="/reservar" className="btn-detail">
+                        <button
+                          type="button"
+                          className="btn-detail"
+                          onClick={() => setSelectedRoom(room)}
+                        >
                           Ver Detalle
-                        </Link>
+                        </button>
                       </div>
                     </div>
                   </article>
@@ -266,6 +298,11 @@ function Habitaciones() {
           </div>
         </section>
       </main>
+
+      <DetallesDeHabitacion
+        room={selectedRoom}
+        onClose={() => setSelectedRoom(null)}
+      />
     </div>
   );
 }
