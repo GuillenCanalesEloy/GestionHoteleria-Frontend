@@ -132,7 +132,6 @@ function AdminHabitaciones() {
           <button type="button">Clientes</button>
           <button type="button">Reservas</button>
           <button type="button">Pagos</button>
-          <button type="button">Empleados</button>
           <Link
                       className={location.pathname === "/admin/reportes" ? "active" : ""}
                       to="/admin/reportes"
