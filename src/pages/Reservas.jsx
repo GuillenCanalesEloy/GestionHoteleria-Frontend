@@ -1,19 +1,19 @@
 import { useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./Home.jsx";
 
 function Reservas() {
   const location = useLocation();
+  const navigate = useNavigate();
   const room = location.state?.room;
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [checkIn, setCheckIn] = useState(today);
   const [checkOut, setCheckOut] = useState("");
   const [people, setPeople] = useState(2);
-  const [confirmed, setConfirmed] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setConfirmed(true);
+    navigate("/mis-reservas");
   };
 
   return (
@@ -73,12 +73,6 @@ function Reservas() {
               Confirmar reserva
             </button>
 
-            {confirmed && (
-              <p className="reserva-confirmation">
-                Reserva preparada para {people} persona(s). Revisa tus datos
-                antes del pago final.
-              </p>
-            )}
           </form>
 
           <aside className="reserva-summary">

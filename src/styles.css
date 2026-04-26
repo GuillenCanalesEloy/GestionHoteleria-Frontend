@@ -1538,6 +1538,15 @@ img {
     grid-template-columns: 1fr;
   }
 
+  .booking-card {
+    grid-template-columns: 150px minmax(0, 1fr);
+  }
+
+  .booking-summary {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+
   .filters-panel {
     grid-template-columns: 1fr 1fr;
   }
@@ -1601,9 +1610,23 @@ img {
   .about-section,
   .habitaciones-main,
   .reserva-main,
+  .bookings-main,
   .site-footer {
     padding-left: 22px;
     padding-right: 22px;
+  }
+
+  .bookings-panel {
+    padding: 20px;
+  }
+
+  .bookings-toolbar {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .booking-card {
+    grid-template-columns: 1fr;
   }
 
   .catalog-toolbar {
@@ -1992,6 +2015,163 @@ img {
 
 .reserva-empty-room {
   min-height: 100%;
+}
+
+.bookings-main {
+  padding: 54px 7vw 76px;
+}
+
+.bookings-heading,
+.bookings-panel {
+  margin: 0 auto;
+  max-width: 1120px;
+}
+
+.bookings-heading {
+  margin-bottom: 38px;
+}
+
+.bookings-heading h1 {
+  color: #061525;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 400;
+  line-height: 1.08;
+  margin: 0 0 14px;
+}
+
+.bookings-heading > p:last-child {
+  color: #45546a;
+  font-size: 1rem;
+  margin: 0;
+  max-width: 680px;
+}
+
+.bookings-panel {
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(12, 24, 40, 0.06);
+  padding: 28px;
+}
+
+.bookings-toolbar {
+  align-items: center;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.bookings-toolbar h2 {
+  color: #061525;
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.bookings-toolbar p {
+  color: #707885;
+  margin: 8px 0 0;
+}
+
+.booking-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.booking-tabs button {
+  background: #edf2f8;
+  border: 0;
+  border-radius: 999px;
+  color: #45546a;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 800;
+  min-height: 38px;
+  padding: 0 18px;
+}
+
+.booking-tabs .active {
+  background: #041120;
+  color: #ffffff;
+}
+
+.booking-list {
+  display: grid;
+  gap: 18px;
+}
+
+.booking-card {
+  align-items: center;
+  border: 1px solid #edf2f8;
+  border-radius: 8px;
+  display: grid;
+  gap: 22px;
+  grid-template-columns: 180px minmax(0, 1fr) auto;
+  padding: 18px;
+}
+
+.booking-card img {
+  aspect-ratio: 1.4;
+  border-radius: 7px;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.booking-info span,
+.booking-summary span {
+  color: #8a6416;
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.booking-info h3 {
+  color: #061525;
+  font-size: 1.15rem;
+  margin: 0 0 8px;
+}
+
+.booking-info p {
+  color: #45546a;
+  margin: 0 0 4px;
+}
+
+.booking-summary {
+  text-align: right;
+}
+
+.booking-summary strong {
+  color: #061525;
+  display: block;
+  font-size: 1.35rem;
+  margin-bottom: 14px;
+}
+
+.booking-summary button {
+  background: #041120;
+  border: 0;
+  border-radius: 7px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 800;
+  min-height: 38px;
+  min-width: 112px;
+  padding: 0 16px;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.booking-summary button:hover {
+  background: #8a6416;
+  transform: translateY(-1px);
 }
 
 .login-panel {
