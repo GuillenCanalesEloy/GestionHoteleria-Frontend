@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import Habitaciones from './pages/Habitaciones.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
+import MisReservas from './pages/MisReservas.jsx';
 import Nosotros from './pages/Nosotros.jsx';
 import Reservas from './pages/Reservas.jsx';
 
@@ -17,6 +18,7 @@ function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/habitaciones" element={<Habitaciones />} />
+        <Route path="/mis-reservas" element={<MisReservas />} />
         <Route path="/reservar" element={<Reservas />} />
         {/* Redirección por defecto si la ruta no existe */}
         <Route path="*" element={<Home />} />
