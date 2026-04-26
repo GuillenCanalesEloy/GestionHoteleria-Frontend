@@ -127,17 +127,39 @@ function AdminHabitaciones() {
         </Link>
 
         <nav className="admin-nav" aria-label="Panel administrativo">
-          <Link to="/admin/dashboard">Dashboard</Link>
-          <Link className="active" to="/admin/habitaciones">Habitaciones</Link>
-          <button type="button">Clientes</button>
-          <Link to="/admin/reservas">Reservas</Link>
-          <button type="button">Pagos</button>
           <Link
-                      className={location.pathname === "/admin/reportes" ? "active" : ""}
-                      to="/admin/reportes"
-                    >
-                      Reportes
-                    </Link>
+            className={location.pathname === "/admin/dashboard" ? "active" : ""}
+            to="/admin/dashboard"
+          >
+            Dashboard
+          </Link>
+          <Link
+            className={
+              location.pathname === "/admin/habitaciones" ? "active" : ""
+            }
+            to="/admin/habitaciones"
+          >
+            Habitaciones
+          </Link>
+          <button type="button">Clientes</button>
+          <Link
+            className={location.pathname === "/admin/reservas" ? "active" : ""}
+            to="/admin/reservas"
+          >
+            Reservas
+          </Link>
+          <Link
+            className={location.pathname === "/admin/pagos" ? "active" : ""}
+            to="/admin/pagos"
+          >
+            Pagos
+          </Link>
+          <Link
+            className={location.pathname === "/admin/reportes" ? "active" : ""}
+            to="/admin/reportes"
+          >
+            Reportes
+          </Link>
         </nav>
 
         <div className="admin-user">
