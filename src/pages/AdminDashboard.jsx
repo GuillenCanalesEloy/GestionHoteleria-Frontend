@@ -74,7 +74,9 @@ function AdminDashboard() {
             Dashboard
           </Link>
           <Link
-            className={location.pathname === "/admin/habitaciones" ? "active" : ""}
+            className={
+              location.pathname === "/admin/habitaciones" ? "active" : ""
+            }
             to="/admin/habitaciones"
           >
             Habitaciones
@@ -91,7 +93,12 @@ function AdminDashboard() {
           >
             Reservas
           </Link>
-          <button type="button">Pagos</button>
+          <Link
+            className={location.pathname === "/admin/pagos" ? "active" : ""}
+            to="/admin/pagos"
+          >
+            Pagos
+          </Link>
           <Link
             className={location.pathname === "/admin/reportes" ? "active" : ""}
             to="/admin/reportes"

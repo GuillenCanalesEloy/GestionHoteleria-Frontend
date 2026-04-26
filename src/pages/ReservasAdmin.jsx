@@ -66,9 +66,11 @@ function ReservasAdmin() {
 
   const filteredReservations = useMemo(() => {
     return reservations.filter((reservation) => {
-      const searchText = `${reservation.id} ${reservation.guest} ${reservation.room}`.toLowerCase();
+      const searchText =
+        `${reservation.id} ${reservation.guest} ${reservation.room}`.toLowerCase();
       const matchesSearch = searchText.includes(search.toLowerCase());
-      const matchesStatus = statusFilter === "todos" || reservation.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "todos" || reservation.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
@@ -117,7 +119,10 @@ function ReservasAdmin() {
         ),
       );
     } else {
-      setReservations((currentReservations) => [reservationData, ...currentReservations]);
+      setReservations((currentReservations) => [
+        reservationData,
+        ...currentReservations,
+      ]);
     }
 
     resetForm();
@@ -138,7 +143,9 @@ function ReservasAdmin() {
   const updateReservationStatus = (reservationId, status) => {
     setReservations((currentReservations) =>
       currentReservations.map((reservation) =>
-        reservation.id === reservationId ? { ...reservation, status } : reservation,
+        reservation.id === reservationId
+          ? { ...reservation, status }
+          : reservation,
       ),
     );
   };
@@ -160,20 +167,42 @@ function ReservasAdmin() {
         </Link>
 
         <nav className="admin-nav" aria-label="Panel administrativo">
-          <Link className={location.pathname === "/admin/dashboard" ? "active" : ""} to="/admin/dashboard">
+          <Link
+            className={location.pathname === "/admin/dashboard" ? "active" : ""}
+            to="/admin/dashboard"
+          >
             Dashboard
           </Link>
-          <Link className={location.pathname === "/admin/habitaciones" ? "active" : ""} to="/admin/habitaciones">
+          <Link
+            className={
+              location.pathname === "/admin/habitaciones" ? "active" : ""
+            }
+            to="/admin/habitaciones"
+          >
             Habitaciones
           </Link>
-          <Link className={location.pathname === "/admin/clientes" ? "active" : ""} to="/admin/clientes">
+          <Link
+            className={location.pathname === "/admin/clientes" ? "active" : ""}
+            to="/admin/clientes"
+          >
             Clientes
           </Link>
-          <Link className="active" to="/admin/reservas">
+          <Link
+            className={location.pathname === "/admin/reservas" ? "active" : ""}
+            to="/admin/reservas"
+          >
             Reservas
           </Link>
-          <button type="button">Pagos</button>
-          <Link className={location.pathname === "/admin/reportes" ? "active" : ""} to="/admin/reportes">
+          <Link
+            className={location.pathname === "/admin/pagos" ? "active" : ""}
+            to="/admin/pagos"
+          >
+            Pagos
+          </Link>
+          <Link
+            className={location.pathname === "/admin/reportes" ? "active" : ""}
+            to="/admin/reportes"
+          >
             Reportes
           </Link>
         </nav>
@@ -193,7 +222,10 @@ function ReservasAdmin() {
             onChange={(event) => setSearch(event.target.value)}
           />
           <div className="admin-profile-menu">
-            <button type="button" onClick={() => setProfileOpen((open) => !open)}>
+            <button
+              type="button"
+              onClick={() => setProfileOpen((open) => !open)}
+            >
               Admin Profile
             </button>
             {profileOpen && (
@@ -209,7 +241,10 @@ function ReservasAdmin() {
         <section className="rooms-admin-heading">
           <div>
             <h1>Gestion de reservas</h1>
-            <p>Crea, edita y controla si cada reserva esta confirmada o no confirmada.</p>
+            <p>
+              Crea, edita y controla si cada reserva esta confirmada o no
+              confirmada.
+            </p>
           </div>
           <a className="rooms-admin-primary" href="#reservation-form">
             + Nueva reserva
@@ -239,7 +274,10 @@ function ReservasAdmin() {
           </article>
         </section>
 
-        <section className="rooms-admin-toolbar reservations-admin-toolbar" aria-label="Filtros de reservas">
+        <section
+          className="rooms-admin-toolbar reservations-admin-toolbar"
+          aria-label="Filtros de reservas"
+        >
           <label>
             <span>Buscar</span>
             <input
@@ -251,7 +289,10 @@ function ReservasAdmin() {
           </label>
           <label>
             <span>Estado</span>
-            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+            >
               <option value="todos">Todos los estados</option>
               <option value="confirmado">Confirmado</option>
               <option value="no-confirmado">No confirmado</option>
@@ -286,16 +327,32 @@ function ReservasAdmin() {
                     {statusLabels[reservation.status]}
                   </span>
                   <div className="rooms-admin-actions reservations-admin-actions">
-                    <button type="button" onClick={() => handleEdit(reservation)}>
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(reservation)}
+                    >
                       Editar
                     </button>
                     {reservation.status === "no-confirmado" && (
-                      <button type="button" onClick={() => updateReservationStatus(reservation.id, "confirmado")}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateReservationStatus(reservation.id, "confirmado")
+                        }
+                      >
                         Confirmar
                       </button>
                     )}
                     {reservation.status === "confirmado" && (
-                      <button type="button" onClick={() => updateReservationStatus(reservation.id, "no-confirmado")}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateReservationStatus(
+                            reservation.id,
+                            "no-confirmado",
+                          )
+                        }
+                      >
                         No confirmar
                       </button>
                     )}
@@ -319,34 +376,71 @@ function ReservasAdmin() {
             <form onSubmit={handleSubmit}>
               <label>
                 Huesped
-                <input name="guest" value={form.guest} onChange={handleInputChange} required placeholder="Nombre completo" />
+                <input
+                  name="guest"
+                  value={form.guest}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Nombre completo"
+                />
               </label>
               <label>
                 Habitacion
-                <input name="room" value={form.room} onChange={handleInputChange} required placeholder="Suite 402" />
+                <input
+                  name="room"
+                  value={form.room}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Suite 402"
+                />
               </label>
               <label>
                 Entrada
-                <input name="checkIn" type="date" value={form.checkIn} onChange={handleInputChange} required />
+                <input
+                  name="checkIn"
+                  type="date"
+                  value={form.checkIn}
+                  onChange={handleInputChange}
+                  required
+                />
               </label>
               <label>
                 Salida
-                <input name="checkOut" type="date" value={form.checkOut} onChange={handleInputChange} required />
+                <input
+                  name="checkOut"
+                  type="date"
+                  value={form.checkOut}
+                  onChange={handleInputChange}
+                  required
+                />
               </label>
               <label>
                 Huespedes
-                <input name="guests" type="number" min="1" value={form.guests} onChange={handleInputChange} required />
+                <input
+                  name="guests"
+                  type="number"
+                  min="1"
+                  value={form.guests}
+                  onChange={handleInputChange}
+                  required
+                />
               </label>
               <label>
                 Estado
-                <select name="status" value={form.status} onChange={handleInputChange}>
+                <select
+                  name="status"
+                  value={form.status}
+                  onChange={handleInputChange}
+                >
                   <option value="confirmado">Confirmado</option>
                   <option value="no-confirmado">No confirmado</option>
                 </select>
               </label>
 
               <div className="rooms-admin-form-actions">
-                <button type="submit">{isEditing ? "Guardar cambios" : "Crear reserva"}</button>
+                <button type="submit">
+                  {isEditing ? "Guardar cambios" : "Crear reserva"}
+                </button>
                 {isEditing && (
                   <button type="button" onClick={resetForm}>
                     Cancelar edicion

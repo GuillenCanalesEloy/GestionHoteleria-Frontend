@@ -115,20 +115,42 @@ function SidebarNav({ location }) {
       </Link>
 
       <nav className="admin-nav" aria-label="Panel administrativo">
-        <Link className={location.pathname === "/admin/dashboard" ? "active" : ""} to="/admin/dashboard">
+        <Link
+          className={location.pathname === "/admin/dashboard" ? "active" : ""}
+          to="/admin/dashboard"
+        >
           Dashboard
         </Link>
-        <Link className={location.pathname === "/admin/habitaciones" ? "active" : ""} to="/admin/habitaciones">
+        <Link
+          className={
+            location.pathname === "/admin/habitaciones" ? "active" : ""
+          }
+          to="/admin/habitaciones"
+        >
           Habitaciones
         </Link>
-        <Link className="active" to="/admin/clientes">
+        <Link
+          className={location.pathname === "/admin/clientes" ? "active" : ""}
+          to="/admin/clientes"
+        >
           Clientes
         </Link>
-        <Link className={location.pathname === "/admin/reservas" ? "active" : ""} to="/admin/reservas">
+        <Link
+          className={location.pathname === "/admin/reservas" ? "active" : ""}
+          to="/admin/reservas"
+        >
           Reservas
         </Link>
-        <button type="button">Pagos</button>
-        <Link className={location.pathname === "/admin/reportes" ? "active" : ""} to="/admin/reportes">
+        <Link
+          className={location.pathname === "/admin/pagos" ? "active" : ""}
+          to="/admin/pagos"
+        >
+          Pagos
+        </Link>
+        <Link
+          className={location.pathname === "/admin/reportes" ? "active" : ""}
+          to="/admin/reportes"
+        >
           Reportes
         </Link>
       </nav>
@@ -155,7 +177,9 @@ function MetricCard({ label, value, description, change, tone }) {
 }
 
 function ClientStatusBadge({ status }) {
-  return <span className={`client-status ${status}`}>{statusLabels[status]}</span>;
+  return (
+    <span className={`client-status ${status}`}>{statusLabels[status]}</span>
+  );
 }
 
 function SkeletonRows() {
@@ -173,7 +197,16 @@ function SkeletonRows() {
   );
 }
 
-function ClientDrawer({ client, activeTab, form, onChange, onClose, onDelete, onSave, onTabChange }) {
+function ClientDrawer({
+  client,
+  activeTab,
+  form,
+  onChange,
+  onClose,
+  onDelete,
+  onSave,
+  onTabChange,
+}) {
   if (!client) {
     return null;
   }
@@ -182,12 +215,18 @@ function ClientDrawer({ client, activeTab, form, onChange, onClose, onDelete, on
     <div className="client-drawer-backdrop" role="presentation">
       <aside className="client-drawer" aria-label={`Detalle de ${client.name}`}>
         <header>
-          <button type="button" onClick={onClose} aria-label="Cerrar panel de cliente">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar panel de cliente"
+          >
             x
           </button>
           <div className="client-drawer-avatar">{getInitials(client.name)}</div>
           <h2>{client.name}</h2>
-          <p>{client.id} - {client.email}</p>
+          <p>
+            {client.id} - {client.email}
+          </p>
           <ClientStatusBadge status={client.status} />
         </header>
 
@@ -208,15 +247,31 @@ function ClientDrawer({ client, activeTab, form, onChange, onClose, onDelete, on
           <form className="client-drawer-form" onSubmit={onSave}>
             <label>
               Nombre
-              <input name="name" value={form.name} onChange={onChange} required />
+              <input
+                name="name"
+                value={form.name}
+                onChange={onChange}
+                required
+              />
             </label>
             <label>
               Email
-              <input name="email" type="email" value={form.email} onChange={onChange} required />
+              <input
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={onChange}
+                required
+              />
             </label>
             <label>
               Telefono
-              <input name="phone" value={form.phone} onChange={onChange} required />
+              <input
+                name="phone"
+                value={form.phone}
+                onChange={onChange}
+                required
+              />
             </label>
             <label>
               Ciudad
@@ -278,7 +333,10 @@ function ClienteAdmin() {
   const [statusFilter, setStatusFilter] = useState("todos");
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [minBookings, setMinBookings] = useState("0");
-  const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
+  const [sortConfig, setSortConfig] = useState({
+    key: "name",
+    direction: "asc",
+  });
   const [selectedClientId, setSelectedClientId] = useState(null);
   const [drawerTab, setDrawerTab] = useState("datos");
   const [drawerForm, setDrawerForm] = useState(emptyClientForm);
@@ -289,13 +347,16 @@ function ClienteAdmin() {
     return () => window.clearTimeout(timeout);
   }, []);
 
-  const selectedClient = clients.find((client) => client.id === selectedClientId) || null;
+  const selectedClient =
+    clients.find((client) => client.id === selectedClientId) || null;
 
   const filteredClients = useMemo(() => {
     const filtered = clients.filter((client) => {
-      const searchText = `${client.id} ${client.name} ${client.email} ${client.phone}`.toLowerCase();
+      const searchText =
+        `${client.id} ${client.name} ${client.email} ${client.phone}`.toLowerCase();
       const matchesSearch = searchText.includes(search.toLowerCase());
-      const matchesStatus = statusFilter === "todos" || client.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "todos" || client.status === statusFilter;
       const matchesBookings = client.bookings >= Number(minBookings || 0);
 
       return matchesSearch && matchesStatus && matchesBookings;
@@ -361,7 +422,9 @@ function ClienteAdmin() {
   };
 
   const handleDelete = (clientId) => {
-    setClients((currentClients) => currentClients.filter((client) => client.id !== clientId));
+    setClients((currentClients) =>
+      currentClients.filter((client) => client.id !== clientId),
+    );
     if (selectedClientId === clientId) {
       setSelectedClientId(null);
     }
@@ -371,14 +434,19 @@ function ClienteAdmin() {
     event.preventDefault();
     const clientData = buildClientData(drawerForm, selectedClientId);
     setClients((currentClients) =>
-      currentClients.map((client) => (client.id === selectedClientId ? clientData : client)),
+      currentClients.map((client) =>
+        client.id === selectedClientId ? clientData : client,
+      ),
     );
   };
 
   const handleSort = (key) => {
     setSortConfig((currentSort) => ({
       key,
-      direction: currentSort.key === key && currentSort.direction === "asc" ? "desc" : "asc",
+      direction:
+        currentSort.key === key && currentSort.direction === "asc"
+          ? "desc"
+          : "asc",
     }));
   };
 
@@ -401,7 +469,10 @@ function ClienteAdmin() {
             onChange={(event) => setSearch(event.target.value)}
           />
           <div className="admin-profile-menu">
-            <button type="button" onClick={() => setProfileOpen((open) => !open)}>
+            <button
+              type="button"
+              onClick={() => setProfileOpen((open) => !open)}
+            >
               Admin Profile
             </button>
             {profileOpen && (
@@ -418,7 +489,10 @@ function ClienteAdmin() {
           <div>
             <p className="section-kicker">Directory - All guests</p>
             <h1>Directorio de clientes</h1>
-            <p>Gestiona perfiles, contacto, estado de fidelidad e historial de reservas.</p>
+            <p>
+              Gestiona perfiles, contacto, estado de fidelidad e historial de
+              reservas.
+            </p>
           </div>
           <div className="clients-admin-heading-actions">
             <button type="button">Exportar CSV</button>
@@ -426,13 +500,40 @@ function ClienteAdmin() {
         </section>
 
         <section className="clients-metrics" aria-label="Resumen de clientes">
-          <MetricCard label="Total clientes" value={totals.total} description="Clientes registrados" change="+8.2%" tone="slate" />
-          <MetricCard label="Clientes VIP" value={totals.vip} description="Alta recurrencia" change="+3.1%" tone="gold" />
-          <MetricCard label="Clientes activos" value={totals.activo} description="Listos para reservas" change="+5.4%" tone="green" />
-          <MetricCard label="Reservas totales" value={totals.bookings} description="Historial acumulado" change="+12.5%" tone="blue" />
+          <MetricCard
+            label="Total clientes"
+            value={totals.total}
+            description="Clientes registrados"
+            change="+8.2%"
+            tone="slate"
+          />
+          <MetricCard
+            label="Clientes VIP"
+            value={totals.vip}
+            description="Alta recurrencia"
+            change="+3.1%"
+            tone="gold"
+          />
+          <MetricCard
+            label="Clientes activos"
+            value={totals.activo}
+            description="Listos para reservas"
+            change="+5.4%"
+            tone="green"
+          />
+          <MetricCard
+            label="Reservas totales"
+            value={totals.bookings}
+            description="Historial acumulado"
+            change="+12.5%"
+            tone="blue"
+          />
         </section>
 
-        <section className="clients-filter-card" aria-label="Filtros de clientes">
+        <section
+          className="clients-filter-card"
+          aria-label="Filtros de clientes"
+        >
           <label>
             <span>Buscar</span>
             <input
@@ -444,7 +545,10 @@ function ClienteAdmin() {
           </label>
           <label>
             <span>Estado</span>
-            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+            >
               <option value="todos">Todos</option>
               <option value="vip">VIP</option>
               <option value="activo">Activo</option>
@@ -452,7 +556,10 @@ function ClienteAdmin() {
             </select>
           </label>
           <div className="clients-advanced-filter">
-            <button type="button" onClick={() => setAdvancedOpen((open) => !open)}>
+            <button
+              type="button"
+              onClick={() => setAdvancedOpen((open) => !open)}
+            >
               Filtros avanzados
             </button>
             {advancedOpen && (
@@ -486,7 +593,9 @@ function ClienteAdmin() {
               ].map(([key, label]) => (
                 <button key={key} type="button" onClick={() => handleSort(key)}>
                   {label}
-                  {sortConfig.key === key && <span>{sortConfig.direction === "asc" ? "↑" : "↓"}</span>}
+                  {sortConfig.key === key && (
+                    <span>{sortConfig.direction === "asc" ? "↑" : "↓"}</span>
+                  )}
                 </button>
               ))}
               <span>Acciones</span>
@@ -497,8 +606,16 @@ function ClienteAdmin() {
             ) : (
               <div className="rooms-admin-table-body">
                 {filteredClients.map((client) => (
-                  <div className="clients-admin-row" key={client.id} onDoubleClick={() => openDrawer(client)}>
-                    <button className="clients-admin-guest" type="button" onClick={() => openDrawer(client)}>
+                  <div
+                    className="clients-admin-row"
+                    key={client.id}
+                    onDoubleClick={() => openDrawer(client)}
+                  >
+                    <button
+                      className="clients-admin-guest"
+                      type="button"
+                      onClick={() => openDrawer(client)}
+                    >
                       <span>{getInitials(client.name)}</span>
                       <div>
                         <strong>{client.name}</strong>
@@ -523,7 +640,8 @@ function ClienteAdmin() {
             )}
 
             <footer className="rooms-admin-table-footer">
-              Mostrando <strong>{filteredClients.length}</strong> de <strong>{clients.length}</strong> clientes
+              Mostrando <strong>{filteredClients.length}</strong> de{" "}
+              <strong>{clients.length}</strong> clientes
               <span>Ordenado por {sortLabels[sortConfig.key]}</span>
             </footer>
           </article>

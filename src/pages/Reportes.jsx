@@ -76,7 +76,12 @@ const Reportes = () => {
           >
             Reservas
           </Link>
-          <button type="button">Pagos</button>
+          <Link
+            className={location.pathname === "/admin/pagos" ? "active" : ""}
+            to="/admin/pagos"
+          >
+            Pagos
+          </Link>
           <Link
             className={location.pathname === "/admin/reportes" ? "active" : ""}
             to="/admin/reportes"
@@ -90,7 +95,7 @@ const Reportes = () => {
           <span>General manager</span>
         </div>
       </aside>
-      
+
       {/* Main Content */}
       <main className="admin-main">
         <header className="admin-topbar">
