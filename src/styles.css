@@ -146,20 +146,125 @@ img {
   width: 100%;
 }
 
+.hero-kicker {
+  color: #f7b24a;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.42em;
+  margin: 0 0 18px;
+  text-transform: uppercase;
+}
+
 .hero-content h1 {
-  font-size: clamp(2.8rem, 6vw, 5.2rem);
+  font-size: clamp(3.4rem, 8vw, 6.8rem);
   font-weight: 300;
   letter-spacing: 0.08em;
   line-height: 1.05;
-  margin: 0 0 24px;
+  margin: 0 0 20px;
+  text-transform: uppercase;
 }
 
 .hero-content p {
   color: #ffffff;
   font-size: 1rem;
   font-weight: 700;
-  margin: 0 auto 42px;
+  margin: 0 auto 28px;
   max-width: 640px;
+}
+
+.hero-actions {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin: 0 auto 34px;
+}
+
+.hero-primary,
+.hero-secondary {
+  align-items: center;
+  border-radius: 7px;
+  display: inline-flex;
+  font-size: 0.86rem;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 22px;
+  text-transform: uppercase;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.hero-primary {
+  background: #f59a13;
+  color: #061525;
+}
+
+.hero-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  color: #ffffff;
+}
+
+.hero-primary:hover,
+.hero-secondary:hover {
+  transform: translateY(-1px);
+}
+
+.hero-primary:hover {
+  background: #ffffff;
+}
+
+.hero-secondary:hover {
+  background: #ffffff;
+  color: #061525;
+}
+
+.hero-room-button {
+  align-items: center;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
+  color: #061525;
+  display: inline-flex;
+  font-size: 0.95rem;
+  font-weight: 900;
+  justify-content: center;
+  margin: 0 auto 4px;
+  min-height: 58px;
+  min-width: 260px;
+  padding: 0 34px;
+  text-transform: uppercase;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.hero-room-button:hover {
+  background: #f59a13;
+  color: #061525;
+  transform: translateY(-1px);
+}
+
+.hero-trust-row {
+  color: #ffffff;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 22px;
+}
+
+.hero-trust-row span {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 7px 12px;
+  text-transform: uppercase;
 }
 
 .search-panel {
@@ -250,6 +355,39 @@ img {
 
 .section-block {
   padding: 62px 7vw 58px;
+}
+
+.home-experience-section {
+  background: #ffffff;
+  padding: 56px 7vw 58px;
+}
+
+.experience-grid {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 auto;
+  max-width: 1120px;
+}
+
+.experience-card {
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(12, 24, 40, 0.06);
+  padding: 26px;
+}
+
+.experience-card h3 {
+  color: #061525;
+  font-size: 1rem;
+  margin: 0 0 10px;
+}
+
+.experience-card p {
+  color: #45546a;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
 }
 
 .section-heading {
@@ -1513,15 +1651,12 @@ img {
     padding: 74px 24px 70px;
   }
 
-  .search-panel {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .search-button {
-    grid-column: span 2;
+  .hero-actions {
+    flex-wrap: wrap;
   }
 
   .offers-grid,
+  .experience-grid,
   .rooms-grid,
   .catalog-grid,
   .about-section,
@@ -1589,8 +1724,8 @@ img {
     letter-spacing: 0.02em;
   }
 
-  .search-panel,
   .offers-grid,
+  .experience-grid,
   .rooms-grid,
   .catalog-grid,
   .filters-panel,
@@ -1601,10 +1736,6 @@ img {
     grid-template-columns: 1fr;
   }
 
-  .search-button {
-    grid-column: auto;
-  }
-
   .split-heading {
     align-items: start;
     flex-direction: column;
@@ -1612,6 +1743,7 @@ img {
   }
 
   .section-block,
+  .home-experience-section,
   .rooms-section,
   .habitaciones-main,
   .about-hero,

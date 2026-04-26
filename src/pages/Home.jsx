@@ -1,38 +1,5 @@
 import { useMemo } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import Swal from 'sweetalert2';
-import hotelApi from '../services/hotelApi';
-
-const offers = [
-  {
-    title: 'Paquete Bienestar Royal',
-    badge: '-25% OFF',
-    image:
-      'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=900&q=80',
-    description:
-      'Disfruta 3 noches con acceso ilimitado a nuestro spa de clase mundial y masajes exclusivos.',
-    action: 'Reservar Ahora',
-  },
-  {
-    title: 'Experiencia Culinaria',
-    badge: 'GOURMET',
-    image:
-      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80',
-    description:
-      'Cena de 7 tiempos con maridaje incluido en nuestro restaurante de autor.',
-    action: 'Descubrir Menu',
-  },
-  {
-    title: 'Escapada de Lujo',
-    badge: 'ESCAPE ROMANTICO',
-    image:
-      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=900&q=80',
-    description:
-      'La combinacion perfecta de privacidad, vistas panoramicas y una suite nupcial disponible.',
-    action: 'Ver detalles',
-  },
-];
 
 const rooms = [
   {
@@ -58,7 +25,20 @@ const stats = [
   { value: '24/7', label: 'Servicio Concierge' },
 ];
 
-const today = new Date().toISOString().slice(0, 10);
+const experiences = [
+  {
+    title: 'Reservas sin friccion',
+    text: 'Elige habitacion, revisa detalles, completa tus datos y confirma tu pago desde un flujo claro.',
+  },
+  {
+    title: 'Atencion personalizada',
+    text: 'Registra peticiones especiales para que cada estadia responda a lo que necesitas.',
+  },
+  {
+    title: 'Gestion centralizada',
+    text: 'Consulta tus reservas activas y mantente al tanto de fechas, huespedes y estado de pago.',
+  },
+];
 
 export function Icon({ type }) {
   const icons = {
@@ -94,10 +74,10 @@ export function Header() {
       </Link>
       <nav className="main-nav" aria-label="Navegacion principal">
         <NavLink to="/" end>
-          Home
+          Inicio
         </NavLink>
         <NavLink to="/nosotros">Nosotros</NavLink>
-        <NavLink to="/habitaciones">Rooms</NavLink>
+        <NavLink to="/habitaciones">Habitaciones</NavLink>
         <NavLink to="/mis-reservas">Mis reservas</NavLink>
       </nav>
       <div className="header-actions">
@@ -106,103 +86,13 @@ export function Header() {
           to="/login"
           state={{ backgroundLocation: location }}
         >
-          Sign In
+          Iniciar sesion
         </Link>
         <Link className="book-link" to="/reservar">
-          Book Now
+          Reservar
         </Link>
       </div>
     </header>
-  );
-}
-
-function SearchBar() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      destino: '',
-      fecha: '',
-      huespedes: '2 Adultos',
-    },
-  });
-
-  const onSubmit = async (data) => {
-    try {
-      await hotelApi.get('/habitaciones', { params: data });
-    } catch {
-      // El backend aun no esta conectado; el formulario queda listo para integrarlo.
-    }
-
-    Swal.fire({
-      title: 'Busqueda preparada',
-      text: `Destino: ${data.destino || 'sin definir'} | Fecha: ${
-        data.fecha || 'sin definir'
-      } | Huespedes: ${data.huespedes}`,
-      icon: 'success',
-      confirmButtonColor: '#8a6416',
-    });
-  };
-
-  return (
-    <form className="search-panel" onSubmit={handleSubmit(onSubmit)}>
-      <label className="search-field">
-        <span>Destino</span>
-        <div className="field-control">
-          <Icon type="location" />
-          <input
-            type="text"
-            placeholder="A donde vas?"
-            {...register('destino', { required: 'Ingresa un destino' })}
-          />
-        </div>
-        {errors.destino && <small>{errors.destino.message}</small>}
-      </label>
-
-      <label className="search-field">
-        <span>Check-in / Out</span>
-        <div className="field-control">
-          <Icon type="calendar" />
-          <input type="date" min={today} {...register('fecha')} />
-        </div>
-      </label>
-
-      <label className="search-field">
-        <span>Huespedes</span>
-        <div className="field-control">
-          <Icon type="user" />
-          <select {...register('huespedes')}>
-            <option>1 Adulto</option>
-            <option>2 Adultos</option>
-            <option>2 Adultos, 1 Nino</option>
-            <option>Familia 4 Personas</option>
-          </select>
-        </div>
-      </label>
-
-      <button className="search-button" type="submit">
-        <Icon type="search" />
-        <span>Buscar</span>
-      </button>
-    </form>
-  );
-}
-
-function OfferCard({ offer }) {
-  return (
-    <article className="offer-card">
-      <div className="offer-image">
-        <img src={offer.image} alt={offer.title} />
-        <span>{offer.badge}</span>
-      </div>
-      <div className="offer-content">
-        <h3>{offer.title}</h3>
-        <p>{offer.description}</p>
-        <Link to="/reservar">{offer.action} &rarr;</Link>
-      </div>
-    </article>
   );
 }
 
@@ -234,26 +124,45 @@ function Home() {
       <main>
         <section className="hero-section">
           <div className="hero-content">
-            <h1>LuxeStay - Tu Refugio de Lujo</h1>
+            <p className="hero-kicker">Gestion hotelera premium</p>
+            <h1>LuxeStay</h1>
             <p>
-              Experimenta la excelencia en cada detalle. Descubre el confort
-              elevado al arte en nuestras exclusivas propiedades.
+              Reserva habitaciones exclusivas, organiza tus datos de huesped y
+              disfruta una experiencia de lujo desde el primer clic.
             </p>
-            <SearchBar />
+            <div className="hero-actions">
+              <Link className="hero-primary" to="/habitaciones">
+                Explorar habitaciones
+              </Link>
+              <Link className="hero-secondary" to="/nosotros">
+                Conocer LuxeStay
+              </Link>
+            </div>
+            <Link className="hero-room-button" to="/habitaciones">
+              Nuestras habitaciones
+            </Link>
+            <div className="hero-trust-row" aria-label="Beneficios principales">
+              <span>Pago seguro</span>
+              <span>Reservas 24/7</span>
+              <span>Atencion personalizada</span>
+            </div>
           </div>
         </section>
 
-        <section className="section-block offers-section" id="ofertas">
+        <section className="home-experience-section">
           <div className="section-heading split-heading">
             <div>
-              <p className="section-kicker">Ofertas de Temporada</p>
-              <h2>Promociones Exclusivas</h2>
+              <p className="section-kicker">Experiencia digital</p>
+              <h2>Todo el viaje en un solo lugar</h2>
             </div>
-            <Link to="/habitaciones">Ver todas las ofertas</Link>
+            <Link to="/mis-reservas">Ver mis reservas</Link>
           </div>
-          <div className="offers-grid">
-            {offers.map((offer) => (
-              <OfferCard key={offer.title} offer={offer} />
+          <div className="experience-grid">
+            {experiences.map((item) => (
+              <article className="experience-card" key={item.title}>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
             ))}
           </div>
         </section>
