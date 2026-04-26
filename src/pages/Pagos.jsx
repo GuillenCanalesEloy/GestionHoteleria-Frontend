@@ -1,18 +1,37 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { Header } from "./Home.jsx";
 
-const Pagos = () => {
+const defaultRoom = {
+  title: "Grand Royal Suite",
+  price: 700,
+  image:
+    "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&q=80&w=900",
+};
+
+function formatCardNumber(value) {
+  return value
+    .replace(/\D/g, "")
+    .slice(0, 16)
+    .replace(/(.{4})/g, "$1 ")
+    .trim();
+}
+
+function formatExpiry(value) {
+  const digits = value.replace(/\D/g, "").slice(0, 4);
+
+  if (digits.length <= 2) {
+    return digits;
+  }
+
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+}
+
+function Pagos() {
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Obtenemos los datos de la habitación
-  const room = location.state?.room || {
-    title: "Grand Royal Suite",
-    price: 700,
-    image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&q=80&w=900",
-  };
-
+  const room = location.state?.room || defaultRoom;
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [formData, setFormData] = useState({
     cardNumber: "",
@@ -20,12 +39,22 @@ const Pagos = () => {
     cvv: "",
   });
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    const formatters = {
+      cardNumber: formatCardNumber,
+      expiry: formatExpiry,
+      cvv: (input) => input.replace(/\D/g, "").slice(0, 4),
+    };
+
+    setFormData((current) => ({
+      ...current,
+      [name]: formatters[name](value),
+    }));
   };
 
-  const handlePay = (e) => {
-    e.preventDefault();
+  const handlePay = (event) => {
+    event.preventDefault();
 
     Swal.fire({
       title: "Procesando pago...",
@@ -39,184 +68,128 @@ const Pagos = () => {
     setTimeout(() => {
       Swal.fire({
         icon: "success",
-        title: "¡Pago Confirmado!",
-        text: `Tu reserva en ${room.title} ha sido procesada con éxito.`,
-        confirmButtonText: "Ver mis Reservas",
+        title: "Pago confirmado",
+        text: `Tu reserva en ${room.title} ha sido procesada con exito.`,
+        confirmButtonText: "Ver mis reservas",
         confirmButtonColor: "#041627",
       }).then(() => {
         navigate("/mis-reservas");
       });
-    }, 2000);
+    }, 1200);
   };
 
   return (
-    <main className="flex-grow pt-24 pb-32 px-6 md:px-12 max-w-7xl mx-auto w-full font-sans">
-      {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 mb-8 text-slate-500 text-sm">
-        <span>Stays</span>
-        <span className="material-symbols-outlined text-sm">chevron_right</span>
-        <span>{room.title}</span>
-        <span className="material-symbols-outlined text-sm">chevron_right</span>
-        <span className="text-slate-900 font-semibold">Payment</span>
-      </div>
+    <div className="home-page pagos-page">
+      <Header />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Columna Izquierda: Métodos de Pago */}
-        <div className="lg:col-span-7 space-y-6">
-          <section className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">
-              Método de Pago
-            </h2>
+      <main className="pagos-main">
+        <button className="pagos-back-button" type="button" onClick={() => navigate(-1)}>
+          Volver
+        </button>
 
-            <form onSubmit={handlePay} className="space-y-4">
-              <div
-                className={`border-2 rounded-xl p-6 transition-all ${paymentMethod === "card" ? "border-slate-900 bg-slate-50" : "border-slate-200"}`}
+        <section className="pagos-heading">
+          <p className="section-kicker">Pago seguro</p>
+          <h1>Finaliza tu reserva</h1>
+          <p>Ingresa los datos de tu tarjeta para confirmar la reserva seleccionada.</p>
+        </section>
+
+        <section className="pagos-layout">
+          <form className="pagos-form" onSubmit={handlePay}>
+            <div className="payment-method-card">
+              <button
+                className={paymentMethod === "card" ? "active" : ""}
+                type="button"
+                onClick={() => setPaymentMethod("card")}
               >
-                <label
-                  className="flex items-center justify-between cursor-pointer mb-6"
-                  onClick={() => setPaymentMethod("card")}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-slate-900">
-                      {paymentMethod === "card" ? "radio_button_checked" : "radio_button_unchecked"}
-                    </span>
-                    <span className="font-semibold text-slate-900">
-                      Tarjeta de Crédito o Débito
-                    </span>
-                  </div>
-                  <span className="material-symbols-outlined text-slate-500">
-                    credit_card
-                  </span>
-                </label>
-
-                {paymentMethod === "card" && (
-                  <div className="grid grid-cols-2 gap-4 animate-fadeIn">
-                    <div className="col-span-2">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                        Número de Tarjeta
-                      </label>
-                      <input
-                        name="cardNumber"
-                        className="w-full border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-slate-900 outline-none transition-all"
-                        placeholder="0000 0000 0000 0000"
-                        type="text"
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                        Expiración
-                      </label>
-                      <input
-                        name="expiry"
-                        className="w-full border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-slate-900 outline-none transition-all"
-                        placeholder="MM/YY"
-                        type="text"
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                        CVV
-                      </label>
-                      <input
-                        name="cvv"
-                        className="w-full border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-slate-900 outline-none transition-all"
-                        placeholder="***"
-                        type="password"
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div
-                className="border border-slate-200 rounded-xl p-6 hover:border-slate-400 transition-all cursor-pointer"
+                Tarjeta de credito o debito
+              </button>
+              <button
+                className={paymentMethod === "paypal" ? "active" : ""}
+                type="button"
                 onClick={() => setPaymentMethod("paypal")}
               >
-                <label className="flex items-center justify-between cursor-pointer">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-slate-400">
-                      {paymentMethod === "paypal" ? "radio_button_checked" : "radio_button_unchecked"}
-                    </span>
-                    <span className="font-semibold text-slate-900">PayPal</span>
-                  </div>
-                  <span className="material-symbols-outlined text-slate-500">
-                    account_balance_wallet
-                  </span>
-                </label>
-              </div>
-
-              <div className="mt-8 flex items-center justify-center gap-4 border-t border-slate-100 pt-6 opacity-60">
-                <span className="material-symbols-outlined text-slate-900">
-                  verified_user
-                </span>
-                <p className="text-sm text-slate-500">
-                  Pago 100% Seguro con encriptación SSL
-                </p>
-              </div>
-            </form>
-          </section>
-        </div>
-
-        {/* Columna Derecha: Resumen */}
-        <div className="lg:col-span-5">
-          <aside className="sticky top-28 space-y-6">
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-              <div className="h-48 -mx-6 -mt-6 mb-6 relative">
-                <img
-                  alt={room.title}
-                  className="w-full h-full object-cover"
-                  src={room.image}
-                />
-                <div className="absolute top-4 right-4 bg-amber-400 text-slate-900 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-                  GUEST FAVORITE
-                </div>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900">{room.title}</h3>
-
-              <div className="space-y-4 py-6 border-y border-slate-100 mt-4">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Fechas</span>
-                  <span className="font-semibold text-slate-900">
-                    12 - 15 Mayo, 2026
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Huéspedes</span>
-                  <span className="font-semibold text-slate-900">
-                    2 Adultos
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-2 pt-6">
-                <div className="flex justify-between text-2xl text-slate-900 mt-2">
-                  <span className="font-bold">Total</span>
-                  <span className="font-bold">${room.price}.00</span>
-                </div>
-                <p className="text-xs text-slate-400 text-right mt-1 italic">
-                  Incluye impuestos y cargos de servicio
-                </p>
-              </div>
-
-              <button
-                onClick={handlePay}
-                className="w-full mt-8 py-4 bg-slate-900 text-white rounded-lg font-bold text-lg hover:bg-slate-800 transition-all active:scale-95 shadow-xl flex items-center justify-center gap-2"
-              >
-                Pagar ${room.price}.00
-                <span className="material-symbols-outlined">arrow_forward</span>
+                PayPal
               </button>
             </div>
+
+            {paymentMethod === "card" && (
+              <div className="payment-fields">
+                <label className="payment-field">
+                  <span>Numero de tarjeta</span>
+                  <input
+                    inputMode="numeric"
+                    name="cardNumber"
+                    pattern="[0-9 ]{19}"
+                    placeholder="0000 0000 0000 0000"
+                    type="text"
+                    value={formData.cardNumber}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
+
+                <label className="payment-field">
+                  <span>Expiracion</span>
+                  <input
+                    inputMode="numeric"
+                    name="expiry"
+                    pattern="[0-9]{2}/[0-9]{2}"
+                    placeholder="MM/YY"
+                    type="text"
+                    value={formData.expiry}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
+
+                <label className="payment-field">
+                  <span>CVV</span>
+                  <input
+                    inputMode="numeric"
+                    name="cvv"
+                    pattern="[0-9]{3,4}"
+                    placeholder="123"
+                    type="password"
+                    value={formData.cvv}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
+              </div>
+            )}
+
+            <div className="payment-security-note">
+              Pago 100% seguro con validacion cifrada.
+            </div>
+
+            <button className="payment-submit" type="submit">
+              Pagar ${room.price}.00
+            </button>
+          </form>
+
+          <aside className="payment-summary">
+            <img src={room.image} alt={room.title} />
+            <div>
+              <span>Resumen</span>
+              <h2>{room.title}</h2>
+              <div className="payment-summary-row">
+                <small>Fechas</small>
+                <strong>12 - 15 Mayo, 2026</strong>
+              </div>
+              <div className="payment-summary-row">
+                <small>Huespedes</small>
+                <strong>2 Adultos</strong>
+              </div>
+              <div className="payment-total">
+                <small>Total</small>
+                <strong>${room.price}.00</strong>
+              </div>
+            </div>
           </aside>
-        </div>
-      </div>
-    </main>
+        </section>
+      </main>
+    </div>
   );
-};
+}
 
 export default Pagos;

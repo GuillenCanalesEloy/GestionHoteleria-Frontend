@@ -98,7 +98,7 @@ export function Header() {
         </NavLink>
         <NavLink to="/nosotros">Nosotros</NavLink>
         <NavLink to="/habitaciones">Rooms</NavLink>
-        <NavLink to="/mis-reservas">My Bookings</NavLink>
+        <NavLink to="/mis-reservas">Mis reservas</NavLink>
       </nav>
       <div className="header-actions">
         <Link

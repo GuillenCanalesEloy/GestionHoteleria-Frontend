@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Header } from "./Home.jsx";
 
@@ -9,6 +10,12 @@ const reservations = [
     dates: "12 Dic - 18 Dic, 2026",
     guests: "4 huespedes",
     total: "$4,250.00",
+    guest: {
+      name: "Juan Perez",
+      email: "juan@ejemplo.com",
+      phone: "999000000",
+      requests: "Habitacion en piso alto y almohadas extra.",
+    },
     image:
       "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&q=80&w=900",
   },
@@ -19,14 +26,24 @@ const reservations = [
     dates: "04 Ene - 07 Ene, 2027",
     guests: "2 huespedes",
     total: "$1,080.00",
+    guest: {
+      name: "Maria Lopez",
+      email: "maria@ejemplo.com",
+      phone: "988777666",
+      requests: "Check-in temprano si hay disponibilidad.",
+    },
     image:
       "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=900",
   },
 ];
 
-const filters = ["Todas", "Proximas", "Completadas", "Canceladas"];
-
 function MisReservas() {
+  const [expandedReservation, setExpandedReservation] = useState(null);
+
+  const toggleReservation = (title) => {
+    setExpandedReservation((current) => (current === title ? null : title));
+  };
+
   return (
     <div className="home-page bookings-page">
       <Header />
@@ -52,14 +69,6 @@ function MisReservas() {
             </Link>
           </div>
 
-          <div className="booking-tabs" aria-label="Filtros de reservas">
-            {filters.map((filter, index) => (
-              <button className={index === 0 ? "active" : ""} key={filter} type="button">
-                {filter}
-              </button>
-            ))}
-          </div>
-
           <div className="booking-list">
             {reservations.map((reservation) => (
               <article className="booking-card" key={reservation.title}>
@@ -75,8 +84,35 @@ function MisReservas() {
                 <div className="booking-summary">
                   <span>{reservation.status}</span>
                   <strong>{reservation.total}</strong>
-                  <button type="button">Ver reserva</button>
+                  <button
+                    type="button"
+                    onClick={() => toggleReservation(reservation.title)}
+                  >
+                    {expandedReservation === reservation.title ? "Ocultar" : "Ver reserva"}
+                  </button>
                 </div>
+
+                {expandedReservation === reservation.title && (
+                  <div className="booking-guest-detail">
+                    <h4>Informacion del huesped</h4>
+                    <div>
+                      <span>Nombre</span>
+                      <strong>{reservation.guest.name}</strong>
+                    </div>
+                    <div>
+                      <span>Correo</span>
+                      <strong>{reservation.guest.email}</strong>
+                    </div>
+                    <div>
+                      <span>Telefono</span>
+                      <strong>{reservation.guest.phone}</strong>
+                    </div>
+                    <div className="wide">
+                      <span>Peticiones especiales</span>
+                      <strong>{reservation.guest.requests}</strong>
+                    </div>
+                  </div>
+                )}
               </article>
             ))}
           </div>
