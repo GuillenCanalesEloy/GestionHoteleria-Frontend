@@ -6,13 +6,11 @@ const Pagos = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Obtenemos los datos de la habitación (si vienen desde Detalle)
-  // Si no hay datos, usamos unos por defecto para que no explote
+  // Obtenemos los datos de la habitación
   const room = location.state?.room || {
     title: "Grand Royal Suite",
     price: 700,
-    image:
-      "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&q=80&w=900",
+    image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&q=80&w=900",
   };
 
   const [paymentMethod, setPaymentMethod] = useState("card");
@@ -29,7 +27,6 @@ const Pagos = () => {
   const handlePay = (e) => {
     e.preventDefault();
 
-    // Simulación de procesamiento
     Swal.fire({
       title: "Procesando pago...",
       text: "Estamos validando tu tarjeta",
@@ -47,7 +44,7 @@ const Pagos = () => {
         confirmButtonText: "Ver mis Reservas",
         confirmButtonColor: "#041627",
       }).then(() => {
-        navigate("/mis-reservas"); // O la ruta que prefieras
+        navigate("/mis-reservas");
       });
     }, 2000);
   };
@@ -72,7 +69,6 @@ const Pagos = () => {
             </h2>
 
             <form onSubmit={handlePay} className="space-y-4">
-              {/* Opción Tarjeta */}
               <div
                 className={`border-2 rounded-xl p-6 transition-all ${paymentMethod === "card" ? "border-slate-900 bg-slate-50" : "border-slate-200"}`}
               >
@@ -82,9 +78,7 @@ const Pagos = () => {
                 >
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-slate-900">
-                      {paymentMethod === "card"
-                        ? "radio_button_checked"
-                        : "radio_button_unchecked"}
+                      {paymentMethod === "card" ? "radio_button_checked" : "radio_button_unchecked"}
                     </span>
                     <span className="font-semibold text-slate-900">
                       Tarjeta de Crédito o Débito
@@ -140,7 +134,6 @@ const Pagos = () => {
                 )}
               </div>
 
-              {/* PayPal (Solo UI) */}
               <div
                 className="border border-slate-200 rounded-xl p-6 hover:border-slate-400 transition-all cursor-pointer"
                 onClick={() => setPaymentMethod("paypal")}
@@ -148,9 +141,7 @@ const Pagos = () => {
                 <label className="flex items-center justify-between cursor-pointer">
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-slate-400">
-                      {paymentMethod === "paypal"
-                        ? "radio_button_checked"
-                        : "radio_button_unchecked"}
+                      {paymentMethod === "paypal" ? "radio_button_checked" : "radio_button_unchecked"}
                     </span>
                     <span className="font-semibold text-slate-900">PayPal</span>
                   </div>
@@ -204,25 +195,20 @@ const Pagos = () => {
               </div>
 
               <div className="space-y-2 pt-6">
-                <div className="flex justify-between text-sm">
-                  <span>Precio base</span>
-                  <span>€{room.price}.00</span>
-                </div>
-                <div className="flex justify-between text-sm text-amber-600 font-medium">
-                  <span>Descuento UTP</span>
-                  <span>-€35.00</span>
-                </div>
-                <div className="flex justify-between text-2xl text-slate-900 pt-6 border-t border-slate-100 mt-4">
+                <div className="flex justify-between text-2xl text-slate-900 mt-2">
                   <span className="font-bold">Total</span>
-                  <span className="font-bold">€{room.price - 35}.00</span>
+                  <span className="font-bold">${room.price}.00</span>
                 </div>
+                <p className="text-xs text-slate-400 text-right mt-1 italic">
+                  Incluye impuestos y cargos de servicio
+                </p>
               </div>
 
               <button
                 onClick={handlePay}
                 className="w-full mt-8 py-4 bg-slate-900 text-white rounded-lg font-bold text-lg hover:bg-slate-800 transition-all active:scale-95 shadow-xl flex items-center justify-center gap-2"
               >
-                Pagar €{room.price - 35}.00
+                Pagar ${room.price}.00
                 <span className="material-symbols-outlined">arrow_forward</span>
               </button>
             </div>

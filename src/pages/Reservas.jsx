@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./Home.jsx";
 
+
 function Reservas() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ function Reservas() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    navigate("/mis-reservas");
+    navigate("/pago", { state: { room: room } });
   };
 
   return (
