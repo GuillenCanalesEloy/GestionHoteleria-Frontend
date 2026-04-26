@@ -1,4 +1,6 @@
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import AdminDashboard from './pages/AdminDashboard.jsx';
+import AdminHabitaciones from './pages/AdminHabitaciones.jsx';
 import Habitaciones from './pages/Habitaciones.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
@@ -6,6 +8,7 @@ import MisReservas from './pages/MisReservas.jsx';
 import Nosotros from './pages/Nosotros.jsx';
 import Reservas from './pages/Reservas.jsx';
 import Pagos from './pages/Pagos.jsx';
+import Reportes from './pages/Reportes.jsx';
 
 function AppRoutes() {
   const location = useLocation();
@@ -22,6 +25,9 @@ function AppRoutes() {
         <Route path="/mis-reservas" element={<MisReservas />} />
         <Route path="/reservar" element={<Reservas />} />
         <Route path="/pago" element={<Pagos />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/habitaciones" element={<AdminHabitaciones />} />
+        <Route path="/admin/reportes" element={<Reportes />} />
         {/* Redirección por defecto si la ruta no existe */}
         <Route path="*" element={<Home />} />
       </Routes>
