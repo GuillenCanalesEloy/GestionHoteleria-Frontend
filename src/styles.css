@@ -3579,9 +3579,96 @@ img {
   color: #45546a;
 }
 
+.reservations-admin-shell {
+  grid-template-columns: 230px minmax(0, 1fr);
+}
+
+.reservations-admin-main {
+  background: #f7f8fd;
+  padding: 0 28px 28px;
+}
+
+.reservations-admin-topbar {
+  border-bottom: 1px solid #edf2f8;
+}
+
+.reservations-admin-toolbar {
+  grid-template-columns: minmax(240px, 1fr) 190px 140px;
+}
+
+.reservations-admin-layout {
+  align-items: start;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) 320px;
+}
+
+.reservations-admin-table-card {
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  box-shadow: 0 10px 26px rgba(12, 24, 40, 0.05);
+  overflow-x: auto;
+}
+
+.reservations-admin-table-header,
+.reservations-admin-row {
+  align-items: center;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 0.95fr 1.25fr 1fr 1fr 1fr 1fr 1.55fr;
+  min-width: 960px;
+  padding: 0 20px;
+}
+
+.reservations-admin-table-header {
+  border-bottom: 1px solid #edf2f8;
+  color: #061525;
+  font-size: 0.76rem;
+  font-weight: 900;
+  min-height: 50px;
+}
+
+.reservations-admin-row {
+  border-bottom: 1px solid #edf2f8;
+  color: #061525;
+  font-size: 0.88rem;
+  min-height: 68px;
+}
+
+.reservations-admin-row strong {
+  color: #061525;
+}
+
+.reservation-status {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 900;
+  justify-content: center;
+  justify-self: start;
+  min-width: 98px;
+  padding: 5px 10px;
+}
+
+.reservation-status.confirmado {
+  background: #e7f8ed;
+  color: #087b3f;
+}
+
+.reservation-status.no-confirmado {
+  background: #fff1f1;
+  color: #b22020;
+}
+
+.reservations-admin-actions {
+  flex-wrap: wrap;
+}
+
 @media (max-width: 980px) {
   .admin-shell,
-  .rooms-admin-shell {
+  .rooms-admin-shell,
+  .reservations-admin-shell {
     grid-template-columns: 1fr;
   }
 
@@ -3603,6 +3690,11 @@ img {
   }
 
   .rooms-admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .reservations-admin-toolbar,
+  .reservations-admin-layout {
     grid-template-columns: 1fr;
   }
 
@@ -3631,7 +3723,8 @@ img {
 
 @media (max-width: 680px) {
   .admin-main,
-  .rooms-admin-main {
+  .rooms-admin-main,
+  .reservations-admin-main {
     padding: 0 16px 24px;
   }
 

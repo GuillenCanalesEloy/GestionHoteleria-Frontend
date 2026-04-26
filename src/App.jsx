@@ -7,6 +7,7 @@ import Login from './pages/Login.jsx';
 import MisReservas from './pages/MisReservas.jsx';
 import Nosotros from './pages/Nosotros.jsx';
 import Reservas from './pages/Reservas.jsx';
+import ReservasAdmin from './pages/ReservasAdmin.jsx';
 import Pagos from './pages/Pagos.jsx';
 import Reportes from './pages/Reportes.jsx';
 
@@ -27,6 +28,7 @@ function AppRoutes() {
         <Route path="/pago" element={<Pagos />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/habitaciones" element={<AdminHabitaciones />} />
+        <Route path="/admin/reservas" element={<ReservasAdmin />} />
         <Route path="/admin/reportes" element={<Reportes />} />
         {/* Redirección por defecto si la ruta no existe */}
         <Route path="*" element={<Home />} />
