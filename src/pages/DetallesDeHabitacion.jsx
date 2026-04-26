@@ -43,7 +43,7 @@ function DetallesDeHabitacion({ room, onClose }) {
               <small>Precio por noche</small>
               <strong>${room.price}</strong>
             </div>
-            <Link className="book-link" to="/reservar">
+            <Link className="book-link" to="/reservar" state={{ room }}>
               Reservar
             </Link>
           </div>
