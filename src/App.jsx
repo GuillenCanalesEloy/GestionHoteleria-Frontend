@@ -7,6 +7,7 @@ import MisReservas from './pages/MisReservas.jsx';
 import Nosotros from './pages/Nosotros.jsx';
 import Reservas from './pages/Reservas.jsx';
 import Pagos from './pages/Pagos.jsx';
+import Reportes from './pages/Reportes.jsx';
 
 function AppRoutes() {
   const location = useLocation();
@@ -24,6 +25,7 @@ function AppRoutes() {
         <Route path="/reservar" element={<Reservas />} />
         <Route path="/pago" element={<Pagos />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/reportes" element={<Reportes />} />
         {/* Redirección por defecto si la ruta no existe */}
         <Route path="*" element={<Home />} />
       </Routes>
