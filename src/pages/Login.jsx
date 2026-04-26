@@ -35,6 +35,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loginMode, setLoginMode] = useState('guest');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,6 +43,16 @@ function Login() {
     setLoading(true);
 
     try {
+      if (loginMode === 'admin') {
+        if (email === 'Admin' && password === '123') {
+          navigate('/admin/dashboard');
+          return;
+        }
+
+        setError('Credenciales de administrador incorrectas');
+        return;
+      }
+
       // Aqui ira la llamada al backend cuando este listo.
       console.log('Login con:', email, password);
     } catch (err) {
@@ -80,21 +91,56 @@ function Login() {
         <div className="login-panel">
           <div className="login-title">
             <p className="section-kicker">Bienvenido</p>
-            <h2 id="login-title">Inicia sesion</h2>
-            <p>Ingresa con tu correo para continuar con tus reservas.</p>
+            <h2 id="login-title">
+              {loginMode === 'admin' ? 'Inicia como administrador' : 'Inicia sesion'}
+            </h2>
+            <p>
+              {loginMode === 'admin'
+                ? 'Accede al panel interno de trabajadores con credenciales de prueba.'
+                : 'Ingresa con tu correo para continuar con tus reservas.'}
+            </p>
           </div>
 
           {error && <p className="login-error">{error}</p>}
 
+          <div className="login-mode-switch" aria-label="Tipo de acceso">
+            <button
+              className={loginMode === 'guest' ? 'active' : ''}
+              type="button"
+              onClick={() => {
+                setLoginMode('guest');
+                setError('');
+                setEmail('');
+                setPassword('');
+              }}
+            >
+              Huesped
+            </button>
+            <button
+              className={loginMode === 'admin' ? 'active' : ''}
+              type="button"
+              onClick={() => {
+                setLoginMode('admin');
+                setError('');
+                setEmail('');
+                setPassword('');
+              }}
+            >
+              Ingresar como administrador
+            </button>
+          </div>
+
           <form onSubmit={handleSubmit}>
             <div className="login-field">
-              <label htmlFor="email">Correo electronico</label>
+              <label htmlFor="email">
+                {loginMode === 'admin' ? 'Usuario administrador' : 'Correo electronico'}
+              </label>
               <div className="login-control">
                 <Icon type="mail" />
                 <input
                   id="email"
-                  type="email"
-                  placeholder="tuemail@correo.com"
+                  type={loginMode === 'admin' ? 'text' : 'email'}
+                  placeholder={loginMode === 'admin' ? 'Admin' : 'tuemail@correo.com'}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -105,7 +151,9 @@ function Login() {
             <div className="login-field">
               <div className="login-field-header">
                 <label htmlFor="password">Contrasena</label>
-                <Link to="/recuperar-contrasena">Olvide mi contrasena</Link>
+                {loginMode === 'guest' && (
+                  <Link to="/recuperar-contrasena">Olvide mi contrasena</Link>
+                )}
               </div>
               <div className="login-control password-wrapper">
                 <Icon type="lock" />
@@ -128,19 +176,27 @@ function Login() {
               </div>
             </div>
 
-            <div className="login-remember">
-              <input type="checkbox" id="remember" />
-              <label htmlFor="remember">Mantener sesion iniciada</label>
-            </div>
+            {loginMode === 'guest' && (
+              <div className="login-remember">
+                <input type="checkbox" id="remember" />
+                <label htmlFor="remember">Mantener sesion iniciada</label>
+              </div>
+            )}
 
             <button type="submit" className="login-submit" disabled={loading}>
               {loading ? 'Ingresando...' : 'Ingresar'}
             </button>
           </form>
 
-          <p className="login-support">
-            Aun no tienes cuenta? <Link to="/registro">Crear cuenta</Link>
-          </p>
+          {loginMode === 'guest' ? (
+            <p className="login-support">
+              Aun no tienes cuenta? <Link to="/registro">Crear cuenta</Link>
+            </p>
+          ) : (
+            <p className="login-support">
+              Credenciales de prueba: <strong>Admin</strong> / <strong>123</strong>
+            </p>
+          )}
         </div>
       </section>
     </div>
