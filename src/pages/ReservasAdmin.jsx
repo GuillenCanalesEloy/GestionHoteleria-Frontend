@@ -166,7 +166,9 @@ function ReservasAdmin() {
           <Link className={location.pathname === "/admin/habitaciones" ? "active" : ""} to="/admin/habitaciones">
             Habitaciones
           </Link>
-          <button type="button">Clientes</button>
+          <Link className={location.pathname === "/admin/clientes" ? "active" : ""} to="/admin/clientes">
+            Clientes
+          </Link>
           <Link className="active" to="/admin/reservas">
             Reservas
           </Link>

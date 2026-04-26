@@ -129,7 +129,7 @@ function AdminHabitaciones() {
         <nav className="admin-nav" aria-label="Panel administrativo">
           <Link to="/admin/dashboard">Dashboard</Link>
           <Link className="active" to="/admin/habitaciones">Habitaciones</Link>
-          <button type="button">Clientes</button>
+          <Link to="/admin/clientes">Clientes</Link>
           <Link to="/admin/reservas">Reservas</Link>
           <button type="button">Pagos</button>
           <Link

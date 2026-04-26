@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import AdminDashboard from './pages/AdminDashboard.jsx';
 import AdminHabitaciones from './pages/AdminHabitaciones.jsx';
+import ClienteAdmin from './pages/ClienteAdmin.jsx';
 import Habitaciones from './pages/Habitaciones.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
@@ -28,6 +29,7 @@ function AppRoutes() {
         <Route path="/pago" element={<Pagos />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/habitaciones" element={<AdminHabitaciones />} />
+        <Route path="/admin/clientes" element={<ClienteAdmin />} />
         <Route path="/admin/reservas" element={<ReservasAdmin />} />
         <Route path="/admin/reportes" element={<Reportes />} />
         {/* Redirección por defecto si la ruta no existe */}
