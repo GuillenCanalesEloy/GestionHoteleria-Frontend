@@ -167,8 +167,14 @@ function ClientDrawer({
   }
 
   return (
-    <div className="client-drawer-backdrop" role="presentation">
-      <aside className="client-drawer" aria-label={`Detalle de ${client.name}`}>
+    <div className="client-drawer-backdrop" role="presentation" onClick={onClose}>
+      <aside
+        className="client-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Detalle de ${client.name}`}
+        onClick={(event) => event.stopPropagation()}
+      >
         <header>
           <button type="button" onClick={onClose} aria-label="Cerrar panel de cliente">
             x
@@ -293,6 +299,21 @@ function ClienteAdmin() {
     return () => window.removeEventListener("focus", refreshReservations);
   }, []);
 
+  useEffect(() => {
+    if (!selectedClientId) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setSelectedClientId(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedClientId]);
+
   const reservations = useMemo(
     () => getClientReservations().map(normalizeReservation),
     [refreshKey],
@@ -384,6 +405,7 @@ function ClienteAdmin() {
     setRefreshKey((currentKey) => currentKey + 1);
     setDrawerForm(nextProfile);
     setSaveNotice("Cambios guardados");
+    setSelectedClientId(null);
   };
 
   const handleSort = (key) => {

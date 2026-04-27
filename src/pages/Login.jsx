@@ -59,6 +59,7 @@ function Login() {
           'luxestay.clientSession',
           JSON.stringify({ username: 'user', loggedAt: new Date().toISOString() }),
         );
+        window.dispatchEvent(new Event('luxestay:client-session-change'));
         navigate(returnTo, { replace: true });
         return;
       }

@@ -4377,8 +4377,12 @@ img {
 }
 
 .client-drawer-backdrop {
+  align-items: center;
   background: rgba(6, 21, 37, 0.28);
+  display: flex;
   inset: 0;
+  justify-content: center;
+  padding: 24px;
   position: fixed;
   z-index: 60;
 }
@@ -4386,27 +4390,27 @@ img {
 .client-drawer {
   animation: clientDrawerIn 220ms ease;
   background: #ffffff;
-  border-left: 1px solid #e4e9f1;
-  box-shadow: -18px 0 48px rgba(12, 24, 40, 0.18);
+  border: 1px solid #e4e9f1;
+  border-radius: 14px;
+  box-shadow: 0 28px 72px rgba(6, 21, 37, 0.28);
   display: flex;
   flex-direction: column;
   gap: 18px;
-  height: 100vh;
-  margin-left: auto;
-  max-width: 420px;
+  max-height: calc(100vh - 48px);
+  max-width: 560px;
   overflow-y: auto;
   padding: 24px;
-  width: min(100%, 420px);
+  width: min(100%, 560px);
 }
 
 @keyframes clientDrawerIn {
   from {
     opacity: 0;
-    transform: translateX(24px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
@@ -4806,6 +4810,20 @@ img {
 .clients-admin-main > *,
 .admin-payments-main > * {
   position: relative;
+}
+
+.rooms-modal-backdrop,
+.client-drawer-backdrop {
+  inset: 0;
+  position: fixed;
+}
+
+.rooms-modal-backdrop {
+  z-index: 120;
+}
+
+.client-drawer-backdrop {
+  z-index: 120;
 }
 
 .admin-topbar,
