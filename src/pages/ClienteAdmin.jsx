@@ -177,7 +177,7 @@ function ClientDrawer({
       >
         <header>
           <button type="button" onClick={onClose} aria-label="Cerrar panel de cliente">
-            ×
+            x
           </button>
           <div className="client-drawer-avatar">{getInitials(client.name)}</div>
           <h2>{client.name}</h2>
@@ -405,6 +405,7 @@ function ClienteAdmin() {
     setRefreshKey((currentKey) => currentKey + 1);
     setDrawerForm(nextProfile);
     setSaveNotice("Cambios guardados");
+    setSelectedClientId(null);
   };
 
   const handleSort = (key) => {

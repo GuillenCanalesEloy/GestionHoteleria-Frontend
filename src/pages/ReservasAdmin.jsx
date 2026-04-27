@@ -386,7 +386,7 @@ function ReservasAdmin() {
           <div className="rooms-modal-backdrop" role="presentation" onClick={closeReservationModal}>
             <section className="rooms-modal reservations-modal" role="dialog" aria-modal="true" aria-labelledby="reservation-detail-title" onClick={(event) => event.stopPropagation()}>
               <button className="rooms-modal-close" type="button" onClick={closeReservationModal} aria-label="Cerrar modal">
-                ×
+                x
               </button>
               <div className="rooms-modal-heading">
                 <span>Reserva del cliente user</span>

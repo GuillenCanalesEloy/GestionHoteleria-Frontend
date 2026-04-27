@@ -398,7 +398,7 @@ function AdminHabitaciones() {
           <div className="rooms-modal-backdrop" role="presentation" onClick={closeCreateModal}>
             <section className="rooms-modal" role="dialog" aria-modal="true" aria-labelledby="create-room-title" onClick={(event) => event.stopPropagation()}>
               <button className="rooms-modal-close" type="button" onClick={closeCreateModal} aria-label="Cerrar modal">
-                ×
+                x
               </button>
               <div className="rooms-modal-heading">
                 <span>Nueva habitacion</span>
@@ -418,7 +418,7 @@ function AdminHabitaciones() {
           <div className="rooms-modal-backdrop" role="presentation" onClick={closeRoomModal}>
             <section className="rooms-modal rooms-detail-modal" role="dialog" aria-modal="true" aria-labelledby="room-detail-title" onClick={(event) => event.stopPropagation()}>
               <button className="rooms-modal-close" type="button" onClick={closeRoomModal} aria-label="Cerrar modal">
-                ×
+                x
               </button>
               <div className="rooms-modal-preview">
                 <img src={selectedRoom.image} alt={selectedRoom.title} />
