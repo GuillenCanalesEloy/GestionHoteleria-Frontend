@@ -1,44 +1,26 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { Header } from "./Home.jsx";
-
-const reservations = [
-  {
-    title: "Presidential Suite",
-    status: "Confirmada",
-    stage: "Proxima estadia",
-    dates: "12 Dic - 18 Dic, 2026",
-    guests: "4 huespedes",
-    total: "$4,250.00",
-    guest: {
-      name: "Juan Perez",
-      email: "juan@ejemplo.com",
-      phone: "999000000",
-      requests: "Habitacion en piso alto y almohadas extra.",
-    },
-    image:
-      "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&q=80&w=900",
-  },
-  {
-    title: "Deluxe Ocean View",
-    status: "Pendiente",
-    stage: "En revision",
-    dates: "04 Ene - 07 Ene, 2027",
-    guests: "2 huespedes",
-    total: "$1,080.00",
-    guest: {
-      name: "Maria Lopez",
-      email: "maria@ejemplo.com",
-      phone: "988777666",
-      requests: "Check-in temprano si hay disponibilidad.",
-    },
-    image:
-      "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=900",
-  },
-];
+import { getClientReservations } from "../services/clientReservationsStorage.js";
 
 function MisReservas() {
+  const location = useLocation();
   const [expandedReservation, setExpandedReservation] = useState(null);
+  const clientSession = localStorage.getItem("luxestay.clientSession");
+  const reservations = useMemo(() => getClientReservations(), []);
+
+  if (!clientSession) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          backgroundLocation: location,
+          returnTo: "/mis-reservas",
+        }}
+      />
+    );
+  }
 
   const toggleReservation = (title) => {
     setExpandedReservation((current) => (current === title ? null : title));
@@ -70,8 +52,18 @@ function MisReservas() {
           </div>
 
           <div className="booking-list">
+            {reservations.length === 0 && (
+              <div className="booking-empty-state">
+                <h3>Aun no tienes reservas guardadas</h3>
+                <p>Elige una habitacion, completa la reserva y confirma el pago para verla aqui.</p>
+                <Link className="book-link" to="/habitaciones">
+                  Ver habitaciones
+                </Link>
+              </div>
+            )}
+
             {reservations.map((reservation) => (
-              <article className="booking-card" key={reservation.title}>
+              <article className="booking-card" key={reservation.id}>
                 <img src={reservation.image} alt={reservation.title} />
 
                 <div className="booking-info">
@@ -86,13 +78,13 @@ function MisReservas() {
                   <strong>{reservation.total}</strong>
                   <button
                     type="button"
-                    onClick={() => toggleReservation(reservation.title)}
+                    onClick={() => toggleReservation(reservation.id)}
                   >
-                    {expandedReservation === reservation.title ? "Ocultar" : "Ver reserva"}
+                    {expandedReservation === reservation.id ? "Ocultar" : "Ver reserva"}
                   </button>
                 </div>
 
-                {expandedReservation === reservation.title && (
+                {expandedReservation === reservation.id && (
                   <div className="booking-guest-detail">
                     <h4>Informacion del huesped</h4>
                     <div>

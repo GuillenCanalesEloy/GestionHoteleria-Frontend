@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   getStoredRooms,
   normalizeRoom,
@@ -23,6 +23,7 @@ const statusLabels = {
 
 function AdminHabitaciones() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [profileOpen, setProfileOpen] = useState(false);
   const [rooms, setRooms] = useState(() => getStoredRooms());
   const [search, setSearch] = useState("");
@@ -30,6 +31,8 @@ function AdminHabitaciones() {
   const [typeFilter, setTypeFilter] = useState("todos");
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyRoomForm);
+  const [selectedRoomId, setSelectedRoomId] = useState(null);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   const filteredRooms = useMemo(() => {
     return rooms.filter((room) => {
@@ -56,6 +59,7 @@ function AdminHabitaciones() {
   }, [rooms]);
 
   const isEditing = editingId !== null;
+  const selectedRoom = rooms.find((room) => room.id === selectedRoomId);
 
   useEffect(() => {
     saveStoredRooms(rooms);
@@ -69,6 +73,34 @@ function AdminHabitaciones() {
   const resetForm = () => {
     setEditingId(null);
     setForm(emptyRoomForm);
+  };
+
+  const openCreateModal = () => {
+    resetForm();
+    setCreateModalOpen(true);
+  };
+
+  const closeCreateModal = () => {
+    setCreateModalOpen(false);
+    resetForm();
+  };
+
+  const openRoomModal = (room) => {
+    setSelectedRoomId(room.id);
+    setEditingId(room.id);
+    setForm({
+      number: room.number,
+      type: room.type,
+      status: room.status,
+      price: String(room.price),
+      capacity: String(room.capacity),
+      floor: String(room.floor),
+    });
+  };
+
+  const closeRoomModal = () => {
+    setSelectedRoomId(null);
+    resetForm();
   };
 
   const handleSubmit = (event) => {
@@ -94,19 +126,20 @@ function AdminHabitaciones() {
       setRooms((currentRooms) => [normalizedRoom, ...currentRooms]);
     }
 
-    resetForm();
-  };
-
-  const handleEdit = (room) => {
-    setEditingId(room.id);
-    setForm({
-      number: room.number,
-      type: room.type,
-      status: room.status,
-      price: String(room.price),
-      capacity: String(room.capacity),
-      floor: String(room.floor),
-    });
+    if (isEditing) {
+      setSelectedRoomId(normalizedRoom.id);
+      setEditingId(normalizedRoom.id);
+      setForm({
+        number: normalizedRoom.number,
+        type: normalizedRoom.type,
+        status: normalizedRoom.status,
+        price: String(normalizedRoom.price),
+        capacity: String(normalizedRoom.capacity),
+        floor: String(normalizedRoom.floor),
+      });
+    } else {
+      closeCreateModal();
+    }
   };
 
   const handleDelete = (roomId) => {
@@ -116,12 +149,22 @@ function AdminHabitaciones() {
     if (editingId === roomId) {
       resetForm();
     }
+    if (selectedRoomId === roomId) {
+      setSelectedRoomId(null);
+    }
   };
 
   const handleResetFilters = () => {
     setSearch("");
     setStatusFilter("todos");
     setTypeFilter("todos");
+  };
+
+  const updateRoomStatus = (roomId, status) => {
+    setRooms((currentRooms) =>
+      currentRooms.map((room) => (room.id === roomId ? { ...room, status } : room)),
+    );
+    closeRoomModal();
   };
 
   return (
@@ -213,9 +256,9 @@ function AdminHabitaciones() {
               cada habitacion.
             </p>
           </div>
-          <a className="rooms-admin-primary" href="#room-form">
+          <button className="rooms-admin-primary" type="button" onClick={openCreateModal}>
             + Nueva habitacion
-          </a>
+          </button>
         </section>
 
         <section
@@ -286,7 +329,7 @@ function AdminHabitaciones() {
           </button>
         </section>
 
-        <section className="rooms-admin-layout">
+        <section className="rooms-admin-layout rooms-admin-layout-single">
           <article className="rooms-admin-table-card">
             <div className="rooms-admin-table-header">
               <span>Habitacion</span>
@@ -312,17 +355,10 @@ function AdminHabitaciones() {
                   <div className="rooms-admin-actions">
                     <button
                       type="button"
-                      onClick={() => handleEdit(room)}
-                      aria-label={`Editar habitacion ${room.number}`}
+                      onClick={() => openRoomModal(room)}
+                      aria-label={`Ver habitacion ${room.number}`}
                     >
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(room.id)}
-                      aria-label={`Eliminar habitacion ${room.number}`}
-                    >
-                      Eliminar
+                      Ver
                     </button>
                   </div>
                 </div>
@@ -334,105 +370,138 @@ function AdminHabitaciones() {
               <strong>{rooms.length}</strong> habitaciones
             </footer>
           </article>
-
-          <article className="rooms-admin-form-card" id="room-form">
-            <div>
-              <span>
-                {isEditing ? "Editar habitacion" : "Nueva habitacion"}
-              </span>
-              <h2>
-                {isEditing
-                  ? `Habitacion #${form.number}`
-                  : "Registrar habitacion"}
-              </h2>
-            </div>
-
-            <form onSubmit={handleSubmit}>
-              <label>
-                Numero
-                <input
-                  name="number"
-                  value={form.number}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Ej. 408"
-                />
-              </label>
-              <label>
-                Tipo
-                <select
-                  name="type"
-                  value={form.type}
-                  onChange={handleInputChange}
-                >
-                  <option value="Individual">Individual</option>
-                  <option value="Doble">Doble</option>
-                  <option value="Suite">Suite</option>
-                </select>
-              </label>
-              <label>
-                Estado
-                <select
-                  name="status"
-                  value={form.status}
-                  onChange={handleInputChange}
-                >
-                  <option value="disponible">Disponible</option>
-                  <option value="ocupada">Ocupada</option>
-                  <option value="mantenimiento">Mantenimiento</option>
-                </select>
-              </label>
-              <label>
-                Precio por noche
-                <input
-                  name="price"
-                  type="number"
-                  min="1"
-                  value={form.price}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="220"
-                />
-              </label>
-              <label>
-                Capacidad
-                <input
-                  name="capacity"
-                  type="number"
-                  min="1"
-                  value={form.capacity}
-                  onChange={handleInputChange}
-                  required
-                />
-              </label>
-              <label>
-                Piso
-                <input
-                  name="floor"
-                  type="number"
-                  min="1"
-                  value={form.floor}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="4"
-                />
-              </label>
-
-              <div className="rooms-admin-form-actions">
-                <button type="submit">
-                  {isEditing ? "Guardar cambios" : "Crear habitacion"}
-                </button>
-                {isEditing && (
-                  <button type="button" onClick={resetForm}>
-                    Cancelar
-                  </button>
-                )}
-              </div>
-            </form>
-          </article>
         </section>
+
+        {createModalOpen && (
+          <div className="rooms-modal-backdrop" role="presentation">
+            <section className="rooms-modal" role="dialog" aria-modal="true" aria-labelledby="create-room-title">
+              <button className="rooms-modal-close" type="button" onClick={closeCreateModal} aria-label="Cerrar modal">
+                x
+              </button>
+              <div className="rooms-modal-heading">
+                <span>Nueva habitacion</span>
+                <h2 id="create-room-title">Registrar habitacion</h2>
+              </div>
+              <RoomForm
+                form={form}
+                onChange={handleInputChange}
+                onSubmit={handleSubmit}
+                submitLabel="Crear habitacion"
+              />
+            </section>
+          </div>
+        )}
+
+        {selectedRoom && (
+          <div className="rooms-modal-backdrop" role="presentation">
+            <section className="rooms-modal rooms-detail-modal" role="dialog" aria-modal="true" aria-labelledby="room-detail-title">
+              <button className="rooms-modal-close" type="button" onClick={closeRoomModal} aria-label="Cerrar modal">
+                x
+              </button>
+              <div className="rooms-modal-preview">
+                <img src={selectedRoom.image} alt={selectedRoom.title} />
+                <span className={`rooms-status ${selectedRoom.status}`}>
+                  {statusLabels[selectedRoom.status]}
+                </span>
+              </div>
+              <div className="rooms-modal-heading">
+                <span>Detalle de habitacion</span>
+                <h2 id="room-detail-title">Habitacion #{selectedRoom.number}</h2>
+                <p>{selectedRoom.title}</p>
+              </div>
+              <div className="rooms-modal-info-grid">
+                <div>
+                  <span>Tipo</span>
+                  <strong>{selectedRoom.type}</strong>
+                </div>
+                <div>
+                  <span>Precio por noche</span>
+                  <strong>${selectedRoom.price.toFixed(2)}</strong>
+                </div>
+                <div>
+                  <span>Capacidad</span>
+                  <strong>{selectedRoom.capacity} persona{selectedRoom.capacity === 1 ? "" : "s"}</strong>
+                </div>
+                <div>
+                  <span>Piso</span>
+                  <strong>{selectedRoom.floor}</strong>
+                </div>
+              </div>
+              <div className="rooms-modal-status-actions">
+                <button
+                  type="button"
+                  onClick={() => updateRoomStatus(selectedRoom.id, "ocupada")}
+                  disabled={selectedRoom.status === "ocupada"}
+                >
+                  Marcar ocupada
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateRoomStatus(selectedRoom.id, "disponible")}
+                  disabled={selectedRoom.status === "disponible"}
+                >
+                  Marcar desocupada
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateRoomStatus(selectedRoom.id, "mantenimiento")}
+                  disabled={selectedRoom.status === "mantenimiento"}
+                >
+                  Marcar mantenimiento
+                </button>
+              </div>
+              <button
+                className="rooms-modal-danger"
+                type="button"
+                onClick={() => handleDelete(selectedRoom.id)}
+              >
+                Eliminar habitacion
+              </button>
+            </section>
+          </div>
+        )}
       </main>
     </div>
+  );
+}
+
+function RoomForm({ form, onChange, onSubmit, submitLabel }) {
+  return (
+    <form className="rooms-modal-form" onSubmit={onSubmit}>
+      <label>
+        Numero
+        <input name="number" value={form.number} onChange={onChange} required placeholder="Ej. 408" />
+      </label>
+      <label>
+        Tipo
+        <select name="type" value={form.type} onChange={onChange}>
+          <option value="Individual">Individual</option>
+          <option value="Doble">Doble</option>
+          <option value="Suite">Suite</option>
+        </select>
+      </label>
+      <label>
+        Estado
+        <select name="status" value={form.status} onChange={onChange}>
+          <option value="disponible">Disponible</option>
+          <option value="ocupada">Ocupada</option>
+          <option value="mantenimiento">Mantenimiento</option>
+        </select>
+      </label>
+      <label>
+        Precio por noche
+        <input name="price" type="number" min="1" value={form.price} onChange={onChange} required placeholder="220" />
+      </label>
+      <label>
+        Capacidad
+        <input name="capacity" type="number" min="1" value={form.capacity} onChange={onChange} required />
+      </label>
+      <label>
+        Piso
+        <input name="floor" type="number" min="1" value={form.floor} onChange={onChange} required placeholder="4" />
+      </label>
+      <button type="submit">{submitLabel}</button>
+    </form>
   );
 }
 

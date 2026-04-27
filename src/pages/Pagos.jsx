@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Header } from "./Home.jsx";
+import { saveClientReservation } from "../services/clientReservationsStorage.js";
 
 const defaultRoom = {
   title: "Grand Royal Suite",
@@ -32,12 +33,27 @@ function Pagos() {
   const location = useLocation();
   const navigate = useNavigate();
   const room = location.state?.room || defaultRoom;
+  const reservation = location.state?.reservation;
+  const clientSession = localStorage.getItem("luxestay.clientSession");
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [formData, setFormData] = useState({
     cardNumber: "",
     expiry: "",
     cvv: "",
   });
+
+  if (!clientSession) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          backgroundLocation: location,
+          returnTo: "/pago",
+        }}
+      />
+    );
+  }
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -66,6 +82,35 @@ function Pagos() {
     });
 
     setTimeout(() => {
+      saveClientReservation({
+        id: `RES-${Date.now().toString().slice(-6)}`,
+        title: room.title,
+        status: "Confirmada",
+        stage: "Proxima estadia",
+        dates: reservation ? `${reservation.checkIn} - ${reservation.checkOut}` : "Fechas por confirmar",
+        checkIn: reservation?.checkIn || "",
+        checkOut: reservation?.checkOut || "",
+        room: room.title,
+        guests: reservation?.people || "2 Adultos",
+        total: `$${room.price}.00`,
+        guest: {
+          name: reservation?.guestName || "Cliente",
+          email: reservation?.guestEmail || "user@demo.com",
+          phone: reservation?.guestPhone || "Sin telefono",
+          requests: reservation?.specialRequests || "Sin peticiones especiales.",
+        },
+        payment: {
+          transactionId: `TRX-${Date.now().toString().slice(-6)}`,
+          method: paymentMethod === "paypal" ? "PayPal" : "Tarjeta",
+          cardLast4:
+            paymentMethod === "card"
+              ? formData.cardNumber.replace(/\D/g, "").slice(-4)
+              : "",
+          paidAt: new Date().toISOString(),
+        },
+        image: room.image,
+      });
+
       Swal.fire({
         icon: "success",
         title: "Pago confirmado",
@@ -174,11 +219,13 @@ function Pagos() {
               <h2>{room.title}</h2>
               <div className="payment-summary-row">
                 <small>Fechas</small>
-                <strong>12 - 15 Mayo, 2026</strong>
+                <strong>
+                  {reservation ? `${reservation.checkIn} - ${reservation.checkOut}` : "Por confirmar"}
+                </strong>
               </div>
               <div className="payment-summary-row">
                 <small>Huespedes</small>
-                <strong>2 Adultos</strong>
+                <strong>{reservation?.people || "2 Adultos"}</strong>
               </div>
               <div className="payment-total">
                 <small>Total</small>

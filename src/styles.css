@@ -102,6 +102,56 @@ img {
   justify-content: flex-end;
 }
 
+.client-session-menu {
+  position: relative;
+}
+
+.client-session-menu > button {
+  background: transparent;
+  border: 0;
+  color: #45546a;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 8px 0;
+  transition: color 180ms ease;
+}
+
+.client-session-menu > button:hover {
+  color: #c9790d;
+}
+
+.client-session-dropdown {
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  box-shadow: 0 14px 30px rgba(12, 24, 40, 0.12);
+  min-width: 150px;
+  padding: 6px;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 25;
+}
+
+.client-session-dropdown button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: #45546a;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 800;
+  padding: 9px 10px;
+  text-align: left;
+  width: 100%;
+}
+
+.client-session-dropdown button:hover {
+  background: #edf2f8;
+  color: #061525;
+}
+
 .book-link {
   align-items: center;
   background: #8a6416;
@@ -630,6 +680,13 @@ img {
 
 .habitaciones-main {
   padding: 54px 7vw 76px;
+}
+
+.habitaciones-page {
+  background:
+    linear-gradient(180deg, rgba(245, 247, 252, 0.88), rgba(245, 247, 252, 0.94)),
+    url("https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1800&q=80")
+      center / cover fixed;
 }
 
 .habitaciones-heading {
@@ -2553,6 +2610,13 @@ img {
   padding: 54px 7vw 76px;
 }
 
+.bookings-page {
+  background:
+    linear-gradient(180deg, rgba(245, 247, 252, 0.9), rgba(245, 247, 252, 0.95)),
+    url("https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1800&q=80")
+      center / cover fixed;
+}
+
 .bookings-heading,
 .bookings-panel {
   margin: 0 auto;
@@ -2609,6 +2673,26 @@ img {
 .booking-list {
   display: grid;
   gap: 18px;
+}
+
+.booking-empty-state {
+  background: #f4f7fd;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  padding: 28px;
+  text-align: center;
+}
+
+.booking-empty-state h3 {
+  color: #061525;
+  font-size: 1.2rem;
+  margin: 0 0 8px;
+}
+
+.booking-empty-state p {
+  color: #45546a;
+  margin: 0 auto 18px;
+  max-width: 520px;
 }
 
 .booking-card {
@@ -2952,8 +3036,11 @@ img {
 }
 
 .admin-sidebar {
-  background: #ffffff;
-  border-right: 1px solid #e4e9f1;
+  background:
+    linear-gradient(180deg, rgba(6, 21, 37, 0.94), rgba(19, 30, 45, 0.92)),
+    url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80")
+      center / cover;
+  border-right: 1px solid rgba(233, 193, 118, 0.24);
   display: flex;
   flex-direction: column;
   gap: 28px;
@@ -2962,15 +3049,17 @@ img {
 
 .admin-brand {
   align-items: center;
+  color: #ffffff;
   display: flex;
   gap: 10px;
+  text-decoration: none;
 }
 
 .admin-brand > span {
   align-items: center;
-  background: #061525;
+  background: #e9c176;
   border-radius: 7px;
-  color: #ffffff;
+  color: #061525;
   display: inline-flex;
   font-weight: 900;
   height: 36px;
@@ -2985,7 +3074,7 @@ img {
 
 .admin-brand small,
 .admin-user span {
-  color: #8a6416;
+  color: #e9c176;
   display: block;
   font-size: 0.68rem;
   font-weight: 800;
@@ -3002,7 +3091,7 @@ img {
   background: transparent;
   border: 0;
   border-radius: 7px;
-  color: #45546a;
+  color: #d7deea;
   cursor: default;
   font-size: 0.9rem;
   font-weight: 700;
@@ -3013,14 +3102,19 @@ img {
 .admin-nav a:hover,
 .admin-nav button:hover,
 .admin-nav .active {
-  background: #edf2f8;
-  color: #061525;
+  background: rgba(233, 193, 118, 0.18);
+  color: #ffffff;
+  box-shadow: inset 3px 0 0 #e9c176;
 }
 
 .admin-user {
-  border-top: 1px solid #edf2f8;
+  border-top: 1px solid rgba(233, 193, 118, 0.24);
   margin-top: auto;
   padding-top: 18px;
+}
+
+.admin-user strong {
+  color: #ffffff;
 }
 
 .admin-main {
@@ -3309,8 +3403,10 @@ img {
 .rooms-admin-primary {
   align-items: center;
   background: #041120;
+  border: 0;
   border-radius: 7px;
   color: #ffffff;
+  cursor: pointer;
   display: inline-flex;
   font-size: 0.9rem;
   font-weight: 900;
@@ -3441,6 +3537,10 @@ img {
   display: grid;
   gap: 24px;
   grid-template-columns: minmax(0, 1fr) 320px;
+}
+
+.rooms-admin-layout-single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .rooms-admin-table-card {
@@ -3579,6 +3679,221 @@ img {
   color: #45546a;
 }
 
+.rooms-modal-backdrop {
+  align-items: center;
+  background: rgba(6, 21, 37, 0.42);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  z-index: 70;
+}
+
+.rooms-modal {
+  animation: roomModalIn 180ms ease;
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  border-radius: 14px;
+  box-shadow: 0 28px 72px rgba(6, 21, 37, 0.28);
+  max-height: calc(100vh - 48px);
+  max-width: 520px;
+  overflow-y: auto;
+  padding: 24px;
+  position: relative;
+  width: min(100%, 520px);
+}
+
+.rooms-detail-modal {
+  max-width: 640px;
+}
+
+@keyframes roomModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rooms-modal-close {
+  background: #f4f7fd;
+  border: 0;
+  border-radius: 50%;
+  color: #45546a;
+  cursor: pointer;
+  height: 34px;
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  width: 34px;
+}
+
+.rooms-modal-heading {
+  padding-right: 44px;
+}
+
+.rooms-modal-heading span {
+  color: #8a6416;
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.rooms-modal-heading h2 {
+  color: #061525;
+  font-size: 1.4rem;
+  margin: 0 0 8px;
+}
+
+.rooms-modal-heading p {
+  color: #45546a;
+  margin: 0 0 18px;
+}
+
+.rooms-modal-preview {
+  border-radius: 12px;
+  margin-bottom: 18px;
+  overflow: hidden;
+  position: relative;
+}
+
+.rooms-modal-preview img {
+  aspect-ratio: 2.2;
+  object-fit: cover;
+  width: 100%;
+}
+
+.rooms-modal-preview .rooms-status {
+  left: 14px;
+  position: absolute;
+  top: 14px;
+}
+
+.rooms-modal-form {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.rooms-modal-form label {
+  color: #45546a;
+  display: grid;
+  font-size: 0.76rem;
+  font-weight: 900;
+  gap: 8px;
+  text-transform: uppercase;
+}
+
+.rooms-modal-form input,
+.rooms-modal-form select {
+  background: #f4f7fd;
+  border: 1px solid #dfe4ec;
+  border-radius: 9px;
+  color: #061525;
+  min-height: 44px;
+  outline: 0;
+  padding: 0 12px;
+}
+
+.rooms-modal-form input:focus,
+.rooms-modal-form select:focus {
+  border-color: #8a6416;
+  box-shadow: 0 0 0 3px rgba(138, 100, 22, 0.14);
+}
+
+.rooms-modal-form button {
+  background: #041120;
+  border: 0;
+  border-radius: 9px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 900;
+  grid-column: 1 / -1;
+  min-height: 46px;
+}
+
+.rooms-modal-info-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.rooms-modal-info-grid div {
+  background: #f4f7fd;
+  border: 1px solid #e4e9f1;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.rooms-modal-info-grid span {
+  color: #707885;
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 900;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.rooms-modal-info-grid strong {
+  color: #061525;
+  display: block;
+}
+
+.rooms-modal-status-actions {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.rooms-modal-status-actions button {
+  background: #041120;
+  border: 0;
+  border-radius: 9px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 900;
+  min-height: 44px;
+}
+
+.rooms-modal-status-actions button:last-child {
+  background: #fff4d8;
+  color: #a85f00;
+}
+
+.rooms-modal-status-actions button:nth-child(2) {
+  background: #e7f8ed;
+  color: #087b3f;
+}
+
+.rooms-modal-status-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.rooms-modal-danger {
+  background: #fff1f1;
+  border: 1px solid #ffc7c7;
+  border-radius: 9px;
+  color: #b22020;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 900;
+  margin-top: 12px;
+  min-height: 44px;
+  width: 100%;
+}
+
 .reservations-admin-shell {
   grid-template-columns: 230px minmax(0, 1fr);
 }
@@ -3601,6 +3916,10 @@ img {
   display: grid;
   gap: 24px;
   grid-template-columns: minmax(0, 1fr) 320px;
+}
+
+.reservations-admin-layout-single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .reservations-admin-table-card {
@@ -3659,6 +3978,25 @@ img {
 .reservation-status.no-confirmado {
   background: #fff1f1;
   color: #b22020;
+}
+
+.reservation-status.Confirmada {
+  background: #e7f8ed;
+  color: #087b3f;
+}
+
+.reservation-status.Pendiente {
+  background: #fff4d8;
+  color: #a85f00;
+}
+
+.reservation-status.Cancelada {
+  background: #fff1f1;
+  color: #b22020;
+}
+
+.reservations-modal {
+  max-width: 680px;
 }
 
 .reservations-admin-actions {
@@ -3781,6 +4119,10 @@ img {
   grid-template-columns: minmax(260px, 1fr) 190px 190px;
   margin-bottom: 24px;
   padding: 16px;
+}
+
+.clients-filter-card-user {
+  grid-template-columns: minmax(260px, 1fr) 190px;
 }
 
 .clients-filter-card label {
@@ -3907,6 +4249,11 @@ img {
   margin-left: 6px;
 }
 
+.clients-admin-table-user,
+.clients-admin-row-user {
+  grid-template-columns: 1.4fr 1.5fr 0.8fr 1.4fr 0.75fr;
+}
+
 .clients-admin-row {
   border-bottom: 1px solid #edf2f8;
   color: #061525;
@@ -4007,6 +4354,10 @@ img {
   grid-template-columns: 1.35fr 1.5fr 0.7fr 0.85fr;
   min-height: 72px;
   padding: 0 20px;
+}
+
+.clients-skeleton-row-user {
+  grid-template-columns: 1.4fr 1.5fr 0.8fr 1.4fr;
 }
 
 .clients-skeleton-row span {
@@ -4164,7 +4515,18 @@ img {
   gap: 10px;
 }
 
-.client-drawer-actions button:last-child {
+.client-drawer-actions span {
+  background: #e7f8ed;
+  border: 1px solid #bce8cc;
+  border-radius: 10px;
+  color: #087b3f;
+  font-size: 0.82rem;
+  font-weight: 900;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.client-drawer-actions button:last-child:not(:only-child) {
   background: #fff1f1;
   border: 1px solid #ffc7c7;
   color: #b22020;
@@ -4200,11 +4562,266 @@ img {
   margin-top: 6px;
 }
 
+.client-drawer-panel .client-reservation-list {
+  background: transparent;
+  border: 0;
+  display: grid;
+  gap: 10px;
+  padding: 0;
+}
+
+.client-reservation-list article {
+  background: #f7f8fd;
+  border: 1px solid #e4e9f1;
+  border-radius: 12px;
+  display: grid;
+  gap: 5px;
+  padding: 14px;
+}
+
+.client-reservation-list article strong {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.client-reservation-list article small {
+  color: #707885;
+  font-weight: 800;
+}
+
+.admin-payments-shell {
+  grid-template-columns: 230px minmax(0, 1fr);
+}
+
+.admin-payments-main {
+  background: #f7f8fd;
+  padding: 0 28px 28px;
+}
+
+.admin-payments-topbar {
+  border-bottom: 1px solid #edf2f8;
+}
+
+.admin-payments-heading {
+  margin-top: 26px;
+}
+
+.admin-payments-metrics {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 24px;
+}
+
+.admin-payments-metrics article,
+.admin-payments-filter,
+.admin-payments-table-card {
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(12, 24, 40, 0.05);
+}
+
+.admin-payments-metrics article {
+  display: grid;
+  gap: 8px;
+  min-height: 128px;
+  padding: 22px;
+}
+
+.admin-payments-metrics span,
+.admin-payments-filter span,
+.admin-payments-table-header {
+  color: #7a8496;
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.admin-payments-metrics strong {
+  color: #061525;
+  font-size: 1.8rem;
+}
+
+.admin-payments-metrics small {
+  color: #45546a;
+}
+
+.admin-payments-filter {
+  align-items: end;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 220px 150px;
+  margin-bottom: 24px;
+  padding: 16px;
+}
+
+.admin-payments-filter label {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-payments-filter select {
+  background: #f4f7fd;
+  border: 1px solid #dfe4ec;
+  border-radius: 10px;
+  color: #061525;
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.admin-payments-filter button {
+  background: #ffffff;
+  border: 1px solid #dfe4ec;
+  border-radius: 10px;
+  color: #061525;
+  cursor: pointer;
+  font-weight: 900;
+  min-height: 42px;
+}
+
+.admin-payments-table-card {
+  overflow-x: auto;
+}
+
+.admin-payments-table-header,
+.admin-payments-row {
+  align-items: center;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr 1.25fr 1.55fr 1fr 0.8fr 0.8fr;
+  min-width: 980px;
+  padding: 0 20px;
+}
+
+.admin-payments-table-header {
+  border-bottom: 1px solid #edf2f8;
+  min-height: 52px;
+}
+
+.admin-payments-row {
+  border-bottom: 1px solid #edf2f8;
+  color: #061525;
+  font-size: 0.88rem;
+  min-height: 78px;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.admin-payments-row:hover {
+  background: #fbfcff;
+  transform: translateY(-1px);
+}
+
+.admin-payments-row small {
+  color: #707885;
+  display: block;
+  font-size: 0.76rem;
+  margin-top: 4px;
+}
+
+.admin-payments-user {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.admin-payments-user > span {
+  align-items: center;
+  background: #edf2f8;
+  border-radius: 50%;
+  color: #061525;
+  display: inline-flex;
+  flex: 0 0 38px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  height: 38px;
+  justify-content: center;
+  width: 38px;
+}
+
+.admin-payment-status {
+  background: #e7f8ed;
+  border-radius: 999px;
+  color: #087b3f;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 900;
+  justify-content: center;
+  justify-self: start;
+  padding: 6px 12px;
+}
+
+.admin-payments-empty {
+  color: #45546a;
+  padding: 34px;
+  text-align: center;
+}
+
+.admin-payments-empty h2 {
+  color: #061525;
+  margin: 0 0 8px;
+}
+
+.admin-main,
+.rooms-admin-main,
+.reservations-admin-main,
+.clients-admin-main,
+.admin-payments-main {
+  background:
+    linear-gradient(180deg, rgba(247, 248, 253, 0.74), rgba(247, 248, 253, 0.9) 40%, #f7f8fd 100%),
+    url("https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1800&q=80")
+      center top / cover fixed;
+  isolation: isolate;
+  overflow: hidden;
+  position: relative;
+}
+
+.admin-main::before,
+.rooms-admin-main::before,
+.reservations-admin-main::before,
+.clients-admin-main::before,
+.admin-payments-main::before {
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.1)),
+    repeating-linear-gradient(
+      135deg,
+      rgba(138, 100, 22, 0.18) 0,
+      rgba(138, 100, 22, 0.18) 1px,
+      transparent 1px,
+      transparent 18px
+    );
+  content: "";
+  height: 250px;
+  inset: 0 0 auto;
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+}
+
+.admin-main > *,
+.rooms-admin-main > *,
+.reservations-admin-main > *,
+.clients-admin-main > *,
+.admin-payments-main > * {
+  position: relative;
+}
+
+.admin-topbar,
+.reservations-admin-topbar,
+.clients-admin-topbar,
+.admin-payments-topbar {
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.82);
+}
+
 @media (max-width: 980px) {
   .admin-shell,
   .rooms-admin-shell,
   .reservations-admin-shell,
-  .clients-admin-shell {
+  .clients-admin-shell,
+  .admin-payments-shell {
     grid-template-columns: 1fr;
   }
 
@@ -4216,6 +4833,7 @@ img {
   .admin-nav,
   .rooms-admin-stats,
   .clients-metrics,
+  .admin-payments-metrics,
   .admin-stats-grid,
   .admin-content-grid,
   .admin-task-grid {
@@ -4233,6 +4851,7 @@ img {
   .reservations-admin-toolbar,
   .reservations-admin-layout,
   .clients-filter-card,
+  .admin-payments-filter,
   .clients-admin-layout {
     grid-template-columns: 1fr;
   }
@@ -4264,7 +4883,8 @@ img {
   .admin-main,
   .rooms-admin-main,
   .reservations-admin-main,
-  .clients-admin-main {
+  .clients-admin-main,
+  .admin-payments-main {
     padding: 0 16px 24px;
   }
 

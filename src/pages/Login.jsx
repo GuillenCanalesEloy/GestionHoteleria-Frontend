@@ -30,6 +30,7 @@ function Icon({ type }) {
 function Login() {
   const location = useLocation();
   const navigate = useNavigate();
+  const returnTo = location.state?.returnTo || '/';
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -53,8 +54,16 @@ function Login() {
         return;
       }
 
-      // Aqui ira la llamada al backend cuando este listo.
-      console.log('Login con:', email, password);
+      if (email === 'user' && password === 'user123') {
+        localStorage.setItem(
+          'luxestay.clientSession',
+          JSON.stringify({ username: 'user', loggedAt: new Date().toISOString() }),
+        );
+        navigate(returnTo, { replace: true });
+        return;
+      }
+
+      setError('Credenciales de huesped incorrectas');
     } catch (err) {
       setError('Error al conectar con el servidor');
     } finally {
@@ -97,7 +106,7 @@ function Login() {
             <p>
               {loginMode === 'admin'
                 ? 'Accede al panel interno de trabajadores con credenciales de prueba.'
-                : 'Ingresa con tu correo para continuar con tus reservas.'}
+                : 'Ingresa con tu usuario para continuar con tus reservas.'}
             </p>
           </div>
 
@@ -139,8 +148,8 @@ function Login() {
                 <Icon type="mail" />
                 <input
                   id="email"
-                  type={loginMode === 'admin' ? 'text' : 'email'}
-                  placeholder={loginMode === 'admin' ? 'Admin' : 'tuemail@correo.com'}
+                  type="text"
+                  placeholder={loginMode === 'admin' ? 'Admin' : 'user'}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -190,7 +199,7 @@ function Login() {
 
           {loginMode === 'guest' ? (
             <p className="login-support">
-              Aun no tienes cuenta? <Link to="/registro">Crear cuenta</Link>
+              Credenciales de prueba: <strong>user</strong> / <strong>user123</strong>
             </p>
           ) : (
             <p className="login-support">
