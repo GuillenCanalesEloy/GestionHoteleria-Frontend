@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 const rooms = [
   {
@@ -66,6 +66,35 @@ export function Icon({ type }) {
 
 export function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [clientSession, setClientSession] = useState(() => {
+    const storedSession = localStorage.getItem('luxestay.clientSession');
+    return storedSession ? JSON.parse(storedSession) : null;
+  });
+  const [accountOpen, setAccountOpen] = useState(false);
+
+  useEffect(() => {
+    const syncSession = () => {
+      const storedSession = localStorage.getItem('luxestay.clientSession');
+      setClientSession(storedSession ? JSON.parse(storedSession) : null);
+    };
+
+    window.addEventListener('focus', syncSession);
+    window.addEventListener('storage', syncSession);
+
+    return () => {
+      window.removeEventListener('focus', syncSession);
+      window.removeEventListener('storage', syncSession);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('luxestay.clientSession');
+    setClientSession(null);
+    setAccountOpen(false);
+    navigate('/');
+    window.location.reload();
+  };
 
   return (
     <header className="site-header">
@@ -81,13 +110,28 @@ export function Header() {
         <NavLink to="/mis-reservas">Mis reservas</NavLink>
       </nav>
       <div className="header-actions">
-        <Link
-          className="ghost-link"
-          to="/login"
-          state={{ backgroundLocation: location }}
-        >
-          Iniciar sesion
-        </Link>
+        {clientSession ? (
+          <div className="client-session-menu">
+            <button type="button" onClick={() => setAccountOpen((open) => !open)}>
+              Bienvenido {clientSession.username}
+            </button>
+            {accountOpen && (
+              <div className="client-session-dropdown">
+                <button type="button" onClick={handleLogout}>
+                  Cerrar sesion
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Link
+            className="ghost-link"
+            to="/login"
+            state={{ backgroundLocation: location }}
+          >
+            Iniciar sesion
+          </Link>
+        )}
         <Link className="book-link" to="/reservar">
           Reservar
         </Link>
