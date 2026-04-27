@@ -65,6 +65,28 @@ function AdminHabitaciones() {
     saveStoredRooms(rooms);
   }, [rooms]);
 
+  useEffect(() => {
+    if (!createModalOpen && !selectedRoom) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      if (createModalOpen) {
+        closeCreateModal();
+        return;
+      }
+
+      closeRoomModal();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [createModalOpen, selectedRoom]);
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setForm((currentForm) => ({ ...currentForm, [name]: value }));
@@ -373,10 +395,10 @@ function AdminHabitaciones() {
         </section>
 
         {createModalOpen && (
-          <div className="rooms-modal-backdrop" role="presentation">
-            <section className="rooms-modal" role="dialog" aria-modal="true" aria-labelledby="create-room-title">
+          <div className="rooms-modal-backdrop" role="presentation" onClick={closeCreateModal}>
+            <section className="rooms-modal" role="dialog" aria-modal="true" aria-labelledby="create-room-title" onClick={(event) => event.stopPropagation()}>
               <button className="rooms-modal-close" type="button" onClick={closeCreateModal} aria-label="Cerrar modal">
-                x
+                ×
               </button>
               <div className="rooms-modal-heading">
                 <span>Nueva habitacion</span>
@@ -393,10 +415,10 @@ function AdminHabitaciones() {
         )}
 
         {selectedRoom && (
-          <div className="rooms-modal-backdrop" role="presentation">
-            <section className="rooms-modal rooms-detail-modal" role="dialog" aria-modal="true" aria-labelledby="room-detail-title">
+          <div className="rooms-modal-backdrop" role="presentation" onClick={closeRoomModal}>
+            <section className="rooms-modal rooms-detail-modal" role="dialog" aria-modal="true" aria-labelledby="room-detail-title" onClick={(event) => event.stopPropagation()}>
               <button className="rooms-modal-close" type="button" onClick={closeRoomModal} aria-label="Cerrar modal">
-                x
+                ×
               </button>
               <div className="rooms-modal-preview">
                 <img src={selectedRoom.image} alt={selectedRoom.title} />
@@ -450,6 +472,12 @@ function AdminHabitaciones() {
                   Marcar mantenimiento
                 </button>
               </div>
+              <RoomForm
+                form={form}
+                onChange={handleInputChange}
+                onSubmit={handleSubmit}
+                submitLabel="Guardar cambios"
+              />
               <button
                 className="rooms-modal-danger"
                 type="button"

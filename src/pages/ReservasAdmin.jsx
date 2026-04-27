@@ -121,6 +121,21 @@ function ReservasAdmin() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!selectedReservation) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        closeReservationModal();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedReservation]);
+
   const filteredReservations = useMemo(() => {
     return reservations.filter((reservation) => {
       const searchText =
@@ -368,10 +383,10 @@ function ReservasAdmin() {
         </section>
 
         {selectedReservation && (
-          <div className="rooms-modal-backdrop" role="presentation">
-            <section className="rooms-modal reservations-modal" role="dialog" aria-modal="true" aria-labelledby="reservation-detail-title">
+          <div className="rooms-modal-backdrop" role="presentation" onClick={closeReservationModal}>
+            <section className="rooms-modal reservations-modal" role="dialog" aria-modal="true" aria-labelledby="reservation-detail-title" onClick={(event) => event.stopPropagation()}>
               <button className="rooms-modal-close" type="button" onClick={closeReservationModal} aria-label="Cerrar modal">
-                x
+                ×
               </button>
               <div className="rooms-modal-heading">
                 <span>Reserva del cliente user</span>
@@ -402,6 +417,11 @@ function ReservasAdmin() {
                 <label>
                   Habitacion
                   <select name="room" value={form.room} onChange={handleInputChange} required>
+                    {!roomOptions.length && (
+                      <option value={form.room}>
+                        {form.room || "Sin habitaciones disponibles"}
+                      </option>
+                    )}
                     {roomOptions.map((room) => (
                       <option key={room.id} value={room.title}>
                         {room.title}

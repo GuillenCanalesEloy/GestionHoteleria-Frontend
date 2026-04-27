@@ -81,19 +81,21 @@ export function Header() {
 
     window.addEventListener('focus', syncSession);
     window.addEventListener('storage', syncSession);
+    window.addEventListener('luxestay:client-session-change', syncSession);
 
     return () => {
       window.removeEventListener('focus', syncSession);
       window.removeEventListener('storage', syncSession);
+      window.removeEventListener('luxestay:client-session-change', syncSession);
     };
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('luxestay.clientSession');
+    window.dispatchEvent(new Event('luxestay:client-session-change'));
     setClientSession(null);
     setAccountOpen(false);
     navigate('/');
-    window.location.reload();
   };
 
   return (
