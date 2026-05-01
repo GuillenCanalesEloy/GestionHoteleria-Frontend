@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const stats = [
@@ -54,6 +54,18 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const [profileOpen, setProfileOpen] = useState(false);
+
+  useEffect(() => {
+    if (!localStorage.getItem("luxestay.adminSession")) {
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("luxestay.adminSession");
+    setProfileOpen(false);
+    navigate("/", { replace: true });
+  };
 
   return (
     <div className="admin-shell">
@@ -128,7 +140,7 @@ function AdminDashboard() {
             </button>
             {profileOpen && (
               <div className="admin-profile-dropdown">
-                <button type="button" onClick={() => navigate("/")}>
+                <button type="button" onClick={handleLogout}>
                   Cerrar sesion
                 </button>
               </div>

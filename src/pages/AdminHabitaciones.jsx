@@ -16,7 +16,7 @@ const emptyRoomForm = {
 };
 
 const statusLabels = {
-  disponible: "Disponible",
+  disponible: "No ocupado",
   ocupada: "Ocupada",
   mantenimiento: "Mantenimiento",
 };
@@ -293,7 +293,7 @@ function AdminHabitaciones() {
             <small>Habitaciones registradas</small>
           </article>
           <article>
-            <span>Disponible</span>
+            <span>No ocupado</span>
             <strong>{totals.disponible}</strong>
             <small>Listas para reservar</small>
           </article>
@@ -329,7 +329,7 @@ function AdminHabitaciones() {
               onChange={(event) => setStatusFilter(event.target.value)}
             >
               <option value="todos">Todos los estados</option>
-              <option value="disponible">Disponible</option>
+              <option value="disponible">No ocupado</option>
               <option value="ocupada">Ocupada</option>
               <option value="mantenimiento">Mantenimiento</option>
             </select>
@@ -511,7 +511,7 @@ function RoomForm({ form, onChange, onSubmit, submitLabel }) {
       <label>
         Estado
         <select name="status" value={form.status} onChange={onChange}>
-          <option value="disponible">Disponible</option>
+          <option value="disponible">No ocupado</option>
           <option value="ocupada">Ocupada</option>
           <option value="mantenimiento">Mantenimiento</option>
         </select>

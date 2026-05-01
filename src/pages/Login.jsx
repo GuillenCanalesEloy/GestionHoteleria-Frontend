@@ -31,6 +31,7 @@ function Login() {
   const location = useLocation();
   const navigate = useNavigate();
   const returnTo = location.state?.returnTo || '/';
+  const returnState = location.state?.returnState;
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,7 +47,11 @@ function Login() {
     try {
       if (loginMode === 'admin') {
         if (email === 'Admin' && password === '123') {
-          navigate('/admin/dashboard');
+          localStorage.setItem(
+            'luxestay.adminSession',
+            JSON.stringify({ username: 'Admin', loggedAt: new Date().toISOString() }),
+          );
+          navigate('/admin/dashboard', { replace: true });
           return;
         }
 
@@ -60,7 +65,7 @@ function Login() {
           JSON.stringify({ username: 'user', loggedAt: new Date().toISOString() }),
         );
         window.dispatchEvent(new Event('luxestay:client-session-change'));
-        navigate(returnTo, { replace: true });
+        navigate(returnTo, { replace: true, state: returnState });
         return;
       }
 
@@ -73,6 +78,11 @@ function Login() {
   };
 
   const handleClose = () => {
+    if (location.state?.closeTo) {
+      navigate(location.state.closeTo, { replace: true });
+      return;
+    }
+
     if (location.state?.backgroundLocation) {
       navigate(-1);
       return;
