@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Header } from "./Home.jsx";
 import { saveClientReservation } from "../services/clientReservationsStorage.js";
@@ -34,26 +34,12 @@ function Pagos() {
   const navigate = useNavigate();
   const room = location.state?.room || defaultRoom;
   const reservation = location.state?.reservation;
-  const clientSession = localStorage.getItem("luxestay.clientSession");
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [formData, setFormData] = useState({
     cardNumber: "",
     expiry: "",
     cvv: "",
   });
-
-  if (!clientSession) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-        state={{
-          backgroundLocation: location,
-          returnTo: "/pago",
-        }}
-      />
-    );
-  }
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;

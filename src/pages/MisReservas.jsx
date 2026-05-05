@@ -16,6 +16,7 @@ function MisReservas() {
         replace
         state={{
           backgroundLocation: location,
+          closeTo: "/",
           returnTo: "/mis-reservas",
         }}
       />

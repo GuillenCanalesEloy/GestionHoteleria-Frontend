@@ -1,9 +1,31 @@
-import { Link } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function DetallesDeHabitacion({ room, onClose }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   if (!room) {
     return null;
   }
+
+  const handleReserve = () => {
+    const clientSession = localStorage.getItem("luxestay.clientSession");
+
+    if (clientSession) {
+      onClose();
+      navigate("/reservar", { state: { room } });
+      return;
+    }
+
+    onClose();
+    navigate("/login", {
+      state: {
+        backgroundLocation: location,
+        returnTo: "/reservar",
+        returnState: { room },
+      },
+    });
+  };
 
   return (
     <div className="room-detail-backdrop" role="presentation">
@@ -43,9 +65,9 @@ function DetallesDeHabitacion({ room, onClose }) {
               <small>Precio por noche</small>
               <strong>${room.price}</strong>
             </div>
-            <Link className="book-link" to="/reservar" state={{ room }}>
+            <button className="book-link" type="button" onClick={handleReserve}>
               Reservar
-            </Link>
+            </button>
           </div>
         </div>
       </section>
