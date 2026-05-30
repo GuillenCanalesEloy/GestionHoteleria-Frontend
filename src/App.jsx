@@ -13,6 +13,7 @@ import Pagos from './pages/Pagos.jsx';
 import Reportes from './pages/Reportes.jsx';
 import AdminPagos from './pages/AdminPagos.jsx';
 import AreasComunes from './pages/AreasComunes.jsx';
+import AdminAreasComunes from './pages/AdminAreasComunes.jsx';
 
 function AppRoutes() {
   const location = useLocation();
@@ -32,6 +33,7 @@ function AppRoutes() {
         <Route path="/pago" element={<Pagos />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/habitaciones" element={<AdminHabitaciones />} />
+        <Route path="/admin/areas-comunes" element={<AdminAreasComunes />} />
         <Route path="/admin/clientes" element={<ClienteAdmin />} />
         <Route path="/admin/reservas" element={<ReservasAdmin />} />
         <Route path="/admin/reportes" element={<Reportes />} />

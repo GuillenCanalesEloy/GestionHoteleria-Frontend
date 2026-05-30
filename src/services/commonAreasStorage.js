@@ -100,6 +100,27 @@ export function getCommonAreas() {
   return readJson(COMMON_AREAS_KEY, defaultAreas);
 }
 
+export function saveCommonAreas(areas) {
+  localStorage.setItem(COMMON_AREAS_KEY, JSON.stringify(areas));
+  return areas;
+}
+
+export function normalizeCommonArea(area) {
+  return {
+    id: area.id || `area-${Date.now()}`,
+    name: area.name?.trim() || "Area comun",
+    badge: area.badge?.trim() || "Hotel",
+    status: area.status || "disponible",
+    capacity: Number(area.capacity) || 1,
+    pricePerHour: Number(area.pricePerHour) || 0,
+    schedule: area.schedule?.trim() || "08:00 - 22:00",
+    image:
+      area.image?.trim() ||
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+    description: area.description?.trim() || "Espacio disponible para huespedes.",
+  };
+}
+
 export function getAreaReservations() {
   return readJson(COMMON_AREA_RESERVATIONS_KEY, []);
 }
