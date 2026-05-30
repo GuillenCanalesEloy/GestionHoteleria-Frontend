@@ -1,58 +1,138 @@
-import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./Home.jsx";
+import {
+  areaStatusLabels,
+  getCommonAreas,
+  hasScheduleOverlap,
+  saveAreaReservation,
+} from "../services/commonAreasStorage.js";
 
-const commonAreas = [
-  {
-    id: "pool-deck",
-    name: "Infinity Pool & Sun Deck",
-    badge: "Popular",
-    status: "Disponible",
-    capacity: 24,
-    pricePerHour: 60,
-    image:
-      "https://images.unsplash.com/photo-1572331165267-854da2b10ccc?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "Piscina panoramica con zona de descanso, tumbonas premium y atencion de bebidas.",
-  },
-  {
-    id: "wellness-spa",
-    name: "Wellness & Spa",
-    badge: "Relax",
-    status: "Disponible",
-    capacity: 8,
-    pricePerHour: 85,
-    image:
-      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "Cabinas privadas, sauna y ambiente terapeutico para sesiones de bienestar.",
-  },
-  {
-    id: "high-tech-gym",
-    name: "High-Tech Gym",
-    badge: "24/7",
-    status: "Disponible",
-    capacity: 16,
-    pricePerHour: 25,
-    image:
-      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "Equipamiento moderno, zona cardiovascular y espacio funcional para rutinas guiadas.",
-  },
-  {
-    id: "private-lounge",
-    name: "Private Lounge",
-    badge: "Premium",
-    status: "Disponible",
-    capacity: 12,
-    pricePerHour: 75,
-    image:
-      "https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "Lounge reservado con servicio de cafe, proyector y ambiente ejecutivo.",
-  },
-];
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
+function getHoursBetween(startTime, endTime) {
+  if (!startTime || !endTime) {
+    return 0;
+  }
+
+  const [startHours, startMinutes] = startTime.split(":").map(Number);
+  const [endHours, endMinutes] = endTime.split(":").map(Number);
+  const start = startHours * 60 + startMinutes;
+  const end = endHours * 60 + endMinutes;
+  return Math.max((end - start) / 60, 0);
+}
 
 function AreasComunes() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const minDate = useMemo(todayIso, []);
+  const [commonAreas] = useState(() => getCommonAreas());
+  const [selectedArea, setSelectedArea] = useState(() =>
+    getCommonAreas().find((area) => area.status === "disponible") || getCommonAreas()[0],
+  );
+  const [statusFilter, setStatusFilter] = useState("disponible");
+  const [date, setDate] = useState(minDate);
+  const [startTime, setStartTime] = useState("10:00");
+  const [endTime, setEndTime] = useState("12:00");
+  const [people, setPeople] = useState("2 personas");
+  const [notes, setNotes] = useState("");
+  const [message, setMessage] = useState("");
+
+  const clientSession = localStorage.getItem("luxestay.clientSession");
+  const session = clientSession ? JSON.parse(clientSession) : null;
+  const hasValidToken = Boolean(session?.token);
+  const visibleAreas = commonAreas.filter(
+    (area) => statusFilter === "todos" || area.status === statusFilter,
+  );
+  const reservedHours = getHoursBetween(startTime, endTime);
+  const total = selectedArea ? reservedHours * selectedArea.pricePerHour : 0;
+  const isSameDay = date === minDate;
+  const nowPlusThirty = new Date(Date.now() + 30 * 60 * 1000);
+  const selectedStart = new Date(`${date}T${startTime}`);
+
+  const handleSelectArea = (area) => {
+    setSelectedArea(area);
+    setMessage("");
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setMessage("");
+
+    if (!hasValidToken) {
+      navigate("/login", {
+        state: {
+          backgroundLocation: location,
+          closeTo: "/areas-comunes",
+          returnTo: "/areas-comunes",
+        },
+      });
+      return;
+    }
+
+    if (!selectedArea || selectedArea.status !== "disponible") {
+      setMessage("Selecciona un area disponible para reservar.");
+      return;
+    }
+
+    if (reservedHours <= 0) {
+      setMessage("La hora final debe ser mayor a la hora de inicio.");
+      return;
+    }
+
+    if (reservedHours > 3) {
+      setMessage("La duracion maxima permitida es de 3 horas.");
+      return;
+    }
+
+    if (isSameDay && selectedStart.getTime() < nowPlusThirty.getTime()) {
+      setMessage("Reserva con al menos 30 minutos de anticipacion.");
+      return;
+    }
+
+    if (
+      hasScheduleOverlap({
+        areaId: selectedArea.id,
+        date,
+        startTime,
+        endTime,
+      })
+    ) {
+      setMessage("Horario no disponible");
+      return;
+    }
+
+    saveAreaReservation({
+      id: `AREA-${Date.now().toString().slice(-6)}`,
+      type: "area-comun",
+      areaId: selectedArea.id,
+      username: session.username || "user",
+      title: selectedArea.name,
+      image: selectedArea.image,
+      stage: "Reserva de area comun",
+      date,
+      startTime,
+      endTime,
+      dates: `${date} / ${startTime} - ${endTime}`,
+      guests: people,
+      status: "pendiente",
+      total: `$${total.toFixed(2)}`,
+      room: selectedArea.name,
+      duration: reservedHours,
+      pricePerHour: selectedArea.pricePerHour,
+      guest: {
+        name: session.username || "user",
+        email: "user@demo.com",
+        phone: "Por confirmar",
+        requests: notes || "Sin peticiones especiales.",
+      },
+      createdAt: new Date().toISOString(),
+    });
+
+    setMessage(`Reserva registrada: ${reservedHours} horas, ${date} de ${startTime} a ${endTime}, total $${total.toFixed(2)}.`);
+    setNotes("");
+  };
+
   return (
     <div className="home-page areas-page">
       <Header />
@@ -63,7 +143,7 @@ function AreasComunes() {
             <p className="hero-kicker">Experiencia exclusiva</p>
             <h1>Areas Comunes</h1>
             <p>
-              Explora espacios del hotel para relajarte, entrenar, reunirte o
+              Reserva espacios del hotel para relajarte, entrenar, reunirte o
               disfrutar servicios premium durante tu estadia.
             </p>
             <div className="hero-actions">
@@ -83,33 +163,166 @@ function AreasComunes() {
               <p className="section-kicker">Instalaciones</p>
               <h2>Nuestros espacios</h2>
               <p>
-                Revisa las areas comunes disponibles con capacidad y precio por
-                hora para planificar tu visita.
+                Cada area muestra estado, capacidad y precio por hora. Por este
+                avance, los datos se manejan dentro del frontend.
               </p>
+            </div>
+            <div className="areas-filter">
+              {[
+                ["disponible", "Disponible"],
+                ["todos", "Todos"],
+              ].map(([status, label]) => (
+                <button
+                  className={statusFilter === status ? "active" : ""}
+                  key={status}
+                  type="button"
+                  onClick={() => setStatusFilter(status)}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
 
-          <section className="areas-grid" aria-label="Listado de areas comunes">
-            {commonAreas.map((area) => (
-              <article className="area-card" key={area.id}>
-                <div className="area-card-image">
-                  <img src={area.image} alt={area.name} />
-                  <span>{area.badge}</span>
-                </div>
-                <div className="area-card-content">
+          <div className="areas-layout">
+            <section className="areas-grid" aria-label="Listado de areas comunes">
+              {visibleAreas.map((area) => (
+                <article
+                  className={`area-card ${selectedArea?.id === area.id ? "selected" : ""}`}
+                  key={area.id}
+                >
+                  <button type="button" onClick={() => handleSelectArea(area)}>
+                    <div className="area-card-image">
+                      <img src={area.image} alt={area.name} />
+                      <span>{area.badge}</span>
+                    </div>
+                    <div className="area-card-content">
+                      <div>
+                        <h3>{area.name}</h3>
+                        <p>{area.description}</p>
+                      </div>
+                      <div className="area-meta">
+                        <span>{areaStatusLabels[area.status]}</span>
+                        <span>{area.capacity} personas</span>
+                        <span>${area.pricePerHour}/hora</span>
+                      </div>
+                    </div>
+                  </button>
+                </article>
+              ))}
+            </section>
+
+            <aside className="area-booking-panel">
+              <div className="area-booking-summary">
+                <span>{selectedArea ? areaStatusLabels[selectedArea.status] : ""}</span>
+                <h2>{selectedArea?.name}</h2>
+                <p>{selectedArea?.description}</p>
+                <div className="area-summary-grid">
                   <div>
-                    <h3>{area.name}</h3>
-                    <p>{area.description}</p>
+                    <small>Horario</small>
+                    <strong>{selectedArea?.schedule}</strong>
                   </div>
-                  <div className="area-meta">
-                    <span>{area.status}</span>
-                    <span>{area.capacity} personas</span>
-                    <span>${area.pricePerHour}/hora</span>
+                  <div>
+                    <small>Capacidad</small>
+                    <strong>{selectedArea?.capacity} personas</strong>
                   </div>
                 </div>
-              </article>
-            ))}
-          </section>
+              </div>
+
+              <form className="area-reservation-form" onSubmit={handleSubmit}>
+                <div className="reserva-field">
+                  <label htmlFor="area-date">Fecha</label>
+                  <input
+                    id="area-date"
+                    min={minDate}
+                    type="date"
+                    value={date}
+                    onChange={(event) => setDate(event.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="area-time-grid">
+                  <div className="reserva-field">
+                    <label htmlFor="area-start">Hora inicio</label>
+                    <input
+                      id="area-start"
+                      min={isSameDay ? `${String(nowPlusThirty.getHours()).padStart(2, "0")}:${String(nowPlusThirty.getMinutes()).padStart(2, "0")}` : undefined}
+                      type="time"
+                      value={startTime}
+                      onChange={(event) => setStartTime(event.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="reserva-field">
+                    <label htmlFor="area-end">Hora fin</label>
+                    <input
+                      id="area-end"
+                      type="time"
+                      value={endTime}
+                      onChange={(event) => setEndTime(event.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="reserva-field">
+                  <label htmlFor="area-people">Asistentes</label>
+                  <select
+                    id="area-people"
+                    value={people}
+                    onChange={(event) => setPeople(event.target.value)}
+                  >
+                    <option>1 persona</option>
+                    <option>2 personas</option>
+                    <option>4 personas</option>
+                    <option>8 personas</option>
+                    <option>Grupo 12 personas</option>
+                  </select>
+                </div>
+
+                <div className="reserva-field">
+                  <label htmlFor="area-notes">Peticiones especiales</label>
+                  <textarea
+                    id="area-notes"
+                    rows="3"
+                    value={notes}
+                    onChange={(event) => setNotes(event.target.value)}
+                    placeholder="Indica necesidades de montaje, bebidas o soporte."
+                  />
+                </div>
+
+                <div className="area-total">
+                  <span>{reservedHours || 0} horas</span>
+                  <strong>${total.toFixed(2)}</strong>
+                </div>
+
+                {message && <p className="area-form-message">{message}</p>}
+
+                {hasValidToken ? (
+                  <button
+                    className="reserva-confirm-button"
+                    type="submit"
+                    disabled={selectedArea?.status !== "disponible"}
+                  >
+                    Reservar area
+                  </button>
+                ) : (
+                  <Link
+                    className="reserva-confirm-button area-login-link"
+                    to="/login"
+                    state={{
+                      backgroundLocation: location,
+                      closeTo: "/areas-comunes",
+                      returnTo: "/areas-comunes",
+                    }}
+                  >
+                    Iniciar sesion para reservar
+                  </Link>
+                )}
+              </form>
+            </aside>
+          </div>
         </section>
       </main>
     </div>
