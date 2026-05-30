@@ -109,6 +109,7 @@ export function Header() {
         </NavLink>
         <NavLink to="/nosotros">Nosotros</NavLink>
         <NavLink to="/habitaciones">Habitaciones</NavLink>
+        <NavLink to="/areas-comunes">Areas comunes</NavLink>
         <NavLink to="/mis-reservas">Mis reservas</NavLink>
       </nav>
       <div className="header-actions">
@@ -262,6 +263,7 @@ function Home() {
             <h3>Navegacion</h3>
             <Link to="/nosotros">Nosotros</Link>
             <Link to="/habitaciones">Habitaciones</Link>
+            <Link to="/areas-comunes">Areas comunes</Link>
             <Link to="/servicios">Servicios</Link>
             <Link to="/contacto">Contacto</Link>
           </div>

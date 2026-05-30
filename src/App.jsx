@@ -12,6 +12,7 @@ import ReservasAdmin from './pages/ReservasAdmin.jsx';
 import Pagos from './pages/Pagos.jsx';
 import Reportes from './pages/Reportes.jsx';
 import AdminPagos from './pages/AdminPagos.jsx';
+import AreasComunes from './pages/AreasComunes.jsx';
 
 function AppRoutes() {
   const location = useLocation();
@@ -25,6 +26,7 @@ function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/habitaciones" element={<Habitaciones />} />
+        <Route path="/areas-comunes" element={<AreasComunes />} />
         <Route path="/mis-reservas" element={<MisReservas />} />
         <Route path="/reservar" element={<Reservas />} />
         <Route path="/pago" element={<Pagos />} />

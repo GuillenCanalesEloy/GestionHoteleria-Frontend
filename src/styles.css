@@ -1885,6 +1885,7 @@ img {
   .experience-grid,
   .rooms-grid,
   .catalog-grid,
+  .areas-grid,
   .filters-panel,
   .catalog-grid,
   .filters-panel,
@@ -1903,6 +1904,7 @@ img {
   .home-experience-section,
   .rooms-section,
   .habitaciones-main,
+  .areas-main,
   .about-hero,
   .about-section,
   .habitaciones-main,
@@ -1946,6 +1948,15 @@ img {
   .bookings-toolbar {
     align-items: start;
     flex-direction: column;
+  }
+
+  .areas-hero {
+    min-height: auto;
+    padding: 70px 22px 64px;
+  }
+
+  .areas-hero h1 {
+    letter-spacing: 0.02em;
   }
 
   .booking-card {
@@ -2804,6 +2815,139 @@ img {
   color: #273348;
   font-size: 0.95rem;
   font-weight: 600;
+}
+
+.areas-page {
+  background: #f5f7fc;
+}
+
+.areas-hero {
+  align-items: center;
+  background:
+    linear-gradient(90deg, rgba(6, 21, 37, 0.72), rgba(6, 21, 37, 0.3)),
+    url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1900&q=80")
+      center / cover;
+  display: flex;
+  min-height: 560px;
+  padding: 96px 7vw 86px;
+}
+
+.areas-hero-content {
+  color: #ffffff;
+  max-width: 720px;
+}
+
+.areas-hero h1 {
+  font-size: clamp(3rem, 7vw, 5.6rem);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  margin: 0 0 22px;
+  text-transform: uppercase;
+}
+
+.areas-hero p:not(.hero-kicker) {
+  color: #f7fbff;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.7;
+  margin: 0 0 30px;
+  max-width: 620px;
+}
+
+.areas-main {
+  margin: 0 auto;
+  max-width: 1180px;
+  padding: 64px 7vw 82px;
+}
+
+.areas-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.area-card {
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(12, 24, 40, 0.06);
+  overflow: hidden;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.area-card:hover {
+  border-color: rgba(138, 100, 22, 0.45);
+  box-shadow: 0 18px 38px rgba(12, 24, 40, 0.12);
+  transform: translateY(-2px);
+}
+
+.area-card-image {
+  aspect-ratio: 1.45;
+  overflow: hidden;
+  position: relative;
+}
+
+.area-card-image img {
+  height: 100%;
+  object-fit: cover;
+  transition: transform 600ms ease;
+  width: 100%;
+}
+
+.area-card:hover .area-card-image img {
+  transform: scale(1.06);
+}
+
+.area-card-image span {
+  background: #f59a13;
+  border-radius: 999px;
+  color: #061525;
+  font-size: 0.7rem;
+  font-weight: 900;
+  left: 14px;
+  padding: 7px 11px;
+  position: absolute;
+  text-transform: uppercase;
+  top: 14px;
+}
+
+.area-card-content {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+}
+
+.area-card-content h3 {
+  color: #061525;
+  font-size: 1.18rem;
+  margin: 0 0 8px;
+}
+
+.area-card-content p {
+  color: #45546a;
+  font-size: 0.94rem;
+  line-height: 1.58;
+  margin: 0;
+}
+
+.area-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.area-meta span {
+  background: #f4f7fd;
+  border: 1px solid #e4e9f1;
+  border-radius: 999px;
+  color: #273348;
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 7px 10px;
 }
 
 .login-panel {
