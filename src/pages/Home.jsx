@@ -69,14 +69,16 @@ export function Header() {
   const navigate = useNavigate();
   const [clientSession, setClientSession] = useState(() => {
     const storedSession = localStorage.getItem('luxestay.clientSession');
-    return storedSession ? JSON.parse(storedSession) : null;
+    const parsedSession = storedSession ? JSON.parse(storedSession) : null;
+    return parsedSession?.token ? parsedSession : null;
   });
   const [accountOpen, setAccountOpen] = useState(false);
 
   useEffect(() => {
     const syncSession = () => {
       const storedSession = localStorage.getItem('luxestay.clientSession');
-      setClientSession(storedSession ? JSON.parse(storedSession) : null);
+      const parsedSession = storedSession ? JSON.parse(storedSession) : null;
+      setClientSession(parsedSession?.token ? parsedSession : null);
     };
 
     window.addEventListener('focus', syncSession);

@@ -2,14 +2,45 @@ import { useMemo, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { Header } from "./Home.jsx";
 import { getClientReservations } from "../services/clientReservationsStorage.js";
+import {
+  getAreaReservations,
+  getReservationStart,
+  reservationStatusLabels,
+  saveAreaReservations,
+} from "../services/commonAreasStorage.js";
 
 function MisReservas() {
   const location = useLocation();
   const [expandedReservation, setExpandedReservation] = useState(null);
   const clientSession = localStorage.getItem("luxestay.clientSession");
-  const reservations = useMemo(() => getClientReservations(), []);
+  const session = clientSession ? JSON.parse(clientSession) : null;
+  const hasValidToken = Boolean(session?.token);
+  const [areaReservations, setAreaReservations] = useState(() => getAreaReservations());
+  const reservations = useMemo(() => {
+    const roomReservations = getClientReservations()
+      .filter((reservation) => !session || reservation.guest?.name === session.username)
+      .map((reservation) => ({
+        ...reservation,
+        originalStatus: reservation.status,
+        sortDate: new Date(reservation.checkIn || reservation.createdAt || Date.now()).getTime(),
+      }));
 
-  if (!clientSession) {
+    const currentAreaReservations = areaReservations
+      .filter((reservation) => reservation.username === session?.username)
+      .map((reservation) => ({
+        ...reservation,
+        stage: reservationStatusLabels[reservation.status],
+        originalStatus: reservation.status,
+        status: reservationStatusLabels[reservation.status],
+        sortDate: getReservationStart(reservation),
+      }));
+
+    return [...roomReservations, ...currentAreaReservations].sort(
+      (first, second) => second.sortDate - first.sortDate,
+    );
+  }, [areaReservations, session]);
+
+  if (!hasValidToken) {
     return (
       <Navigate
         to="/login"
@@ -25,6 +56,16 @@ function MisReservas() {
 
   const toggleReservation = (title) => {
     setExpandedReservation((current) => (current === title ? null : title));
+  };
+
+  const cancelAreaReservation = (reservationId) => {
+    const nextReservations = areaReservations.map((reservation) =>
+      reservation.id === reservationId
+        ? { ...reservation, status: "cancelada", stage: "Reserva cancelada" }
+        : reservation,
+    );
+    setAreaReservations(nextReservations);
+    saveAreaReservations(nextReservations);
   };
 
   return (
@@ -56,9 +97,9 @@ function MisReservas() {
             {reservations.length === 0 && (
               <div className="booking-empty-state">
                 <h3>Aun no tienes reservas guardadas</h3>
-                <p>Elige una habitacion, completa la reserva y confirma el pago para verla aqui.</p>
-                <Link className="book-link" to="/habitaciones">
-                  Ver habitaciones
+                <p>Elige una habitacion o area comun y completa una reserva para verla aqui.</p>
+                <Link className="book-link" to="/areas-comunes">
+                  Ver areas comunes
                 </Link>
               </div>
             )}
@@ -83,11 +124,25 @@ function MisReservas() {
                   >
                     {expandedReservation === reservation.id ? "Ocultar" : "Ver reserva"}
                   </button>
+                  {reservation.type === "area-comun" &&
+                    ["pendiente", "confirmada"].includes(reservation.originalStatus) && (
+                      <button
+                        className="booking-cancel-button"
+                        type="button"
+                        onClick={() => cancelAreaReservation(reservation.id)}
+                      >
+                        Cancelar
+                      </button>
+                    )}
                 </div>
 
                 {expandedReservation === reservation.id && (
                   <div className="booking-guest-detail">
-                    <h4>Informacion del huesped</h4>
+                    <h4>
+                      {reservation.type === "area-comun"
+                        ? "Informacion de la reserva"
+                        : "Informacion del huesped"}
+                    </h4>
                     <div>
                       <span>Nombre</span>
                       <strong>{reservation.guest.name}</strong>

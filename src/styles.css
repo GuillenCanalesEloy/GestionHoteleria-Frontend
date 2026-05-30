@@ -3138,6 +3138,10 @@ img {
   transform: none;
 }
 
+.booking-cancel-button {
+  margin-top: 8px;
+}
+
 .login-panel {
   width: 100%;
 }
