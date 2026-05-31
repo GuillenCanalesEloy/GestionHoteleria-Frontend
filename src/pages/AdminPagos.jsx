@@ -121,6 +121,9 @@ function AdminPagos() {
           <Link className={location.pathname === "/admin/habitaciones" ? "active" : ""} to="/admin/habitaciones">
             Habitaciones
           </Link>
+          <Link className={location.pathname === "/admin/areas-comunes" ? "active" : ""} to="/admin/areas-comunes">
+            Areas comunes
+          </Link>
           <Link className={location.pathname === "/admin/clientes" ? "active" : ""} to="/admin/clientes">
             Clientes
           </Link>

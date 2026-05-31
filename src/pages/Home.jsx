@@ -69,14 +69,16 @@ export function Header() {
   const navigate = useNavigate();
   const [clientSession, setClientSession] = useState(() => {
     const storedSession = localStorage.getItem('luxestay.clientSession');
-    return storedSession ? JSON.parse(storedSession) : null;
+    const parsedSession = storedSession ? JSON.parse(storedSession) : null;
+    return parsedSession?.token ? parsedSession : null;
   });
   const [accountOpen, setAccountOpen] = useState(false);
 
   useEffect(() => {
     const syncSession = () => {
       const storedSession = localStorage.getItem('luxestay.clientSession');
-      setClientSession(storedSession ? JSON.parse(storedSession) : null);
+      const parsedSession = storedSession ? JSON.parse(storedSession) : null;
+      setClientSession(parsedSession?.token ? parsedSession : null);
     };
 
     window.addEventListener('focus', syncSession);
@@ -109,6 +111,7 @@ export function Header() {
         </NavLink>
         <NavLink to="/nosotros">Nosotros</NavLink>
         <NavLink to="/habitaciones">Habitaciones</NavLink>
+        <NavLink to="/areas-comunes">Areas comunes</NavLink>
         <NavLink to="/mis-reservas">Mis reservas</NavLink>
       </nav>
       <div className="header-actions">
@@ -262,6 +265,7 @@ function Home() {
             <h3>Navegacion</h3>
             <Link to="/nosotros">Nosotros</Link>
             <Link to="/habitaciones">Habitaciones</Link>
+            <Link to="/areas-comunes">Areas comunes</Link>
             <Link to="/servicios">Servicios</Link>
             <Link to="/contacto">Contacto</Link>
           </div>

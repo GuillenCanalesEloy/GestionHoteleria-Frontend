@@ -62,7 +62,11 @@ function Login() {
       if (email === 'user' && password === 'user123') {
         localStorage.setItem(
           'luxestay.clientSession',
-          JSON.stringify({ username: 'user', loggedAt: new Date().toISOString() }),
+          JSON.stringify({
+            username: 'user',
+            token: 'demo-client-jwt-token',
+            loggedAt: new Date().toISOString(),
+          }),
         );
         window.dispatchEvent(new Event('luxestay:client-session-change'));
         navigate(returnTo, { replace: true, state: returnState });

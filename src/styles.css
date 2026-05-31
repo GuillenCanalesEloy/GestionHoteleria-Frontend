@@ -1807,6 +1807,18 @@ img {
     grid-template-columns: 1fr;
   }
 
+  .areas-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-area-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .area-booking-panel {
+    position: static;
+  }
+
   .pagos-layout {
     grid-template-columns: 1fr;
   }
@@ -1885,6 +1897,7 @@ img {
   .experience-grid,
   .rooms-grid,
   .catalog-grid,
+  .areas-grid,
   .filters-panel,
   .catalog-grid,
   .filters-panel,
@@ -1903,6 +1916,7 @@ img {
   .home-experience-section,
   .rooms-section,
   .habitaciones-main,
+  .areas-main,
   .about-hero,
   .about-section,
   .habitaciones-main,
@@ -1946,6 +1960,20 @@ img {
   .bookings-toolbar {
     align-items: start;
     flex-direction: column;
+  }
+
+  .areas-hero {
+    min-height: auto;
+    padding: 70px 22px 64px;
+  }
+
+  .areas-hero h1 {
+    letter-spacing: 0.02em;
+  }
+
+  .area-time-grid,
+  .area-summary-grid {
+    grid-template-columns: 1fr;
   }
 
   .booking-card {
@@ -2804,6 +2832,408 @@ img {
   color: #273348;
   font-size: 0.95rem;
   font-weight: 600;
+}
+
+.areas-page {
+  background: #f5f7fc;
+}
+
+.areas-hero {
+  align-items: center;
+  background:
+    linear-gradient(90deg, rgba(6, 21, 37, 0.72), rgba(6, 21, 37, 0.3)),
+    url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1900&q=80")
+      center / cover;
+  display: flex;
+  min-height: 560px;
+  padding: 96px 7vw 86px;
+}
+
+.areas-hero-content {
+  color: #ffffff;
+  max-width: 720px;
+}
+
+.areas-hero h1 {
+  font-size: clamp(3rem, 7vw, 5.6rem);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  margin: 0 0 22px;
+  text-transform: uppercase;
+}
+
+.areas-hero p:not(.hero-kicker) {
+  color: #f7fbff;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.7;
+  margin: 0 0 30px;
+  max-width: 620px;
+}
+
+.areas-main {
+  margin: 0 auto;
+  max-width: 1180px;
+  padding: 64px 7vw 82px;
+}
+
+.areas-filter {
+  background: #edf2f8;
+  border-radius: 8px;
+  display: inline-grid;
+  gap: 6px;
+  grid-template-columns: repeat(2, 1fr);
+  padding: 6px;
+}
+
+.areas-filter button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: #45546a;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 800;
+  min-height: 38px;
+  padding: 0 14px;
+}
+
+.areas-filter .active {
+  background: #ffffff;
+  box-shadow: 0 6px 14px rgba(12, 24, 40, 0.08);
+  color: #061525;
+}
+
+.areas-layout {
+  display: grid;
+  gap: 30px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 390px);
+  margin-top: 34px;
+}
+
+.areas-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.area-card {
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(12, 24, 40, 0.06);
+  overflow: hidden;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.area-card:hover {
+  border-color: rgba(138, 100, 22, 0.45);
+  box-shadow: 0 18px 38px rgba(12, 24, 40, 0.12);
+  transform: translateY(-2px);
+}
+
+.area-card.selected {
+  border-color: rgba(138, 100, 22, 0.45);
+  box-shadow: 0 18px 38px rgba(12, 24, 40, 0.12);
+}
+
+.area-card button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  height: 100%;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.area-card-image {
+  aspect-ratio: 1.45;
+  overflow: hidden;
+  position: relative;
+}
+
+.area-card-image img {
+  height: 100%;
+  object-fit: cover;
+  transition: transform 600ms ease;
+  width: 100%;
+}
+
+.area-card:hover .area-card-image img {
+  transform: scale(1.06);
+}
+
+.area-card-image span {
+  background: #f59a13;
+  border-radius: 999px;
+  color: #061525;
+  font-size: 0.7rem;
+  font-weight: 900;
+  left: 14px;
+  padding: 7px 11px;
+  position: absolute;
+  text-transform: uppercase;
+  top: 14px;
+}
+
+.area-card-content {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+}
+
+.area-card-content h3 {
+  color: #061525;
+  font-size: 1.18rem;
+  margin: 0 0 8px;
+}
+
+.area-card-content p {
+  color: #45546a;
+  font-size: 0.94rem;
+  line-height: 1.58;
+  margin: 0;
+}
+
+.area-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.area-meta span {
+  background: #f4f7fd;
+  border: 1px solid #e4e9f1;
+  border-radius: 999px;
+  color: #273348;
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 7px 10px;
+}
+
+.area-booking-panel {
+  align-self: start;
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(12, 24, 40, 0.08);
+  overflow: hidden;
+  position: sticky;
+  top: 86px;
+}
+
+.area-booking-summary {
+  background: #061525;
+  color: #ffffff;
+  padding: 26px;
+}
+
+.area-booking-summary > span {
+  color: #f59a13;
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 900;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.area-booking-summary h2 {
+  font-size: 1.45rem;
+  margin: 0 0 12px;
+}
+
+.area-booking-summary p {
+  color: #cbd6e6;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.area-summary-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.area-summary-grid div {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+  padding: 12px;
+}
+
+.area-summary-grid small {
+  color: #91a5c0;
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.area-summary-grid strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.area-reservation-form {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+.area-time-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.area-total {
+  align-items: center;
+  background: #f4f7fd;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.area-total span {
+  color: #707885;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.area-total strong {
+  color: #061525;
+  font-size: 1.5rem;
+}
+
+.area-form-message {
+  background: #fff7e8;
+  border: 1px solid #f5d59b;
+  border-radius: 7px;
+  color: #78500d;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 12px 14px;
+}
+
+.area-reservation-form .reserva-confirm-button {
+  margin: 0;
+}
+
+.area-login-link {
+  text-align: center;
+  text-decoration: none;
+}
+
+.area-reservation-form .reserva-confirm-button:disabled {
+  background: #9aa4b2;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.booking-cancel-button {
+  margin-top: 8px;
+}
+
+.admin-area-layout {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(320px, 0.42fr) minmax(0, 1fr);
+  margin-bottom: 34px;
+}
+
+.admin-area-form {
+  align-self: start;
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(12, 24, 40, 0.06);
+  overflow: hidden;
+  padding: 24px;
+}
+
+.admin-area-form h2 {
+  color: #061525;
+  font-size: 1.2rem;
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.rooms-modal-form .wide {
+  grid-column: 1 / -1;
+}
+
+.admin-area-form label,
+.admin-area-form input,
+.admin-area-form select,
+.admin-area-form textarea {
+  min-width: 0;
+  width: 100%;
+}
+
+.rooms-modal-form textarea {
+  background: #f4f7fd;
+  border: 1px solid #dfe4ec;
+  border-radius: 9px;
+  color: #061525;
+  min-height: 92px;
+  outline: 0;
+  padding: 12px;
+  resize: vertical;
+}
+
+.rooms-modal-form textarea:focus {
+  border-color: #8a6416;
+  box-shadow: 0 0 0 3px rgba(138, 100, 22, 0.14);
+}
+
+.common-areas-admin-header,
+.common-areas-admin-row {
+  grid-template-columns: minmax(170px, 1.3fr) 140px 120px 120px minmax(320px, 1.6fr);
+}
+
+.common-area-actions {
+  flex-wrap: wrap;
+}
+
+.admin-area-reservations {
+  margin-top: 28px;
+}
+
+.common-area-reservations-header,
+.common-area-reservations-row {
+  grid-template-columns: 110px 110px minmax(170px, 1fr) minmax(170px, 1fr) 130px minmax(240px, 1fr);
+}
+
+.reservation-status.pendiente {
+  background: #fff4d8;
+  color: #a85f00;
+}
+
+.reservation-status.confirmada {
+  background: #e7f8ed;
+  color: #087b3f;
+}
+
+.reservation-status.cancelada {
+  background: #fff1f1;
+  color: #b22020;
+}
+
+.reservation-status.finalizada {
+  background: #e6eefc;
+  color: #1857d2;
 }
 
 .login-panel {

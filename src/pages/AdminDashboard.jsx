@@ -94,6 +94,12 @@ function AdminDashboard() {
             Habitaciones
           </Link>
           <Link
+            className={location.pathname === "/admin/areas-comunes" ? "active" : ""}
+            to="/admin/areas-comunes"
+          >
+            Areas comunes
+          </Link>
+          <Link
             className={location.pathname === "/admin/clientes" ? "active" : ""}
             to="/admin/clientes"
           >
