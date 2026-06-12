@@ -1,6 +1,6 @@
-# 📄 FRONTEND - LuxeStay Sistema de Gestión Hotelera
+#  FRONTEND - LuxeStay Sistema de Gestión Hotelera
 
-## 📌 Descripción general
+##  Descripción general
 
 LuxeStay es una plataforma de gestión hotelera premium construida con **React + Vite**.
 Permite a los usuarios explorar habitaciones, realizar reservas y gestionar sus estadías desde una interfaz moderna y responsiva.
@@ -9,7 +9,7 @@ Consume un backend en **Spring Boot** mediante **API REST**.
 
 ---
 
-# 🧩 Tecnologías del Frontend
+#  Tecnologías del Frontend
 
 ## Base principal
 
@@ -31,7 +31,7 @@ Consume un backend en **Spring Boot** mediante **API REST**.
 
 ---
 
-# 🔹 Estructura del Proyecto
+#  Estructura del Proyecto
 
 ```
 src/
@@ -53,9 +53,9 @@ src/
 
 ---
 
-# 🔹 1. PORTAL DE CLIENTES
+#  1. PORTAL DE CLIENTES
 
-## 🎯 Objetivo
+##  Objetivo
 
 Permitir a los clientes:
 
@@ -67,9 +67,9 @@ Permitir a los clientes:
 
 ---
 
-## 📄 Páginas principales
+##  Páginas principales
 
-### 🏠 Home (`/`)
+### Home (`/`)
 
 * Presentación del hotel (hero con imagen de fondo)
 * Sección "Experiencia Digital" con 3 cards informativas
@@ -77,7 +77,7 @@ Permitir a los clientes:
 * Strip de estadísticas (15+ destinos, 500+ habitaciones, etc.)
 * Footer con newsletter, navegación y legales
 
-### 🛏️ Habitaciones (`/habitaciones`)
+###  Habitaciones (`/habitaciones`)
 
 * Catálogo completo con 9 habitaciones
 * Filtros reactivos:
@@ -87,7 +87,7 @@ Permitir a los clientes:
 * Panel de descuento para miembros (15% OFF)
 * Grid de resultados con conteo dinámico
 
-### 🔍 Detalle de Habitación (modal)
+###  Detalle de Habitación (modal)
 
 * Se abre como modal sobre `/habitaciones`
 * Imagen + tag de tipo
@@ -95,7 +95,7 @@ Permitir a los clientes:
 * Precio por noche
 * Botón "Reservar" → navega a `/reservar` con datos de la habitación
 
-### 📅 Reservar (`/reservar`)
+###  Reservar (`/reservar`)
 
 * Formulario de 2 secciones:
   * Fechas de estancia (check-in / check-out con validación de mínimos)
@@ -103,35 +103,35 @@ Permitir a los clientes:
 * Aside con resumen de la habitación seleccionada
 * Al confirmar navega a `/pago` con todos los datos
 
-### 💳 Pago (`/pago`)
+###  Pago (`/pago`)
 
 * Toggle entre Tarjeta de crédito/débito y PayPal
 * Formateo automático: número de tarjeta (grupos de 4), expiración (MM/YY), CVV
 * Simulación de pago con SweetAlert2: loading → éxito → redirige a `/mis-reservas`
 * Aside con resumen de habitación, fechas y total
 
-### 👤 Login (`/login`)
+###  Login (`/login`)
 
 * Modal sobre la página actual (modal pattern con `backgroundLocation`)
 * Campos: email y contraseña con toggle de visibilidad
 * Preparado para backend (sin llamada real aún)
 * Links a `/registro` y `/recuperar-contrasena`
 
-### 📖 Mis Reservas (`/mis-reservas`)
+###  Mis Reservas (`/mis-reservas`)
 
 * Listado de reservas del usuario
 * Accordion: expandir/colapsar detalle de cada reserva
 * Detalle: nombre, correo, teléfono y peticiones especiales del huésped
 * Estados: Confirmada, Pendiente
 
-### ℹ️ Nosotros (`/nosotros`)
+###  Nosotros (`/nosotros`)
 
 * Hero con descripción del proyecto
 * Sección "Qué hacemos" con 3 pilares informativos
 
 ---
 
-## 🧭 Rutas
+##  Rutas
 
 ```
 /                  → Home
@@ -146,7 +146,7 @@ Permitir a los clientes:
 
 ---
 
-## 🧱 Componentes principales
+##  Componentes principales
 
 * `Header` — navbar sticky, exportado desde `Home.jsx`, reutilizado en todas las páginas
 * `Icon` — componente SVG reutilizable (location, calendar, user, search, send)
@@ -156,7 +156,7 @@ Permitir a los clientes:
 
 ---
 
-## 🎨 Diseño UX/UI
+##  Diseño UX/UI
 
 * Paleta: azul oscuro `#041120`, dorado `#8A6416`, amarillo `#F59A13`, fondo claro `#F5F7FC`
 * Tipografía: Inter (ui-sans-serif como fallback)
@@ -166,7 +166,7 @@ Permitir a los clientes:
 
 ---
 
-# 🔹 Flujo de Datos entre Páginas
+#  Flujo de Datos entre Páginas
 
 No hay estado global implementado aún. Los datos viajan con `location.state` de React Router:
 
@@ -181,7 +181,7 @@ Habitaciones
 
 ---
 
-# 🔹 Comunicación con Backend
+#  Comunicación con Backend
 
 Instancia Axios configurada en `src/services/hotelApi.js`:
 
@@ -202,11 +202,11 @@ Endpoints previstos:
 /api/clientes
 ```
 
-> ⚠️ El backend aún no está conectado. `hotelApi.js` está listo pero ningún componente lo consume todavía.
+> El backend aún no está conectado. `hotelApi.js` está listo pero ningún componente lo consume todavía.
 
 ---
 
-# 🔹 Estado actual del Frontend
+#  Estado actual del Frontend
 
 ✔ Arquitectura definida  
 ✔ Tecnologías seleccionadas  
@@ -221,7 +221,7 @@ Endpoints previstos:
 
 ---
 
-# 🔹 Pendientes / TODO
+#  Pendientes / TODO
 
 * Conectar `Login.jsx` con backend real
 * Integrar `hotelApi.js` en todos los componentes
@@ -235,7 +235,7 @@ Endpoints previstos:
 
 ---
 
-# 🚀 Siguiente paso
+#  Siguiente paso
 
 * Conectar `hotelApi.js` con los endpoints del backend
 * Implementar autenticación JWT con Context API
