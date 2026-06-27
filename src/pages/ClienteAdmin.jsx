@@ -4,6 +4,7 @@ import {
   getClientReservations,
   saveClientReservations,
 } from "../services/clientReservationsStorage.js";
+import { clientesApi } from "../services/hotelApi.js";
 
 const CLIENT_PROFILE_KEY = "luxestay.clientProfile";
 
@@ -80,6 +81,36 @@ function normalizeReservation(reservation) {
       phone: reservation.guest?.phone || defaultProfile.phone,
       requests: reservation.guest?.requests || "Sin peticiones especiales.",
     },
+  };
+}
+
+function getClientReservationMatches(currentClient, reservations) {
+  const clientEmail = currentClient?.email?.toLowerCase();
+  const clientName = (currentClient?.nombre || currentClient?.name || "").toLowerCase();
+
+  return reservations.filter((reservation) => {
+    const guestEmail = reservation.guest?.email?.toLowerCase();
+    const guestName = reservation.guest?.name?.toLowerCase();
+
+    return (clientEmail && guestEmail === clientEmail) || (clientName && guestName === clientName);
+  });
+}
+
+function mapBackendClient(currentClient, reservations, profile) {
+  const clientReservations = getClientReservationMatches(currentClient, reservations);
+  const latestReservation = clientReservations[0];
+  const matchesStoredProfile = profile.email?.toLowerCase() === currentClient.email?.toLowerCase();
+
+  return {
+    id: currentClient.id,
+    name: currentClient.nombre || "Sin nombre",
+    email: currentClient.email || "",
+    phone: matchesStoredProfile ? profile.phone : "",
+    city: matchesStoredProfile ? profile.city : "",
+    notes: matchesStoredProfile ? profile.notes : "",
+    bookings: clientReservations.length,
+    latestStay: latestReservation?.dates || "Sin estadias registradas",
+    rol: currentClient.rol,
   };
 }
 
@@ -160,6 +191,7 @@ function ClientDrawer({
   form,
   onChange,
   onClose,
+  onDelete,
   onSave,
   onTabChange,
   reservations,
@@ -226,6 +258,9 @@ function ClientDrawer({
             </label>
             <div className="client-drawer-actions">
               <button type="submit">Guardar cambios</button>
+              <button type="button" onClick={onDelete}>
+                Eliminar cliente
+              </button>
               {saveNotice && <span>{saveNotice}</span>}
             </div>
           </form>
@@ -287,13 +322,39 @@ function ClienteAdmin() {
   const [selectedClientId, setSelectedClientId] = useState(null);
   const [drawerTab, setDrawerTab] = useState("datos");
   const [drawerForm, setDrawerForm] = useState(defaultProfile);
+  const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   const [saveNotice, setSaveNotice] = useState("");
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => setLoading(false), 420);
-    return () => window.clearTimeout(timeout);
+    let isMounted = true;
+
+    const fetchClientes = async () => {
+      setLoading(true);
+
+      try {
+        const response = await clientesApi.getAll();
+        if (isMounted) {
+          setClientes(Array.isArray(response.data) ? response.data : []);
+        }
+      } catch (error) {
+        console.error("No se pudieron cargar los clientes", error);
+        if (isMounted) {
+          setClientes([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchClientes();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -322,22 +383,26 @@ function ClienteAdmin() {
     [refreshKey],
   );
 
-  const client = useMemo(() => {
-    const latestReservation = reservations[0];
-    const latestGuest = latestReservation?.guest;
-
-    return {
-      ...profile,
-      name: profile.name || latestGuest?.name || "user",
-      email: profile.email || latestGuest?.email || defaultProfile.email,
-      phone: profile.phone || latestGuest?.phone || defaultProfile.phone,
-      bookings: reservations.length,
-      latestStay: latestReservation?.dates || "Sin estadias registradas",
-    };
-  }, [profile, reservations]);
-
-  const clients = useMemo(() => [client], [client]);
-  const selectedClient = selectedClientId === client.id ? client : null;
+  const clients = useMemo(
+    () => clientes.map((currentClient) => mapBackendClient(currentClient, reservations, profile)),
+    [clientes, reservations, profile],
+  );
+  const selectedClient = useMemo(
+    () => clients.find((currentClient) => currentClient.id === selectedClientId) || null,
+    [clients, selectedClientId],
+  );
+  const selectedReservations = useMemo(
+    () => (selectedClient ? getClientReservationMatches(selectedClient, reservations) : []),
+    [reservations, selectedClient],
+  );
+  const totalBookings = useMemo(
+    () => clients.reduce((total, currentClient) => total + currentClient.bookings, 0),
+    [clients],
+  );
+  const featuredClient = selectedClient || clients[0] || null;
+  const latestStaySummary =
+    clients.find((currentClient) => currentClient.latestStay !== "Sin estadias registradas")?.latestStay ||
+    "Sin estadias registradas";
 
   const filteredClients = useMemo(() => {
     const filtered = clients.filter((currentClient) => {
@@ -381,8 +446,13 @@ function ClienteAdmin() {
     });
   };
 
-  const handleDrawerSave = (event) => {
+  const handleDrawerSave = async (event) => {
     event.preventDefault();
+
+    if (!selectedClient) {
+      return;
+    }
+
     const nextProfile = {
       ...profile,
       name: drawerForm.name.trim(),
@@ -391,24 +461,81 @@ function ClienteAdmin() {
       city: drawerForm.city.trim(),
       notes: drawerForm.notes.trim(),
     };
-    const currentReservations = getClientReservations();
-    const nextReservations = currentReservations.map((reservation) => ({
-      ...reservation,
-      guest: {
-        ...reservation.guest,
-        name: nextProfile.name,
-        email: nextProfile.email,
-        phone: nextProfile.phone,
-      },
-    }));
 
-    setProfile(nextProfile);
-    saveStoredProfile(nextProfile);
-    saveClientReservations(nextReservations);
-    setRefreshKey((currentKey) => currentKey + 1);
-    setDrawerForm(nextProfile);
-    setSaveNotice("Cambios guardados");
-    setSelectedClientId(null);
+    try {
+      const response = await clientesApi.update(selectedClient.id, {
+        nombre: nextProfile.name,
+        email: nextProfile.email,
+        rol: selectedClient.rol,
+      });
+
+      const currentReservations = getClientReservations();
+      const nextReservations = currentReservations.map((reservation) => {
+        const guestEmail = reservation.guest?.email?.toLowerCase();
+        const guestName = reservation.guest?.name?.toLowerCase();
+        const selectedEmail = selectedClient.email?.toLowerCase();
+        const selectedName = selectedClient.name?.toLowerCase();
+        const isSelectedReservation =
+          (selectedEmail && guestEmail === selectedEmail) || (selectedName && guestName === selectedName);
+
+        if (!isSelectedReservation) {
+          return reservation;
+        }
+
+        return {
+          ...reservation,
+          guest: {
+            ...reservation.guest,
+            name: nextProfile.name,
+            email: nextProfile.email,
+            phone: nextProfile.phone,
+          },
+        };
+      });
+
+      setClientes((currentClientes) =>
+        currentClientes.map((currentClient) =>
+          currentClient.id === selectedClient.id ? { ...currentClient, ...response.data } : currentClient,
+        ),
+      );
+
+      if (selectedClient.email === profile.email) {
+        setProfile(nextProfile);
+        saveStoredProfile(nextProfile);
+      }
+
+      saveClientReservations(nextReservations);
+      setRefreshKey((currentKey) => currentKey + 1);
+      setDrawerForm(nextProfile);
+      setSaveNotice("Cambios guardados");
+      setSelectedClientId(null);
+    } catch (error) {
+      console.error("No se pudo actualizar el cliente", error);
+      setSaveNotice("No se pudieron guardar los cambios");
+    }
+  };
+
+  const handleDrawerDelete = async () => {
+    if (!selectedClient) {
+      return;
+    }
+
+    const shouldDelete = window.confirm(`¿Eliminar a ${selectedClient.name}?`);
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      await clientesApi.delete(selectedClient.id);
+      setClientes((currentClientes) =>
+        currentClientes.filter((currentClient) => currentClient.id !== selectedClient.id),
+      );
+      setSelectedClientId(null);
+      setSaveNotice("");
+    } catch (error) {
+      console.error("No se pudo eliminar el cliente", error);
+      setSaveNotice("No se pudo eliminar el cliente");
+    }
   };
 
   const handleSort = (key) => {
@@ -467,30 +594,30 @@ function ClienteAdmin() {
         <section className="clients-metrics" aria-label="Resumen de clientes">
           <MetricCard
             label="Total clientes"
-            value="1"
-            description="Cuenta de prueba user"
+            value={clients.length}
+            description="Usuarios cargados desde backend"
             change="+0%"
             tone="slate"
           />
           <MetricCard
             label="Reservas totales"
-            value={client.bookings}
-            description="Guardadas por user"
+            value={totalBookings}
+            description="Calculadas en el listado"
             change="+100%"
             tone="blue"
           />
           <MetricCard
             label="Ultima estadia"
-            value={client.latestStay}
+            value={latestStaySummary}
             description="Segun ultima reserva"
             change="Actual"
             tone="gold"
           />
           <MetricCard
             label="Cliente"
-            value={client.name}
-            description={client.email}
-            change="user"
+            value={featuredClient?.name || "Sin clientes"}
+            description={featuredClient?.email || "Sin correo disponible"}
+            change={featuredClient?.rol || "N/A"}
             tone="green"
           />
         </section>
@@ -586,7 +713,7 @@ function ClienteAdmin() {
 
             <footer className="rooms-admin-table-footer">
               Mostrando <strong>{filteredClients.length}</strong> de{" "}
-              <strong>{clients.length}</strong> cliente
+              <strong>{clients.length}</strong> cliente{clients.length === 1 ? "" : "s"}
               <span>Ordenado por {sortLabels[sortConfig.key]}</span>
             </footer>
           </article>
@@ -598,9 +725,10 @@ function ClienteAdmin() {
           form={drawerForm}
           onChange={handleDrawerInputChange}
           onClose={() => setSelectedClientId(null)}
+          onDelete={handleDrawerDelete}
           onSave={handleDrawerSave}
           onTabChange={setDrawerTab}
-          reservations={reservations}
+          reservations={selectedReservations}
           saveNotice={saveNotice}
         />
       </main>
