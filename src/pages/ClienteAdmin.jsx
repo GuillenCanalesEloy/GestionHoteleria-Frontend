@@ -308,7 +308,7 @@ function ClientDrawer({
 }
 
 function CreateClientModal({ isOpen, onClose, onSave }) {
-  const [form, setForm] = useState({ nombre: "", email: "", password: "" });
+  const [form, setForm] = useState({ nombre: "", email: "", password: "", rol: "CLIENTE" });
   const [error, setError] = useState("");
 
   if (!isOpen) {
@@ -328,7 +328,7 @@ function CreateClientModal({ isOpen, onClose, onSave }) {
     }
     try {
       await onSave(form);
-      setForm({ nombre: "", email: "", password: "" }); // Limpiar formulario
+      setForm({ nombre: "", email: "", password: "", rol: "CLIENTE" }); // Limpiar formulario
     } catch (apiError) {
       setError(apiError.message || "No se pudo crear el cliente.");
     }
@@ -363,6 +363,13 @@ function CreateClientModal({ isOpen, onClose, onSave }) {
           <label>
             Contraseña
             <input name="password" type="password" value={form.password} onChange={handleChange} required />
+          </label>
+          <label>
+            Rol del Usuario
+            <select name="rol" value={form.rol} onChange={handleChange}>
+              <option value="CLIENTE">Cliente</option>
+              <option value="ADMIN">Administrador</option>
+            </select>
           </label>
           {error && <span className="error-notice">{error}</span>}
           <button type="submit">Crear Cliente</button>
@@ -620,10 +627,7 @@ function ClienteAdmin() {
   const handleCreateClient = async (newClientData) => {
     try {
       // Asumiendo que tu API devuelve el cliente creado
-      const response = await clientesApi.create({
-        ...newClientData,
-        rol: "CLIENTE", // El rol se asigna por defecto en el backend, pero es bueno ser explícito
-      });
+      const response = await clientesApi.create(newClientData);
       // Añadir el nuevo cliente al estado para actualizar la UI al instante
       setClientes((current) => [...current, response.data]);
       setCreateModalOpen(false); // Cerrar el modal
