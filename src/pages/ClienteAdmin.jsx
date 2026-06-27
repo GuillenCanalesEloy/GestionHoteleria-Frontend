@@ -99,15 +99,14 @@ function getClientReservationMatches(currentClient, reservations) {
 function mapBackendClient(currentClient, reservations, profile) {
   const clientReservations = getClientReservationMatches(currentClient, reservations);
   const latestReservation = clientReservations[0];
-  const matchesStoredProfile = profile.email?.toLowerCase() === currentClient.email?.toLowerCase();
 
   return {
     id: currentClient.id,
     name: currentClient.nombre || "Sin nombre",
     email: currentClient.email || "",
-    phone: matchesStoredProfile ? profile.phone : "",
-    city: matchesStoredProfile ? profile.city : "",
-    notes: matchesStoredProfile ? profile.notes : "",
+    phone: currentClient.telefono || "",
+    city: currentClient.ciudad || "",
+    notes: currentClient.notas || "",
     bookings: clientReservations.length,
     latestStay: latestReservation?.dates || "Sin estadias registradas",
     rol: currentClient.rol,
@@ -237,16 +236,23 @@ function ClientDrawer({
         {activeTab === "datos" && (
           <form className="client-drawer-form" onSubmit={onSave}>
             <label>
-              Nombre
-              <input name="name" value={form.name} onChange={onChange} required />
+              Nombre Completo
+              <input name="nombre" value={form.nombre} onChange={onChange} required />
             </label>
             <label>
               Email
               <input name="email" type="email" value={form.email} onChange={onChange} required />
             </label>
             <label>
+              Rol del Usuario
+              <select name="rol" value={form.rol} onChange={onChange}>
+                <option value="CLIENTE">Cliente</option>
+                <option value="ADMIN">Administrador</option>
+              </select>
+            </label>
+            <label>
               Telefono
-              <input name="phone" value={form.phone} onChange={onChange} required />
+              <input name="phone" value={form.phone} onChange={onChange} />
             </label>
             <label>
               Ciudad
@@ -399,6 +405,7 @@ function ClienteAdmin() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [saveNotice, setSaveNotice] = useState("");
+  const [globalNotice, setGlobalNotice] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -503,6 +510,7 @@ function ClienteAdmin() {
   const handleDrawerInputChange = (event) => {
     const { name, value } = event.target;
     setDrawerForm((currentForm) => ({ ...currentForm, [name]: value }));
+    // Limpiamos el aviso de error al empezar a escribir de nuevo
     setSaveNotice("");
   };
 
@@ -511,8 +519,9 @@ function ClienteAdmin() {
     setDrawerTab("datos");
     setDrawerForm({
       id: currentClient.id,
-      name: currentClient.name,
+      nombre: currentClient.name,
       email: currentClient.email,
+      rol: currentClient.rol,
       phone: currentClient.phone,
       city: currentClient.city,
       notes: currentClient.notes,
@@ -526,62 +535,31 @@ function ClienteAdmin() {
       return;
     }
 
-    const nextProfile = {
-      ...profile,
-      name: drawerForm.name.trim(),
-      email: drawerForm.email.trim(),
-      phone: drawerForm.phone.trim(),
-      city: drawerForm.city.trim(),
-      notes: drawerForm.notes.trim(),
-    };
-
     try {
-      const response = await clientesApi.update(selectedClient.id, {
-        nombre: nextProfile.name,
-        email: nextProfile.email,
-        rol: selectedClient.rol,
-      });
+      // Preparamos los datos a enviar, solo los que el backend espera para actualizar.
+      const updateData = {
+        nombre: drawerForm.nombre.trim(),
+        email: drawerForm.email.trim(),
+        rol: drawerForm.rol,
+        telefono: drawerForm.phone.trim(),
+        ciudad: drawerForm.city.trim(),
+        notas: drawerForm.notes.trim(),
+      };
 
-      const currentReservations = getClientReservations();
-      const nextReservations = currentReservations.map((reservation) => {
-        const guestEmail = reservation.guest?.email?.toLowerCase();
-        const guestName = reservation.guest?.name?.toLowerCase();
-        const selectedEmail = selectedClient.email?.toLowerCase();
-        const selectedName = selectedClient.name?.toLowerCase();
-        const isSelectedReservation =
-          (selectedEmail && guestEmail === selectedEmail) || (selectedName && guestName === selectedName);
-
-        if (!isSelectedReservation) {
-          return reservation;
-        }
-
-        return {
-          ...reservation,
-          guest: {
-            ...reservation.guest,
-            name: nextProfile.name,
-            email: nextProfile.email,
-            phone: nextProfile.phone,
-          },
-        };
-      });
+      // Llamamos a la API para actualizar el usuario
+      const response = await clientesApi.update(selectedClient.id, updateData);
 
       setClientes((currentClientes) =>
         currentClientes.map((currentClient) =>
-          currentClient.id === selectedClient.id ? { ...currentClient, ...response.data } : currentClient,
+          currentClient.id === selectedClient.id ? response.data : currentClient,
         ),
       );
 
-      if (selectedClient.email === profile.email) {
-        setProfile(nextProfile);
-        saveStoredProfile(nextProfile);
-      }
-
-      saveClientReservations(nextReservations);
-      setRefreshKey((currentKey) => currentKey + 1);
-      setDrawerForm(nextProfile);
-      setSaveNotice("Cambios guardados");
+      // 1. Cierra el panel de edición inmediatamente
       setSelectedClientId(null);
+      // 2. Muestra una notificación global de éxito
+      setGlobalNotice(`Cliente ${updateData.nombre} actualizado con éxito.`);
+      setTimeout(() => setGlobalNotice(""), 4000); // 3. La notificación desaparece sola
     } catch (error) {
       console.error("No se pudo actualizar el cliente", error);
       setSaveNotice("No se pudieron guardar los cambios");
@@ -662,6 +640,12 @@ function ClienteAdmin() {
             )}
           </div>
         </header>
+
+        {globalNotice && (
+          <div className="clients-global-notice" role="alert">
+            {globalNotice}
+          </div>
+        )}
 
         <section className="rooms-admin-heading clients-hero">
           <div>
