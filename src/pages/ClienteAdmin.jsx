@@ -17,6 +17,15 @@ const defaultProfile = {
   notes: "Cliente de prueba conectado con las reservas realizadas desde la web.",
 };
 
+function escapeCsvField(field) {
+  const value = String(field ?? ""); // Maneja valores nulos o indefinidos
+  // Si el valor contiene comas, comillas dobles o saltos de línea, lo envolvemos en comillas dobles.
+  // Las comillas dobles existentes dentro del valor se duplican para ser escapadas.
+  if (/[",\n\r]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
 const sortLabels = {
   name: "Cliente",
   bookings: "Reservas",
@@ -623,6 +632,56 @@ function ClienteAdmin() {
     }
   };
 
+  const handleExportCsv = () => {
+    if (!filteredClients.length) {
+      alert("No hay clientes para exportar.");
+      return;
+    }
+
+    // 1. Definir las cabeceras del CSV
+    const headers = [
+      "ID",
+      "Nombre",
+      "Email",
+      "Rol",
+      "Telefono",
+      "Ciudad",
+      "Notas",
+      "Reservas",
+      "Ultima Estadia",
+    ];
+
+    // 2. Convertir cada cliente en una fila de CSV, escapando los campos
+    const rows = filteredClients.map((client) =>
+      [
+        client.id,
+        client.name,
+        client.email,
+        client.rol,
+        client.phone,
+        client.city,
+        client.notes,
+        client.bookings,
+        client.latestStay,
+      ]
+        .map(escapeCsvField)
+        .join(","),
+    );
+
+    // 3. Unir cabeceras y filas en un solo string
+    const csvContent = ["sep=,", headers.join(","), ...rows].join("\n");
+
+    // 4. Crear un archivo Blob y simular un clic para descargarlo
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "clientes.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="admin-shell clients-admin-shell">
       <SidebarNav location={location} />
@@ -668,7 +727,7 @@ function ClienteAdmin() {
             <button type="button" className="primary-action" onClick={() => setCreateModalOpen(true)}>
               + Nuevo Cliente
             </button>
-            <button type="button">Exportar CSV</button>
+            <button type="button" onClick={handleExportCsv}>Exportar CSV</button>
           </div>
         </section>
 
