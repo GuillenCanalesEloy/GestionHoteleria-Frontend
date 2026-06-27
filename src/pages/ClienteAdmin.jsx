@@ -265,7 +265,7 @@ function ClientDrawer({
             <div className="client-drawer-actions">
               <button type="submit">Guardar cambios</button>
               <button type="button" onClick={onDelete}>
-                Eliminar cliente
+                Eliminar usuario
               </button>
               {saveNotice && <span>{saveNotice}</span>}
             </div>
@@ -517,6 +517,7 @@ function ClienteAdmin() {
   const openDrawer = (currentClient) => {
     setSelectedClientId(currentClient.id);
     setDrawerTab("datos");
+    setSaveNotice(""); // Limpiamos cualquier mensaje de error anterior al abrir
     setDrawerForm({
       id: currentClient.id,
       nombre: currentClient.name,
@@ -582,11 +583,18 @@ function ClienteAdmin() {
         currentClientes.filter((currentClient) => currentClient.id !== selectedClient.id),
       );
       setSelectedClientId(null);
-      setSaveNotice("");
+      setGlobalNotice(`Usuario ${selectedClient.name} eliminado con éxito.`);
+      setTimeout(() => setGlobalNotice(""), 4000);
     } catch (error) {
       console.error("No se pudo eliminar el cliente", error);
-      setSaveNotice("No se pudo eliminar el cliente");
+      const errorMessage = error.response?.data?.message || "Error al eliminar el usuario.";
+      setSaveNotice(errorMessage);
     }
+  };
+
+  const handleCloseDrawer = () => {
+    setSelectedClientId(null);
+    setSaveNotice(""); // Limpiamos el mensaje al cerrar
   };
 
   const handleSort = (key) => {
@@ -797,7 +805,7 @@ function ClienteAdmin() {
           client={selectedClient}
           form={drawerForm}
           onChange={handleDrawerInputChange}
-          onClose={() => setSelectedClientId(null)}
+          onClose={handleCloseDrawer}
           onDelete={handleDrawerDelete}
           onSave={handleDrawerSave}
           onTabChange={setDrawerTab}
