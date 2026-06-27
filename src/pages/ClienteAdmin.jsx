@@ -307,6 +307,71 @@ function ClientDrawer({
   );
 }
 
+function CreateClientModal({ isOpen, onClose, onSave }) {
+  const [form, setForm] = useState({ nombre: "", email: "", password: "" });
+  const [error, setError] = useState("");
+
+  if (!isOpen) {
+    return null;
+  }
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.nombre || !form.email || !form.password) {
+      setError("Todos los campos son obligatorios.");
+      return;
+    }
+    try {
+      await onSave(form);
+      setForm({ nombre: "", email: "", password: "" }); // Limpiar formulario
+    } catch (apiError) {
+      setError(apiError.message || "No se pudo crear el cliente.");
+    }
+  };
+
+  return (
+    <div className="client-drawer-backdrop" role="presentation" onClick={onClose}>
+      <aside
+        className="client-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Crear nuevo cliente"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <header>
+          <button type="button" onClick={onClose} aria-label="Cerrar modal">
+            x
+          </button>
+          <h2>Crear Nuevo Cliente</h2>
+          <p>Introduce los datos para registrar un nuevo usuario en el sistema.</p>
+        </header>
+
+        <form className="client-drawer-form" onSubmit={handleSubmit}>
+          <label>
+            Nombre Completo
+            <input name="nombre" value={form.nombre} onChange={handleChange} required />
+          </label>
+          <label>
+            Email
+            <input name="email" type="email" value={form.email} onChange={handleChange} required />
+          </label>
+          <label>
+            Contraseña
+            <input name="password" type="password" value={form.password} onChange={handleChange} required />
+          </label>
+          {error && <span className="error-notice">{error}</span>}
+          <button type="submit">Crear Cliente</button>
+        </form>
+      </aside>
+    </div>
+  );
+}
+
 function ClienteAdmin() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -325,6 +390,7 @@ function ClienteAdmin() {
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [saveNotice, setSaveNotice] = useState("");
 
   useEffect(() => {
@@ -551,6 +617,22 @@ function ClienteAdmin() {
     setMinBookings("0");
   };
 
+  const handleCreateClient = async (newClientData) => {
+    try {
+      // Asumiendo que tu API devuelve el cliente creado
+      const response = await clientesApi.create({
+        ...newClientData,
+        rol: "CLIENTE", // El rol se asigna por defecto en el backend, pero es bueno ser explícito
+      });
+      // Añadir el nuevo cliente al estado para actualizar la UI al instante
+      setClientes((current) => [...current, response.data]);
+      setCreateModalOpen(false); // Cerrar el modal
+    } catch (error) {
+      console.error("Error al crear el cliente:", error);
+      throw new Error(error.response?.data?.message || "El email ya podría estar en uso.");
+    }
+  };
+
   return (
     <div className="admin-shell clients-admin-shell">
       <SidebarNav location={location} />
@@ -587,6 +669,9 @@ function ClienteAdmin() {
             </p>
           </div>
           <div className="clients-admin-heading-actions">
+            <button type="button" className="primary-action" onClick={() => setCreateModalOpen(true)}>
+              + Nuevo Cliente
+            </button>
             <button type="button">Exportar CSV</button>
           </div>
         </section>
@@ -730,6 +815,12 @@ function ClienteAdmin() {
           onTabChange={setDrawerTab}
           reservations={selectedReservations}
           saveNotice={saveNotice}
+        />
+
+        <CreateClientModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          onSave={handleCreateClient}
         />
       </main>
     </div>
