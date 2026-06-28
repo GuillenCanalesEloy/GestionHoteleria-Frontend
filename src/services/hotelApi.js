@@ -43,4 +43,9 @@ export const reservasApi = {
   getAll: (params) => hotelApi.get("/reservas", { params }),
 };
 
+export const habitacionesApi = {
+  getAll: (params) => hotelApi.get("/habitaciones", { params }),
+  getById: (id) => hotelApi.get(`/habitaciones/${id}`),
+};
+
 export default hotelApi;
