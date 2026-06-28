@@ -46,6 +46,10 @@ export const reservasApi = {
 export const habitacionesApi = {
   getAll: (params) => hotelApi.get("/habitaciones", { params }),
   getById: (id) => hotelApi.get(`/habitaciones/${id}`),
+  create: (data) => hotelApi.post("/habitaciones", data),
+  update: (id, data) => hotelApi.put(`/habitaciones/${id}`, data),
+  patch: (id, data) => hotelApi.patch(`/habitaciones/${id}`, data),
+  delete: (id) => hotelApi.delete(`/habitaciones/${id}`),
 };
 
 export default hotelApi;
