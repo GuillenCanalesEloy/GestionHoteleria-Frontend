@@ -1,30 +1,110 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { Header } from "./Home.jsx";
-import { getClientReservations } from "../services/clientReservationsStorage.js";
 import {
   getAreaReservations,
   getReservationStart,
   reservationStatusLabels,
   saveAreaReservations,
 } from "../services/commonAreasStorage.js";
+import { listarMisReservas } from "../services/reservasService.js";
+
+const fallbackRoomImage =
+  "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=900";
+
+function getClientSession() {
+  try {
+    const clientSession = localStorage.getItem("luxestay.clientSession");
+    return clientSession ? JSON.parse(clientSession) : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatCurrency(value) {
+  const amount = Number(value || 0);
+  return `$${amount.toFixed(2)}`;
+}
+
+function formatBackendReservation(reservation) {
+  return {
+    id: `habitacion-${reservation.id}`,
+    rawId: reservation.id,
+    type: "habitacion",
+    title: `Habitacion ${reservation.habitacionNumero}`,
+    image: fallbackRoomImage,
+    stage: reservation.estado,
+    originalStatus: reservation.estado,
+    status: reservation.estado,
+    dates: `${reservation.fechaEntrada} - ${reservation.fechaSalida}`,
+    checkIn: reservation.fechaEntrada,
+    checkOut: reservation.fechaSalida,
+    room: `Habitacion ${reservation.habitacionNumero}`,
+    guests: `${reservation.cantidadHuespedes} huesped${
+      reservation.cantidadHuespedes === 1 ? "" : "es"
+    }`,
+    total: formatCurrency(reservation.precioTotal),
+    sortDate: new Date(reservation.fechaEntrada || reservation.createdAt || Date.now()).getTime(),
+    guest: {
+      name: reservation.usuarioNombre || "Cliente",
+      email: reservation.usuarioEmail || "Sin correo",
+      phone: "No registrado",
+      requests: "Sin peticiones especiales registradas.",
+    },
+  };
+}
 
 function MisReservas() {
   const location = useLocation();
   const [expandedReservation, setExpandedReservation] = useState(null);
-  const clientSession = localStorage.getItem("luxestay.clientSession");
-  const session = clientSession ? JSON.parse(clientSession) : null;
+  const session = getClientSession();
   const hasValidToken = Boolean(session?.token);
   const [areaReservations, setAreaReservations] = useState(() => getAreaReservations());
-  const reservations = useMemo(() => {
-    const roomReservations = getClientReservations()
-      .filter((reservation) => !session || reservation.guest?.name === session.username)
-      .map((reservation) => ({
-        ...reservation,
-        originalStatus: reservation.status,
-        sortDate: new Date(reservation.checkIn || reservation.createdAt || Date.now()).getTime(),
-      }));
+  const [roomReservations, setRoomReservations] = useState([]);
+  const [loadingReservations, setLoadingReservations] = useState(true);
+  const [reservationsError, setReservationsError] = useState("");
 
+  useEffect(() => {
+    if (!hasValidToken) {
+      return;
+    }
+
+    let isMounted = true;
+
+    async function loadReservations() {
+      setLoadingReservations(true);
+      setReservationsError("");
+
+      try {
+        const response = await listarMisReservas();
+        const content = Array.isArray(response.data?.content) ? response.data.content : [];
+
+        if (isMounted) {
+          setRoomReservations(content.map(formatBackendReservation));
+        }
+      } catch (error) {
+        if (isMounted) {
+          setReservationsError(
+            error.response?.data?.message ||
+              "No se pudieron cargar tus reservas. Intenta nuevamente.",
+          );
+          setRoomReservations([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoadingReservations(false);
+        }
+      }
+    }
+
+    loadReservations();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [hasValidToken]);
+
+  const reservations = useMemo(() => {
     const currentAreaReservations = areaReservations
       .filter((reservation) => reservation.username === session?.username)
       .map((reservation) => ({
@@ -38,7 +118,7 @@ function MisReservas() {
     return [...roomReservations, ...currentAreaReservations].sort(
       (first, second) => second.sortDate - first.sortDate,
     );
-  }, [areaReservations, session]);
+  }, [areaReservations, roomReservations, session]);
 
   if (!hasValidToken) {
     return (
@@ -94,7 +174,21 @@ function MisReservas() {
           </div>
 
           <div className="booking-list">
-            {reservations.length === 0 && (
+            {loadingReservations && (
+              <div className="booking-empty-state">
+                <h3>Cargando reservas...</h3>
+                <p>Estamos consultando tus reservas registradas.</p>
+              </div>
+            )}
+
+            {reservationsError && (
+              <div className="booking-empty-state">
+                <h3>No se pudieron cargar tus reservas</h3>
+                <p>{reservationsError}</p>
+              </div>
+            )}
+
+            {!loadingReservations && !reservationsError && reservations.length === 0 && (
               <div className="booking-empty-state">
                 <h3>Aun no tienes reservas guardadas</h3>
                 <p>Elige una habitacion o area comun y completa una reserva para verla aqui.</p>
@@ -104,7 +198,7 @@ function MisReservas() {
               </div>
             )}
 
-            {reservations.map((reservation) => (
+            {!loadingReservations && !reservationsError && reservations.map((reservation) => (
               <article className="booking-card" key={reservation.id}>
                 <img src={reservation.image} alt={reservation.title} />
 

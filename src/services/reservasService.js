@@ -7,3 +7,7 @@ export function crearReserva(payload) {
 export function confirmarPagoSimulado(reservaId) {
   return hotelApi.post(`/reservas/${reservaId}/confirmar-pago-simulado`);
 }
+
+export function listarMisReservas() {
+  return hotelApi.get('/reservas');
+}
