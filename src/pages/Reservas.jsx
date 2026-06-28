@@ -1,7 +1,30 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { Header } from "./Home.jsx";
+import { crearReserva } from "../services/reservasService.js";
 
+function getClientSession() {
+  try {
+    const storedSession = localStorage.getItem("luxestay.clientSession");
+    return storedSession ? JSON.parse(storedSession) : null;
+  } catch {
+    return null;
+  }
+}
+
+function getSessionUserId(session) {
+  return session?.usuarioId || session?.userId || session?.id || session?.usuario?.id || null;
+}
+
+function getGuestCount(people) {
+  const numbers = people.match(/\d+/g)?.map(Number) || [];
+  if (numbers.length === 0) {
+    return 1;
+  }
+
+  return numbers.reduce((total, number) => total + number, 0);
+}
 
 function Reservas() {
   const location = useLocation();
@@ -15,27 +38,90 @@ function Reservas() {
   const [guestPhone, setGuestPhone] = useState("");
   const [people, setPeople] = useState("2 Adultos");
   const [specialRequests, setSpecialRequests] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const handlePhoneChange = (event) => {
     setGuestPhone(event.target.value.replace(/\D/g, "").slice(0, 15));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    navigate("/pago", {
-      state: {
-        room,
-        reservation: {
-          checkIn,
-          checkOut,
-          guestName,
-          guestEmail,
-          guestPhone,
-          people,
-          specialRequests,
+
+    if (!room?.id) {
+      Swal.fire({
+        icon: "warning",
+        title: "Selecciona una habitacion",
+        text: "Debes elegir una habitacion antes de crear la reserva.",
+        confirmButtonColor: "#041627",
+      });
+      return;
+    }
+
+    if (!checkOut || checkOut <= checkIn) {
+      Swal.fire({
+        icon: "warning",
+        title: "Fechas invalidas",
+        text: "La fecha de salida debe ser posterior a la fecha de entrada.",
+        confirmButtonColor: "#041627",
+      });
+      return;
+    }
+
+    const session = getClientSession();
+    const usuarioId = getSessionUserId(session);
+
+    if (!session?.token || !usuarioId) {
+      navigate("/login", {
+        state: {
+          backgroundLocation: location,
+          returnTo: "/reservar",
+          returnState: { room },
         },
-      },
-    });
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const reservation = {
+        checkIn,
+        checkOut,
+        guestName,
+        guestEmail,
+        guestPhone,
+        people,
+        specialRequests,
+      };
+      const payload = {
+        usuarioId,
+        habitacionId: room.id,
+        fechaEntrada: checkIn,
+        fechaSalida: checkOut,
+        cantidadHuespedes: getGuestCount(people),
+      };
+
+      const response = await crearReserva(payload);
+
+      navigate("/pago", {
+        state: {
+          room,
+          reservation,
+          reservaBackend: response.data,
+        },
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "No se pudo crear la reserva",
+        text:
+          error.response?.data?.message ||
+          "Revisa la disponibilidad y vuelve a intentarlo.",
+        confirmButtonColor: "#041627",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -152,8 +238,8 @@ function Reservas() {
               </div>
             </section>
 
-            <button className="reserva-confirm-button" type="submit">
-              Confirmar reserva
+            <button className="reserva-confirm-button" type="submit" disabled={submitting}>
+              {submitting ? "Creando reserva..." : "Confirmar reserva"}
             </button>
           </form>
 

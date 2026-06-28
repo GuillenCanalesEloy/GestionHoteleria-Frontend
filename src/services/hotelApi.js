@@ -5,4 +5,21 @@ const hotelApi = axios.create({
   timeout: 8000,
 });
 
+hotelApi.interceptors.request.use((config) => {
+  let session = null;
+
+  try {
+    const storedSession = localStorage.getItem('luxestay.clientSession');
+    session = storedSession ? JSON.parse(storedSession) : null;
+  } catch {
+    session = null;
+  }
+
+  if (session?.token) {
+    config.headers.Authorization = `Bearer ${session.token}`;
+  }
+
+  return config;
+});
+
 export default hotelApi;
