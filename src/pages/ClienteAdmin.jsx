@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  getClientReservations,
-  saveClientReservations,
-} from "../services/clientReservationsStorage.js";
+import { clientesApi, reservasApi } from "../services/hotelApi.js";
 
 const CLIENT_PROFILE_KEY = "luxestay.clientProfile";
 
@@ -16,6 +13,15 @@ const defaultProfile = {
   notes: "Cliente de prueba conectado con las reservas realizadas desde la web.",
 };
 
+function escapeCsvField(field) {
+  const value = String(field ?? ""); // Maneja valores nulos o indefinidos
+  // Si el valor contiene comas, comillas dobles o saltos de línea, lo envolvemos en comillas dobles.
+  // Las comillas dobles existentes dentro del valor se duplican para ser escapadas.
+  if (/[",\n\r]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
 const sortLabels = {
   name: "Cliente",
   bookings: "Reservas",
@@ -80,6 +86,37 @@ function normalizeReservation(reservation) {
       phone: reservation.guest?.phone || defaultProfile.phone,
       requests: reservation.guest?.requests || "Sin peticiones especiales.",
     },
+  };
+}
+
+function getClientReservationMatches(currentClient, reservations) {
+  const clientId = currentClient?.id;
+  if (!clientId) {
+    return [];
+  }
+
+  // Comparamos por el ID del usuario, que es la forma más fiable.
+  return reservations.filter((reservation) => reservation.usuarioId === clientId);
+}
+
+function mapBackendClient(currentClient, reservations, profile) {
+  const clientReservations = getClientReservationMatches(currentClient, reservations);
+  const latestReservation = clientReservations[0];
+
+  return {
+    id: currentClient.id,
+    name: currentClient.nombre || "Sin nombre",
+    email: currentClient.email || "",
+    phone: currentClient.telefono || "",
+    city: currentClient.ciudad || "",
+    notes: currentClient.notas || "",
+    bookings: clientReservations.length,
+    latestStay: latestReservation
+      ? `${latestReservation.fechaEntrada} - ${latestReservation.fechaSalida}`
+      : "Sin estadias registradas",
+    rol: currentClient.rol,
+    createdAt: currentClient.createdAt, // Añadimos las fechas para el historial
+    updatedAt: currentClient.updatedAt,
   };
 }
 
@@ -160,6 +197,7 @@ function ClientDrawer({
   form,
   onChange,
   onClose,
+  onDelete,
   onSave,
   onTabChange,
   reservations,
@@ -205,16 +243,23 @@ function ClientDrawer({
         {activeTab === "datos" && (
           <form className="client-drawer-form" onSubmit={onSave}>
             <label>
-              Nombre
-              <input name="name" value={form.name} onChange={onChange} required />
+              Nombre Completo
+              <input name="nombre" value={form.nombre} onChange={onChange} required />
             </label>
             <label>
               Email
               <input name="email" type="email" value={form.email} onChange={onChange} required />
             </label>
             <label>
+              Rol del Usuario
+              <select name="rol" value={form.rol} onChange={onChange}>
+                <option value="CLIENTE">Cliente</option>
+                <option value="ADMIN">Administrador</option>
+              </select>
+            </label>
+            <label>
               Telefono
-              <input name="phone" value={form.phone} onChange={onChange} required />
+              <input name="phone" value={form.phone} onChange={onChange} />
             </label>
             <label>
               Ciudad
@@ -226,6 +271,9 @@ function ClientDrawer({
             </label>
             <div className="client-drawer-actions">
               <button type="submit">Guardar cambios</button>
+              <button type="button" onClick={onDelete}>
+                Eliminar usuario
+              </button>
               {saveNotice && <span>{saveNotice}</span>}
             </div>
           </form>
@@ -233,23 +281,34 @@ function ClientDrawer({
 
         {activeTab === "reservas" && (
           <div className="client-drawer-panel">
-            <div>
-              <span>Reservas totales</span>
-              <strong>{client.bookings}</strong>
-            </div>
-            <div>
-              <span>Ultima estadia</span>
-              <strong>{client.latestStay}</strong>
+            <div className="client-drawer-metrics">
+              <div>
+                <span>Reservas totales</span>
+                <strong>{client.bookings}</strong>
+              </div>
+              <div>
+                <span>Ultima estadia</span>
+                <strong>{client.latestStay}</strong>
+              </div>
             </div>
             <div className="client-reservation-list">
               {reservations.length ? (
                 reservations.map((reservation) => (
                   <article key={reservation.id}>
-                    <strong>{reservation.room}</strong>
-                    <span>{reservation.dates}</span>
-                    <small>
-                      {reservation.guests} - {reservation.status}
-                    </small>
+                    <div className="client-reservation-info">
+                      <strong>
+                        {reservation.habitacionNombre || reservation.room}
+                      </strong>
+                      <span>
+                        {reservation.fechaEntrada} - {reservation.fechaSalida}
+                      </span>
+                      <small>ID: {reservation.id}</small>
+                    </div>
+                    <div
+                      className={`client-reservation-status ${reservation.estado?.toLowerCase()}`}
+                    >
+                      {reservation.estado}
+                    </div>
                   </article>
                 ))
               ) : (
@@ -261,12 +320,90 @@ function ClientDrawer({
 
         {activeTab === "historial" && (
           <div className="client-drawer-panel">
-            <p>Cliente conectado con la cuenta de prueba user.</p>
-            <p>Reservas registradas: {client.bookings}.</p>
-            <p>Ultima estadia: {client.latestStay}.</p>
-            <p>{client.notes}</p>
+            <div className="client-history-list">
+              <article>
+                <strong>Cuenta Creada</strong>
+                <span>El usuario se registró el {new Date(client.createdAt).toLocaleDateString("es-ES")}.</span>
+              </article>
+              <article>
+                <strong>Última Actualización</strong>
+                <span>Los datos del usuario se actualizaron por última vez el {new Date(client.updatedAt).toLocaleDateString("es-ES")}.</span>
+              </article>
+            </div>
           </div>
         )}
+      </aside>
+    </div>
+  );
+}
+
+function CreateClientModal({ isOpen, onClose, onSave }) {
+  const [form, setForm] = useState({ nombre: "", email: "", password: "", rol: "CLIENTE" });
+  const [error, setError] = useState("");
+
+  if (!isOpen) {
+    return null;
+  }
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.nombre || !form.email || !form.password) {
+      setError("Todos los campos son obligatorios.");
+      return;
+    }
+    try {
+      await onSave(form);
+      setForm({ nombre: "", email: "", password: "", rol: "CLIENTE" }); // Limpiar formulario
+    } catch (apiError) {
+      setError(apiError.message || "No se pudo crear el cliente.");
+    }
+  };
+
+  return (
+    <div className="client-drawer-backdrop" role="presentation" onClick={onClose}>
+      <aside
+        className="client-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Crear nuevo cliente"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <header>
+          <button type="button" onClick={onClose} aria-label="Cerrar modal">
+            x
+          </button>
+          <h2>Crear Nuevo Cliente</h2>
+          <p>Introduce los datos para registrar un nuevo usuario en el sistema.</p>
+        </header>
+
+        <form className="client-drawer-form" onSubmit={handleSubmit}>
+          <label>
+            Nombre Completo
+            <input name="nombre" value={form.nombre} onChange={handleChange} required />
+          </label>
+          <label>
+            Email
+            <input name="email" type="email" value={form.email} onChange={handleChange} required />
+          </label>
+          <label>
+            Contraseña
+            <input name="password" type="password" value={form.password} onChange={handleChange} required />
+          </label>
+          <label>
+            Rol del Usuario
+            <select name="rol" value={form.rol} onChange={handleChange}>
+              <option value="CLIENTE">Cliente</option>
+              <option value="ADMIN">Administrador</option>
+            </select>
+          </label>
+          {error && <span className="error-notice">{error}</span>}
+          <button type="submit">Crear Cliente</button>
+        </form>
       </aside>
     </div>
   );
@@ -287,19 +424,48 @@ function ClienteAdmin() {
   const [selectedClientId, setSelectedClientId] = useState(null);
   const [drawerTab, setDrawerTab] = useState("datos");
   const [drawerForm, setDrawerForm] = useState(defaultProfile);
+  const [clientes, setClientes] = useState([]);
+  const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [saveNotice, setSaveNotice] = useState("");
+  const [globalNotice, setGlobalNotice] = useState("");
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => setLoading(false), 420);
-    return () => window.clearTimeout(timeout);
-  }, []);
+    let isMounted = true;
 
-  useEffect(() => {
-    const refreshReservations = () => setRefreshKey((currentKey) => currentKey + 1);
-    window.addEventListener("focus", refreshReservations);
-    return () => window.removeEventListener("focus", refreshReservations);
+    const fetchData = async () => {
+      setLoading(true);
+
+      try {
+        const [clientesResponse, reservasResponse] = await Promise.all([
+          clientesApi.getAll(),
+          reservasApi.getAll({ page: 0, size: 100 }), // Ajustado al límite del backend
+        ]);
+
+        if (isMounted) {
+          setClientes(Array.isArray(clientesResponse.data) ? clientesResponse.data : []);
+          setReservations(Array.isArray(reservasResponse.data.content) ? reservasResponse.data.content : []);
+        }
+      } catch (error) {
+        console.error("No se pudieron cargar los datos del panel", error);
+        if (isMounted) {
+          setClientes([]);
+          setReservations([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -317,27 +483,44 @@ function ClienteAdmin() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedClientId]);
 
-  const reservations = useMemo(
-    () => getClientReservations().map(normalizeReservation),
-    [refreshKey],
+  const clients = useMemo(
+    () => clientes.map((currentClient) => mapBackendClient(currentClient, reservations, profile)),
+    [clientes, reservations, profile],
+  );
+  const selectedClient = useMemo(
+    () => clients.find((currentClient) => currentClient.id === selectedClientId) || null,
+    [clients, selectedClientId],
+  );
+  const selectedReservations = useMemo(
+    () => (selectedClient ? getClientReservationMatches(selectedClient, reservations) : []),
+    [reservations, selectedClient],
   );
 
-  const client = useMemo(() => {
-    const latestReservation = reservations[0];
-    const latestGuest = latestReservation?.guest;
+  const effectiveReservations = useMemo(
+    () => reservations.filter((r) => r.estado === "CONFIRMADA" || r.estado === "FINALIZADA"),
+    [reservations],
+  );
 
-    return {
-      ...profile,
-      name: profile.name || latestGuest?.name || "user",
-      email: profile.email || latestGuest?.email || defaultProfile.email,
-      phone: profile.phone || latestGuest?.phone || defaultProfile.phone,
-      bookings: reservations.length,
-      latestStay: latestReservation?.dates || "Sin estadias registradas",
-    };
-  }, [profile, reservations]);
+  const totalBookings = effectiveReservations.length;
+  const featuredClient = selectedClient || clients[0] || null;
 
-  const clients = useMemo(() => [client], [client]);
-  const selectedClient = selectedClientId === client.id ? client : null;
+  const latestStaySummary = useMemo(() => {
+    // 1. Filtramos solo por estadías que ya terminaron (fecha de salida es anterior a hoy)
+    const pastStays = effectiveReservations.filter(
+      (r) => new Date(r.fechaSalida) < new Date(),
+    );
+
+    if (!pastStays.length) {
+      return "Sin estadías finalizadas";
+    }
+
+    // 2. Ordenamos esas estadías pasadas por fecha de salida para encontrar la más reciente
+    const latestStay = [...pastStays].sort(
+      (a, b) => new Date(b.fechaSalida) - new Date(a.fechaSalida),
+    )[0];
+
+    return `${latestStay.fechaEntrada} - ${latestStay.fechaSalida}`;
+  }, [effectiveReservations]);
 
   const filteredClients = useMemo(() => {
     const filtered = clients.filter((currentClient) => {
@@ -365,50 +548,93 @@ function ClienteAdmin() {
   const handleDrawerInputChange = (event) => {
     const { name, value } = event.target;
     setDrawerForm((currentForm) => ({ ...currentForm, [name]: value }));
+    // Limpiamos el aviso de error al empezar a escribir de nuevo
     setSaveNotice("");
   };
 
   const openDrawer = (currentClient) => {
     setSelectedClientId(currentClient.id);
     setDrawerTab("datos");
+    setSaveNotice(""); // Limpiamos cualquier mensaje de error anterior al abrir
     setDrawerForm({
       id: currentClient.id,
-      name: currentClient.name,
+      nombre: currentClient.name,
       email: currentClient.email,
+      rol: currentClient.rol,
       phone: currentClient.phone,
       city: currentClient.city,
       notes: currentClient.notes,
     });
   };
 
-  const handleDrawerSave = (event) => {
+  const handleDrawerSave = async (event) => {
     event.preventDefault();
-    const nextProfile = {
-      ...profile,
-      name: drawerForm.name.trim(),
-      email: drawerForm.email.trim(),
-      phone: drawerForm.phone.trim(),
-      city: drawerForm.city.trim(),
-      notes: drawerForm.notes.trim(),
-    };
-    const currentReservations = getClientReservations();
-    const nextReservations = currentReservations.map((reservation) => ({
-      ...reservation,
-      guest: {
-        ...reservation.guest,
-        name: nextProfile.name,
-        email: nextProfile.email,
-        phone: nextProfile.phone,
-      },
-    }));
 
-    setProfile(nextProfile);
-    saveStoredProfile(nextProfile);
-    saveClientReservations(nextReservations);
-    setRefreshKey((currentKey) => currentKey + 1);
-    setDrawerForm(nextProfile);
-    setSaveNotice("Cambios guardados");
+    if (!selectedClient) {
+      return;
+    }
+
+    try {
+      // Preparamos los datos a enviar, solo los que el backend espera para actualizar.
+      const updateData = {
+        nombre: drawerForm.nombre.trim(),
+        email: drawerForm.email.trim(),
+        rol: drawerForm.rol,
+        telefono: drawerForm.phone.trim(),
+        ciudad: drawerForm.city.trim(),
+        notas: drawerForm.notes.trim(),
+      };
+
+      // Llamamos a la API para actualizar el usuario
+      const response = await clientesApi.update(selectedClient.id, updateData);
+
+      setClientes((currentClientes) =>
+        currentClientes.map((currentClient) =>
+          // Reemplazamos el cliente antiguo con la respuesta del backend
+          // El `useMemo` de `clients` se encargará de re-mapear el objeto
+          currentClient.id === selectedClient.id ? response.data : currentClient
+        ),
+      );
+
+      // 1. Cierra el panel de edición inmediatamente
+      setSelectedClientId(null);
+      // 2. Muestra una notificación global de éxito
+      setGlobalNotice(`Cliente ${updateData.nombre} actualizado con éxito.`);
+      setTimeout(() => setGlobalNotice(""), 4000); // 3. La notificación desaparece sola
+    } catch (error) {
+      console.error("No se pudo actualizar el cliente", error);
+      setSaveNotice("No se pudieron guardar los cambios");
+    }
+  };
+
+  const handleDrawerDelete = async () => {
+    if (!selectedClient) {
+      return;
+    }
+
+    const shouldDelete = window.confirm(`¿Eliminar a ${selectedClient.name}?`);
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      await clientesApi.delete(selectedClient.id);
+      setClientes((currentClientes) =>
+        currentClientes.filter((currentClient) => currentClient.id !== selectedClient.id),
+      );
+      setSelectedClientId(null);
+      setGlobalNotice(`Usuario ${selectedClient.name} eliminado con éxito.`);
+      setTimeout(() => setGlobalNotice(""), 4000);
+    } catch (error) {
+      console.error("No se pudo eliminar el cliente", error);
+      const errorMessage = error.response?.data?.message || "Error al eliminar el usuario.";
+      setSaveNotice(errorMessage);
+    }
+  };
+
+  const handleCloseDrawer = () => {
     setSelectedClientId(null);
+    setSaveNotice(""); // Limpiamos el mensaje al cerrar
   };
 
   const handleSort = (key) => {
@@ -422,6 +648,69 @@ function ClienteAdmin() {
   const handleResetFilters = () => {
     setSearch("");
     setMinBookings("0");
+  };
+
+  const handleCreateClient = async (newClientData) => {
+    try {
+      // Asumiendo que tu API devuelve el cliente creado
+      const response = await clientesApi.create(newClientData);
+      // Añadir el nuevo cliente al estado para actualizar la UI al instante
+      setClientes((current) => [...current, response.data]);
+      setCreateModalOpen(false); // Cerrar el modal
+    } catch (error) {
+      console.error("Error al crear el cliente:", error);
+      throw new Error(error.response?.data?.message || "El email ya podría estar en uso.");
+    }
+  };
+
+  const handleExportCsv = () => {
+    if (!filteredClients.length) {
+      alert("No hay clientes para exportar.");
+      return;
+    }
+
+    // 1. Definir las cabeceras del CSV
+    const headers = [
+      "ID",
+      "Nombre",
+      "Email",
+      "Rol",
+      "Telefono",
+      "Ciudad",
+      "Notas",
+      "Reservas",
+      "Ultima Estadia",
+    ];
+
+    // 2. Convertir cada cliente en una fila de CSV, escapando los campos
+    const rows = filteredClients.map((client) =>
+      [
+        client.id,
+        client.name,
+        client.email,
+        client.rol,
+        client.phone,
+        client.city,
+        client.notes,
+        client.bookings,
+        client.latestStay,
+      ]
+        .map(escapeCsvField)
+        .join(","),
+    );
+
+    // 3. Unir cabeceras y filas en un solo string
+    const csvContent = ["sep=,", headers.join(","), ...rows].join("\n");
+
+    // 4. Crear un archivo Blob y simular un clic para descargarlo
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "clientes.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -450,6 +739,12 @@ function ClienteAdmin() {
           </div>
         </header>
 
+        {globalNotice && (
+          <div className="clients-global-notice" role="alert">
+            {globalNotice}
+          </div>
+        )}
+
         <section className="rooms-admin-heading clients-hero">
           <div>
             <p className="section-kicker">Directory - user</p>
@@ -460,37 +755,40 @@ function ClienteAdmin() {
             </p>
           </div>
           <div className="clients-admin-heading-actions">
-            <button type="button">Exportar CSV</button>
+            <button type="button" className="primary-action" onClick={() => setCreateModalOpen(true)}>
+              + Nuevo Cliente
+            </button>
+            <button type="button" onClick={handleExportCsv}>Exportar CSV</button>
           </div>
         </section>
 
         <section className="clients-metrics" aria-label="Resumen de clientes">
           <MetricCard
             label="Total clientes"
-            value="1"
-            description="Cuenta de prueba user"
+            value={clients.length}
+            description="Usuarios cargados desde backend"
             change="+0%"
             tone="slate"
           />
           <MetricCard
             label="Reservas totales"
-            value={client.bookings}
-            description="Guardadas por user"
+            value={totalBookings}
+            description="Calculadas en el listado"
             change="+100%"
             tone="blue"
           />
           <MetricCard
             label="Ultima estadia"
-            value={client.latestStay}
+            value={latestStaySummary}
             description="Segun ultima reserva"
             change="Actual"
             tone="gold"
           />
           <MetricCard
             label="Cliente"
-            value={client.name}
-            description={client.email}
-            change="user"
+            value={featuredClient?.name || "Sin clientes"}
+            description={featuredClient?.email || "Sin correo disponible"}
+            change={featuredClient?.rol || "N/A"}
             tone="green"
           />
         </section>
@@ -564,7 +862,7 @@ function ClienteAdmin() {
                     >
                       <span>{getInitials(currentClient.name)}</span>
                       <div>
-                        <strong>{currentClient.name}</strong>
+                        <strong>{currentClient.nombre || currentClient.name}</strong>
                         <small>ID: {currentClient.id}</small>
                       </div>
                     </button>
@@ -586,7 +884,7 @@ function ClienteAdmin() {
 
             <footer className="rooms-admin-table-footer">
               Mostrando <strong>{filteredClients.length}</strong> de{" "}
-              <strong>{clients.length}</strong> cliente
+              <strong>{clients.length}</strong> cliente{clients.length === 1 ? "" : "s"}
               <span>Ordenado por {sortLabels[sortConfig.key]}</span>
             </footer>
           </article>
@@ -597,11 +895,18 @@ function ClienteAdmin() {
           client={selectedClient}
           form={drawerForm}
           onChange={handleDrawerInputChange}
-          onClose={() => setSelectedClientId(null)}
+          onClose={handleCloseDrawer}
+          onDelete={handleDrawerDelete}
           onSave={handleDrawerSave}
           onTabChange={setDrawerTab}
-          reservations={reservations}
+          reservations={selectedReservations}
           saveNotice={saveNotice}
+        />
+
+        <CreateClientModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          onSave={handleCreateClient}
         />
       </main>
     </div>

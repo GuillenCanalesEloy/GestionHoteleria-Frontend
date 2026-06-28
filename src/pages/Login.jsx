@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { authApi } from '../services/authApi';
 
 function Icon({ type }) {
   const icons = {
@@ -33,7 +34,7 @@ function Login() {
   const returnTo = location.state?.returnTo || '/';
   const returnState = location.state?.returnState;
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(''); // Renombrado de 'usuario' a 'email'
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -45,37 +46,23 @@ function Login() {
     setLoading(true);
 
     try {
-      if (loginMode === 'admin') {
-        if (email === 'Admin' && password === '123') {
-          localStorage.setItem(
-            'luxestay.adminSession',
-            JSON.stringify({ username: 'Admin', loggedAt: new Date().toISOString() }),
-          );
-          navigate('/admin/dashboard', { replace: true });
-          return;
-        }
+      // Llamada a la API de login, unificada para ambos roles
+      const response = await authApi.login({ email, password }); // Ahora 'email' tiene el valor correcto
+      const sessionData = response.data; // { token, type, email, nombre, rol }
 
-        setError('Credenciales de administrador incorrectas');
-        return;
-      }
-
-      if (email === 'user' && password === 'user123') {
-        localStorage.setItem(
-          'luxestay.clientSession',
-          JSON.stringify({
-            username: 'user',
-            token: 'demo-client-jwt-token',
-            loggedAt: new Date().toISOString(),
-          }),
-        );
+      // Guardar la sesión completa (incluyendo el token)
+      if (sessionData.rol === 'ADMIN') {
+        localStorage.setItem('luxestay.adminSession', JSON.stringify(sessionData));
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        localStorage.setItem('luxestay.clientSession', JSON.stringify(sessionData));
+        // Disparamos el evento para que el Header se actualice
         window.dispatchEvent(new Event('luxestay:client-session-change'));
         navigate(returnTo, { replace: true, state: returnState });
-        return;
       }
-
-      setError('Credenciales de huesped incorrectas');
-    } catch (err) {
-      setError('Error al conectar con el servidor');
+    } catch (apiError) {
+      console.error('Error de inicio de sesión:', apiError);
+      setError(apiError.response?.data?.message || 'Credenciales incorrectas o error en el servidor.');
     } finally {
       setLoading(false);
     }
@@ -134,7 +121,7 @@ function Login() {
               onClick={() => {
                 setLoginMode('guest');
                 setError('');
-                setEmail('');
+                setEmail(''); // Limpiar el campo de email
                 setPassword('');
               }}
             >
@@ -146,7 +133,7 @@ function Login() {
               onClick={() => {
                 setLoginMode('admin');
                 setError('');
-                setEmail('');
+                setEmail(''); // Limpiar el campo de email
                 setPassword('');
               }}
             >
@@ -164,7 +151,7 @@ function Login() {
                 <input
                   id="email"
                   type="text"
-                  placeholder={loginMode === 'admin' ? 'Admin' : 'user'}
+                  placeholder={loginMode === 'admin' ? 'admin@hotel.com' : 'cliente@correo.com'}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
