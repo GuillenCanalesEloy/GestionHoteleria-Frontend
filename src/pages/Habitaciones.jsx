@@ -1,160 +1,40 @@
 import { Header } from "./Home.jsx";
 import { useEffect, useState } from "react";
 import DetallesDeHabitacion from "./DetallesDeHabitacion.jsx";
-import { getStoredRooms, ROOMS_STORAGE_KEY } from "../services/roomsStorage.js";
-
-// 1. Datos de las habitaciones con precios como números
-const rooms = [
-  {
-    title: "Presidential Suite",
-    tag: "Suite",
-    price: 450,
-    rating: "4.9",
-    guests: "4 Adults",
-    size: "85 m2",
-    image:
-      "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&q=80&w=900",
-    description:
-      "Suite amplia con dormitorio principal, cama king, sala privada con sillones, comedor pequeno, bano completo con tina, televisor smart, internet de alta velocidad y vista panoramica.",
-    features: ["1 cama king", "Sala con sillones", "Bano con tina", "Smart TV", "Internet"],
-  },
-  {
-    title: "Deluxe Classic Room",
-    tag: "Deluxe",
-    price: 280,
-    rating: "4.8",
-    guests: "2 Adults",
-    size: "42 m2",
-    image:
-      "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=900",
-    description:
-      "Habitacion elegante para dos personas con cama queen, escritorio de trabajo, silla ergonomica, bano privado, televisor, minibar e internet incluido.",
-    features: ["1 cama queen", "Escritorio", "Bano privado", "Televisor", "Minibar"],
-  },
-  {
-    title: "Executive City View",
-    tag: "Business",
-    price: 320,
-    rating: "4.7",
-    guests: "2 Adults",
-    size: "50 m2",
-    image:
-      "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&q=80&w=900",
-    description:
-      "Habitacion ejecutiva con cama queen, zona de trabajo, sillon de lectura, bano moderno, televisor smart, internet rapido y vista a la ciudad.",
-    features: ["1 cama queen", "Zona de trabajo", "Sillon", "Bano moderno", "Internet"],
-  },
-  {
-    title: "Royal Garden Suite",
-    tag: "Suite",
-    price: 520,
-    rating: "4.9",
-    guests: "3 Adults",
-    size: "78 m2",
-    image:
-      "https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&q=80&w=900",
-    description:
-      "Suite con vista al jardin, cama king, sofa cama, mesa auxiliar, bano completo, televisor smart, internet y amenidades premium para una estadia tranquila.",
-    features: ["1 cama king", "Sofa cama", "Vista al jardin", "Bano completo", "Smart TV"],
-  },
-  {
-    title: "Deluxe Ocean View",
-    tag: "Deluxe",
-    price: 360,
-    rating: "4.8",
-    guests: "2 Adults",
-    size: "46 m2",
-    image:
-      "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=900",
-    description:
-      "Habitacion deluxe con vista al mar, cama king, sillas lounge, balcon privado, bano con ducha amplia, televisor, aire acondicionado e internet.",
-    features: ["1 cama king", "Balcon", "Sillas lounge", "Bano privado", "Internet"],
-  },
-  {
-    title: "Business Premier Room",
-    tag: "Business",
-    price: 295,
-    rating: "4.6",
-    guests: "2 Adults",
-    size: "44 m2",
-    image:
-      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&q=80&w=900",
-    description:
-      "Habitacion business con cama queen, escritorio ejecutivo, silla ergonomica, bano privado, televisor smart, caja fuerte e internet de alta velocidad.",
-    features: ["1 cama queen", "Escritorio ejecutivo", "Caja fuerte", "Bano privado", "Smart TV"],
-  },
-  {
-    title: "Family Deluxe Room",
-    tag: "Deluxe",
-    price: 390,
-    rating: "4.7",
-    guests: "4 Adults",
-    size: "58 m2",
-    image:
-      "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&q=80&w=900",
-    description:
-      "Habitacion familiar con dos camas queen, sofa, mesa de apoyo, bano completo, televisor, internet y espacio comodo para cuatro huespedes.",
-    features: ["2 camas queen", "Sofa", "Bano completo", "Televisor", "Internet"],
-  },
-  {
-    title: "Skyline Luxury Suite",
-    tag: "Suite",
-    price: 680,
-    rating: "5.0",
-    guests: "4 Adults",
-    size: "96 m2",
-    image:
-      "https://images.unsplash.com/photo-1609949279531-cf48d64bed89?auto=format&fit=crop&q=80&w=900",
-    description:
-      "Suite de lujo en piso alto con cama king, sala independiente, sillones, bano con tina, televisor smart, internet premium y vista skyline.",
-    features: ["1 cama king", "Sala independiente", "Tina", "Vista skyline", "Internet premium"],
-  },
-  {
-    title: "Executive Work Studio",
-    tag: "Business",
-    price: 240,
-    rating: "4.5",
-    guests: "1 Adult",
-    size: "36 m2",
-    image:
-      "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&q=80&w=900",
-    description:
-      "Studio ejecutivo compacto con cama full, escritorio, silla de trabajo, bano privado, televisor, cafetera e internet estable para viajes laborales.",
-    features: ["1 cama full", "Escritorio", "Cafetera", "Bano privado", "Internet"],
-  },
-];
+import { habitacionesApi } from "../services/hotelApi.js";
 
 function Habitaciones() {
   // 2. Estados para los filtros
   const [maxPrice, setMaxPrice] = useState(1000);
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState(null);
-  const [catalogRooms, setCatalogRooms] = useState(() => getStoredRooms());
+  const [catalogRooms, setCatalogRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const refreshRooms = () => setCatalogRooms(getStoredRooms());
-    const handleStorageChange = (event) => {
-      if (event.key === ROOMS_STORAGE_KEY) {
-        refreshRooms();
+    const fetchRooms = async () => {
+      setLoading(true);
+      try {
+        const response = await habitacionesApi.getAll({ page: 0, size: 100 });
+        setCatalogRooms(response.data.content || []);
+      } catch (error) {
+        console.error("No se pudieron cargar las habitaciones", error);
+        setCatalogRooms([]);
+      } finally {
+        setLoading(false);
       }
     };
 
-    window.addEventListener("focus", refreshRooms);
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("focus", refreshRooms);
-      window.removeEventListener("storage", handleStorageChange);
-    };
+    fetchRooms();
   }, []);
 
   // 3. Lógica de filtrado (se ejecuta en cada render)
-  const availableRooms = catalogRooms.filter((room) => room.status === "disponible");
+  const availableRooms = catalogRooms.filter((room) => room.estado === "DISPONIBLE");
 
   const filteredRooms = availableRooms.filter((room) => {
-    const matchesPrice = room.price <= maxPrice;
+    const matchesPrice = room.precioPorNoche <= maxPrice;
     const matchesType =
-      selectedTypes.length === 0 || selectedTypes.includes(room.tag);
+      selectedTypes.length === 0 || selectedTypes.includes(room.tipo);
     return matchesPrice && matchesType;
   });
 
@@ -210,7 +90,7 @@ function Habitaciones() {
               <div className="filter-group">
                 <span>Tipo de habitación</span>
                 <div className="check-list">
-                  {["Suite", "Deluxe", "Business"].map((type) => (
+                  {["INDIVIDUAL", "DOBLE", "SUITE"].map((type) => (
                     <label key={type}>
                       <input
                         type="checkbox"
@@ -259,27 +139,27 @@ function Habitaciones() {
             </div>
 
             <div className="catalog-grid">
-              {filteredRooms.length > 0 ? (
+              {loading ? <p>Cargando habitaciones...</p> : filteredRooms.length > 0 ? (
                 filteredRooms.map((room) => (
-                  <article className="catalog-card" key={room.title}>
+                  <article className="catalog-card" key={room.id}>
                     <div className="catalog-image">
-                      <img src={room.image} alt={room.title} />
-                      <span className="room-tag">{room.tag}</span>
+                      <img src={room.imagenUrl} alt={room.nombre} />
+                      <span className="room-tag">{room.tipo}</span>
                     </div>
 
                     <div className="catalog-content">
                       <div className="catalog-title-row">
-                        <h3>{room.title}</h3>
-                        <span className="rating">⭐ {room.rating}</span>
+                        <h3>{room.nombre}</h3>
+                        <span className="rating">⭐ 4.8</span>
                       </div>
                       <div className="room-meta">
-                        <span>👤 {room.guests}</span>
-                        <span>📏 {room.size}</span>
+                        <span>👤 {room.capacidad} personas</span>
+                        <span>📏 Piso {room.piso}</span>
                       </div>
                       <div className="catalog-footer">
                         <div>
                           <small>Por noche</small>
-                          <strong>${room.price}</strong>
+                          <strong>${room.precioPorNoche}</strong>
                         </div>
                         <button
                           type="button"

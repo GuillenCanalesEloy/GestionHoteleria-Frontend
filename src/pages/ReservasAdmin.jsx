@@ -4,7 +4,6 @@ import {
   getClientReservations,
   saveClientReservations,
 } from "../services/clientReservationsStorage.js";
-import { getStoredRooms } from "../services/roomsStorage.js";
 
 const guestOptions = [
   "1 Adulto",
@@ -88,11 +87,7 @@ function ReservasAdmin() {
     (reservation) => reservation.id === selectedReservationId,
   );
 
-  const availableRooms = useMemo(
-    () => getStoredRooms().filter((room) => room.status === "disponible"),
-    [],
-  );
-
+  const availableRooms = useMemo(() => [], []); // Placeholder, se llenará desde la API
   const roomOptions = useMemo(() => {
     const currentRoom = selectedReservation?.room;
     const currentRoomExists = availableRooms.some(
