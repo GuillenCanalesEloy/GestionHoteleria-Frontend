@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  getClientReservations,
-  saveClientReservations,
-} from "../services/clientReservationsStorage.js";
-import { clientesApi } from "../services/hotelApi.js";
+import { clientesApi, reservasApi } from "../services/hotelApi.js";
 
 const CLIENT_PROFILE_KEY = "luxestay.clientProfile";
 
@@ -410,6 +406,7 @@ function ClienteAdmin() {
   const [drawerTab, setDrawerTab] = useState("datos");
   const [drawerForm, setDrawerForm] = useState(defaultProfile);
   const [clientes, setClientes] = useState([]);
+  const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
@@ -419,18 +416,24 @@ function ClienteAdmin() {
   useEffect(() => {
     let isMounted = true;
 
-    const fetchClientes = async () => {
+    const fetchData = async () => {
       setLoading(true);
 
       try {
-        const response = await clientesApi.getAll();
+        const [clientesResponse, reservasResponse] = await Promise.all([
+          clientesApi.getAll(),
+          reservasApi.getAll({ page: 0, size: 100 }), // Ajustado al límite del backend
+        ]);
+
         if (isMounted) {
-          setClientes(Array.isArray(response.data) ? response.data : []);
+          setClientes(Array.isArray(clientesResponse.data) ? clientesResponse.data : []);
+          setReservations(Array.isArray(reservasResponse.data.content) ? reservasResponse.data.content : []);
         }
       } catch (error) {
-        console.error("No se pudieron cargar los clientes", error);
+        console.error("No se pudieron cargar los datos del panel", error);
         if (isMounted) {
           setClientes([]);
+          setReservations([]);
         }
       } finally {
         if (isMounted) {
@@ -439,17 +442,11 @@ function ClienteAdmin() {
       }
     };
 
-    fetchClientes();
+    fetchData();
 
     return () => {
       isMounted = false;
     };
-  }, []);
-
-  useEffect(() => {
-    const refreshReservations = () => setRefreshKey((currentKey) => currentKey + 1);
-    window.addEventListener("focus", refreshReservations);
-    return () => window.removeEventListener("focus", refreshReservations);
   }, []);
 
   useEffect(() => {
@@ -467,11 +464,6 @@ function ClienteAdmin() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedClientId]);
 
-  const reservations = useMemo(
-    () => getClientReservations().map(normalizeReservation),
-    [refreshKey],
-  );
-
   const clients = useMemo(
     () => clientes.map((currentClient) => mapBackendClient(currentClient, reservations, profile)),
     [clientes, reservations, profile],
@@ -484,14 +476,25 @@ function ClienteAdmin() {
     () => (selectedClient ? getClientReservationMatches(selectedClient, reservations) : []),
     [reservations, selectedClient],
   );
-  const totalBookings = useMemo(
-    () => clients.reduce((total, currentClient) => total + currentClient.bookings, 0),
-    [clients],
+
+  const effectiveReservations = useMemo(
+    () => reservations.filter((r) => r.estado === "CONFIRMADA" || r.estado === "FINALIZADA"),
+    [reservations],
   );
+
+  const totalBookings = effectiveReservations.length;
   const featuredClient = selectedClient || clients[0] || null;
-  const latestStaySummary =
-    clients.find((currentClient) => currentClient.latestStay !== "Sin estadias registradas")?.latestStay ||
-    "Sin estadias registradas";
+
+  const latestStaySummary = useMemo(() => {
+    if (!effectiveReservations.length) {
+      return "Sin estadias registradas";
+    }
+    // Ordenamos solo las reservas efectivas para encontrar la última estadía real
+    const latestReservation = [...effectiveReservations].sort(
+      (a, b) => new Date(b.fechaEntrada) - new Date(a.fechaEntrada),
+    )[0];
+    return `${latestReservation.fechaEntrada} - ${latestReservation.fechaSalida}`;
+  }, [effectiveReservations]);
 
   const filteredClients = useMemo(() => {
     const filtered = clients.filter((currentClient) => {
@@ -561,7 +564,9 @@ function ClienteAdmin() {
 
       setClientes((currentClientes) =>
         currentClientes.map((currentClient) =>
-          currentClient.id === selectedClient.id ? response.data : currentClient,
+          // Reemplazamos el cliente antiguo con la respuesta del backend
+          // El `useMemo` de `clients` se encargará de re-mapear el objeto
+          currentClient.id === selectedClient.id ? response.data : currentClient
         ),
       );
 

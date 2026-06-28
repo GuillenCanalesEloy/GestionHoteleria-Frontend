@@ -39,4 +39,8 @@ export const clientesApi = {
   delete: (id) => hotelApi.delete(`/clientes/${id}`),
 };
 
+export const reservasApi = {
+  getAll: (params) => hotelApi.get("/reservas", { params }),
+};
+
 export default hotelApi;
