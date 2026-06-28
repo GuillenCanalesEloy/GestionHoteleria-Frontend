@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { Header } from "./Home.jsx";
 import { getClientReservations } from "../services/clientReservationsStorage.js";
+import { reservasApi } from "../services/hotelApi";
 import {
   getAreaReservations,
   getReservationStart,
@@ -16,6 +17,31 @@ function MisReservas() {
   const session = clientSession ? JSON.parse(clientSession) : null;
   const hasValidToken = Boolean(session?.token);
   const [areaReservations, setAreaReservations] = useState(() => getAreaReservations());
+  const [apiReservations, setApiReservations] = useState([]);
+  const [loadingApiReservations, setLoadingApiReservations] = useState(false);
+  const [apiError, setApiError] = useState("");
+
+  useEffect(() => {
+    const clienteId = session?.cliente?.id || session?.usuario?.id || session?.id;
+
+    if (!clienteId) return;
+
+    const loadApiReservations = async () => {
+      try {
+        setLoadingApiReservations(true);
+        setApiError("");
+        const response = await reservasApi.getByCliente(clienteId);
+        setApiReservations(response.data || []);
+      } catch (error) {
+        setApiError("No se pudieron cargar las reservas del servidor.");
+      } finally {
+        setLoadingApiReservations(false);
+      }
+    };
+
+    loadApiReservations();
+  }, [session?.cliente?.id, session?.usuario?.id, session?.id]);
+
   const reservations = useMemo(() => {
     const roomReservations = getClientReservations()
       .filter((reservation) => !session || reservation.guest?.name === session.username)
@@ -35,10 +61,32 @@ function MisReservas() {
         sortDate: getReservationStart(reservation),
       }));
 
-    return [...roomReservations, ...currentAreaReservations].sort(
+    const serverReservations = apiReservations.map((reservation) => ({
+      id: `api-${reservation.id}`,
+      image: reservation.habitacion?.image || reservation.habitacion?.imagen || "",
+      title:
+        reservation.habitacion?.title ||
+        reservation.habitacion?.nombre ||
+        `Habitacion ${reservation.habitacion?.numero || reservation.habitacionId || ""}`,
+      dates: `${reservation.fechaEntrada} - ${reservation.fechaSalida}`,
+      guests: `${reservation.cantidadHuespedes || 1} huesped(es)`,
+      stage: reservation.estado || "Registrada",
+      status: reservation.estado || "Registrada",
+      total: reservation.precioTotal ? `$${reservation.precioTotal}` : "Pendiente",
+      originalStatus: reservation.estado,
+      sortDate: new Date(reservation.fechaEntrada || reservation.createdAt || Date.now()).getTime(),
+      guest: {
+        name: reservation.nombreHuesped || session?.username || "Cliente",
+        email: reservation.emailHuesped || session?.email || "Sin correo",
+        phone: reservation.telefonoHuesped || "Sin telefono",
+        requests: reservation.solicitudesEspeciales || "Sin peticiones especiales",
+      },
+    }));
+
+    return [...serverReservations, ...roomReservations, ...currentAreaReservations].sort(
       (first, second) => second.sortDate - first.sortDate,
     );
-  }, [areaReservations, session]);
+  }, [areaReservations, apiReservations, session]);
 
   if (!hasValidToken) {
     return (
@@ -93,6 +141,9 @@ function MisReservas() {
             </Link>
           </div>
 
+          {loadingApiReservations && <p>Cargando reservas del servidor...</p>}
+          {apiError && <p className="form-error-message">{apiError}</p>}
+
           <div className="booking-list">
             {reservations.length === 0 && (
               <div className="booking-empty-state">
@@ -106,7 +157,7 @@ function MisReservas() {
 
             {reservations.map((reservation) => (
               <article className="booking-card" key={reservation.id}>
-                <img src={reservation.image} alt={reservation.title} />
+                {reservation.image && <img src={reservation.image} alt={reservation.title} />}
 
                 <div className="booking-info">
                   <span>{reservation.stage}</span>
