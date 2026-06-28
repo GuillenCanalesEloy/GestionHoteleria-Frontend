@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Header } from "./Home.jsx";
-import { saveClientReservation } from "../services/clientReservationsStorage.js";
+import { confirmarPagoSimulado } from "../services/reservasService.js";
 
 const defaultRoom = {
   title: "Grand Royal Suite",
@@ -34,7 +34,10 @@ function Pagos() {
   const navigate = useNavigate();
   const room = location.state?.room || defaultRoom;
   const reservation = location.state?.reservation;
+  const reservaBackend = location.state?.reservaBackend;
+  const reservaId = reservaBackend?.id;
   const [paymentMethod, setPaymentMethod] = useState("card");
+  const [paying, setPaying] = useState(false);
   const [formData, setFormData] = useState({
     cardNumber: "",
     expiry: "",
@@ -55,58 +58,54 @@ function Pagos() {
     }));
   };
 
-  const handlePay = (event) => {
+  const handlePay = async (event) => {
     event.preventDefault();
 
-    Swal.fire({
-      title: "Procesando pago...",
-      text: "Estamos validando tu tarjeta",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
+    if (!reservaId) {
+      Swal.fire({
+        icon: "error",
+        title: "Reserva no encontrada",
+        text: "Primero debes crear una reserva antes de confirmar el pago.",
+        confirmButtonColor: "#041627",
+      });
+      return;
+    }
 
-    setTimeout(() => {
-      saveClientReservation({
-        id: `RES-${Date.now().toString().slice(-6)}`,
-        title: room.title,
-        status: "Confirmada",
-        stage: "Proxima estadia",
-        dates: reservation ? `${reservation.checkIn} - ${reservation.checkOut}` : "Fechas por confirmar",
-        checkIn: reservation?.checkIn || "",
-        checkOut: reservation?.checkOut || "",
-        room: room.title,
-        guests: reservation?.people || "2 Adultos",
-        total: `$${room.price}.00`,
-        guest: {
-          name: reservation?.guestName || "Cliente",
-          email: reservation?.guestEmail || "user@demo.com",
-          phone: reservation?.guestPhone || "Sin telefono",
-          requests: reservation?.specialRequests || "Sin peticiones especiales.",
+    setPaying(true);
+
+    try {
+      Swal.fire({
+        title: "Procesando pago...",
+        text: "Estamos confirmando tu reserva",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
         },
-        payment: {
-          transactionId: `TRX-${Date.now().toString().slice(-6)}`,
-          method: paymentMethod === "paypal" ? "PayPal" : "Tarjeta",
-          cardLast4:
-            paymentMethod === "card"
-              ? formData.cardNumber.replace(/\D/g, "").slice(-4)
-              : "",
-          paidAt: new Date().toISOString(),
-        },
-        image: room.image,
       });
 
-      Swal.fire({
+      const response = await confirmarPagoSimulado(reservaId);
+
+      await Swal.fire({
         icon: "success",
         title: "Pago confirmado",
-        text: `Tu reserva en ${room.title} ha sido procesada con exito.`,
+        text: `Tu reserva en ${room.title} quedo ${response.data.estado}.`,
         confirmButtonText: "Ver mis reservas",
         confirmButtonColor: "#041627",
-      }).then(() => {
-        navigate("/mis-reservas");
       });
-    }, 1200);
+
+      navigate("/mis-reservas");
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "No se pudo confirmar el pago",
+        text:
+          error.response?.data?.message ||
+          "Intenta nuevamente. Tu reserva no fue confirmada.",
+        confirmButtonColor: "#041627",
+      });
+    } finally {
+      setPaying(false);
+    }
   };
 
   return (
@@ -131,6 +130,7 @@ function Pagos() {
                 className={paymentMethod === "card" ? "active" : ""}
                 type="button"
                 onClick={() => setPaymentMethod("card")}
+                disabled={paying}
               >
                 Tarjeta de credito o debito
               </button>
@@ -138,6 +138,7 @@ function Pagos() {
                 className={paymentMethod === "paypal" ? "active" : ""}
                 type="button"
                 onClick={() => setPaymentMethod("paypal")}
+                disabled={paying}
               >
                 PayPal
               </button>
@@ -193,8 +194,8 @@ function Pagos() {
               Pago 100% seguro con validacion cifrada.
             </div>
 
-            <button className="payment-submit" type="submit">
-              Pagar ${room.price}.00
+            <button className="payment-submit" type="submit" disabled={paying}>
+              {paying ? "Procesando pago..." : `Pagar $${room.price}.00`}
             </button>
           </form>
 
