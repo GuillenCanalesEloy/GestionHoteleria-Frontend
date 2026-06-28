@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./Home.jsx";
-
+import { reservasApi } from "../services/hotelApi";
 
 function Reservas() {
   const location = useLocation();
@@ -15,27 +15,62 @@ function Reservas() {
   const [guestPhone, setGuestPhone] = useState("");
   const [people, setPeople] = useState("2 Adultos");
   const [specialRequests, setSpecialRequests] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handlePhoneChange = (event) => {
     setGuestPhone(event.target.value.replace(/\D/g, "").slice(0, 15));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    navigate("/pago", {
-      state: {
-        room,
-        reservation: {
-          checkIn,
-          checkOut,
-          guestName,
-          guestEmail,
-          guestPhone,
-          people,
-          specialRequests,
+    setErrorMessage("");
+
+    if (!room?.id) {
+      setErrorMessage("Selecciona una habitacion antes de reservar.");
+      return;
+    }
+
+    if (new Date(checkOut) <= new Date(checkIn)) {
+      setErrorMessage("La fecha de salida debe ser posterior a la entrada.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      await reservasApi.create({
+        habitacionId: room.id,
+        fechaEntrada: checkIn,
+        fechaSalida: checkOut,
+        cantidadHuespedes: Number(people.match(/\d+/)?.[0] || 1),
+        nombreHuesped: guestName,
+        emailHuesped: guestEmail,
+        telefonoHuesped: guestPhone,
+        solicitudesEspeciales: specialRequests,
+      });
+
+      navigate("/pago", {
+        state: {
+          room,
+          reservation: {
+            checkIn,
+            checkOut,
+            guestName,
+            guestEmail,
+            guestPhone,
+            people,
+            specialRequests,
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      setErrorMessage(
+        error.response?.data?.message || "No se pudo registrar la reserva.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,6 +86,8 @@ function Reservas() {
             solicitud.
           </p>
         </section>
+
+        {errorMessage && <p className="form-error-message">{errorMessage}</p>}
 
         <section className="reserva-layout">
           <form className="reserva-form" onSubmit={handleSubmit}>
@@ -140,7 +177,9 @@ function Reservas() {
                 </div>
 
                 <div className="reserva-field wide">
-                  <label htmlFor="special-requests">Peticiones especiales (opcional)</label>
+                  <label htmlFor="special-requests">
+                    Peticiones especiales (opcional)
+                  </label>
                   <textarea
                     id="special-requests"
                     placeholder="Indicanos si tienes alguna necesidad especifica..."
@@ -152,8 +191,12 @@ function Reservas() {
               </div>
             </section>
 
-            <button className="reserva-confirm-button" type="submit">
-              Confirmar reserva
+            <button
+              className="reserva-confirm-button"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? "Registrando..." : "Confirmar reserva"}
             </button>
           </form>
 
