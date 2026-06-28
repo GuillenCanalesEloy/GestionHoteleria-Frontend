@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Header } from "./Home.jsx";
@@ -43,6 +43,21 @@ function Pagos() {
     expiry: "",
     cvv: "",
   });
+
+  useEffect(() => {
+    if (reservaId) {
+      return;
+    }
+
+    Swal.fire({
+      icon: "warning",
+      title: "Crea una reserva primero",
+      text: "Para continuar con el pago debes crear una reserva valida.",
+      confirmButtonColor: "#041627",
+    }).then(() => {
+      navigate("/reservar", { replace: true });
+    });
+  }, [navigate, reservaId]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
