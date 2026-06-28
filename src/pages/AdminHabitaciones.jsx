@@ -1,10 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  getStoredRooms,
-  normalizeRoom,
-  saveStoredRooms,
-} from "../services/roomsStorage.js";
 
 const emptyRoomForm = {
   number: "",
@@ -24,8 +19,8 @@ const statusLabels = {
 function AdminHabitaciones() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [rooms, setRooms] = useState(() => getStoredRooms());
+  const [profileOpen, setProfileOpen] = useState(false); // TODO: Conectar a sesión real
+  const [rooms, setRooms] = useState([]); // Se cargará desde la API
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("todos");
   const [typeFilter, setTypeFilter] = useState("todos");
@@ -33,6 +28,11 @@ function AdminHabitaciones() {
   const [form, setForm] = useState(emptyRoomForm);
   const [selectedRoomId, setSelectedRoomId] = useState(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+
+  // TODO: Implementar useEffect para cargar habitaciones desde la API
+  // useEffect(() => {
+  //   habitacionesApi.getAll().then(response => setRooms(response.data.content));
+  // }, []);
 
   const filteredRooms = useMemo(() => {
     return rooms.filter((room) => {
@@ -60,10 +60,6 @@ function AdminHabitaciones() {
 
   const isEditing = editingId !== null;
   const selectedRoom = rooms.find((room) => room.id === selectedRoomId);
-
-  useEffect(() => {
-    saveStoredRooms(rooms);
-  }, [rooms]);
 
   useEffect(() => {
     if (!createModalOpen && !selectedRoom) {
@@ -128,6 +124,13 @@ function AdminHabitaciones() {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    // TODO: Reemplazar con llamada a la API
+    // if (isEditing) {
+    //   habitacionesApi.update(editingId, form).then(...)
+    // } else {
+    //   habitacionesApi.create(form).then(...)
+    // }
+
     const normalizedRoom = normalizeRoom({
       id: isEditing ? editingId : Date.now(),
       number: form.number.trim(),
@@ -165,6 +168,8 @@ function AdminHabitaciones() {
   };
 
   const handleDelete = (roomId) => {
+    // TODO: Reemplazar con llamada a la API
+    // habitacionesApi.delete(roomId).then(...)
     setRooms((currentRooms) =>
       currentRooms.filter((room) => room.id !== roomId),
     );
@@ -183,6 +188,8 @@ function AdminHabitaciones() {
   };
 
   const updateRoomStatus = (roomId, status) => {
+    // TODO: Reemplazar con llamada a la API
+    // habitacionesApi.update(roomId, { status }).then(...)
     setRooms((currentRooms) =>
       currentRooms.map((room) => (room.id === roomId ? { ...room, status } : room)),
     );
@@ -376,7 +383,7 @@ function AdminHabitaciones() {
                   <span className={`rooms-status ${room.status}`}>
                     {statusLabels[room.status]}
                   </span>
-                  <span>${room.price.toFixed(2)}</span>
+                  <span>${Number(room.price || 0).toFixed(2)}</span>
                   <span>
                     {room.capacity} persona{room.capacity === 1 ? "" : "s"}
                   </span>
@@ -439,7 +446,7 @@ function AdminHabitaciones() {
               </div>
               <div className="rooms-modal-info-grid">
                 <div>
-                  <span>Tipo</span>
+                  <span>Tipo</span> 
                   <strong>{selectedRoom.type}</strong>
                 </div>
                 <div>
@@ -497,6 +504,28 @@ function AdminHabitaciones() {
       </main>
     </div>
   );
+}
+
+function normalizeRoom(room) {
+  const type = room.type || "Individual";
+  const capacity = Number(room.capacity) || 1;
+  const floor = Number(room.floor) || 1;
+  const price = Number(room.price) || 0;
+  const number = String(room.number || "").trim();
+
+  return {
+    id: room.id || Date.now(),
+    number,
+    type,
+    status: room.status || "disponible",
+    price,
+    capacity,
+    floor,
+    title: room.title || `Habitacion ${type} ${number}`,
+    image: room.image || "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=900",
+    description:
+      room.description || `Habitacion ${type.toLowerCase()} numero ${number}, ubicada en el piso ${floor}.`,
+  };
 }
 
 function RoomForm({ form, onChange, onSubmit, submitLabel }) {
