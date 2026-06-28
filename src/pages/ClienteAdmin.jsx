@@ -90,15 +90,13 @@ function normalizeReservation(reservation) {
 }
 
 function getClientReservationMatches(currentClient, reservations) {
-  const clientEmail = currentClient?.email?.toLowerCase();
-  const clientName = (currentClient?.nombre || currentClient?.name || "").toLowerCase();
+  const clientId = currentClient?.id;
+  if (!clientId) {
+    return [];
+  }
 
-  return reservations.filter((reservation) => {
-    const guestEmail = reservation.guest?.email?.toLowerCase();
-    const guestName = reservation.guest?.name?.toLowerCase();
-
-    return (clientEmail && guestEmail === clientEmail) || (clientName && guestName === clientName);
-  });
+  // Comparamos por el ID del usuario, que es la forma más fiable.
+  return reservations.filter((reservation) => reservation.usuarioId === clientId);
 }
 
 function mapBackendClient(currentClient, reservations, profile) {
@@ -113,8 +111,12 @@ function mapBackendClient(currentClient, reservations, profile) {
     city: currentClient.ciudad || "",
     notes: currentClient.notas || "",
     bookings: clientReservations.length,
-    latestStay: latestReservation?.dates || "Sin estadias registradas",
+    latestStay: latestReservation
+      ? `${latestReservation.fechaEntrada} - ${latestReservation.fechaSalida}`
+      : "Sin estadias registradas",
     rol: currentClient.rol,
+    createdAt: currentClient.createdAt, // Añadimos las fechas para el historial
+    updatedAt: currentClient.updatedAt,
   };
 }
 
@@ -279,23 +281,34 @@ function ClientDrawer({
 
         {activeTab === "reservas" && (
           <div className="client-drawer-panel">
-            <div>
-              <span>Reservas totales</span>
-              <strong>{client.bookings}</strong>
-            </div>
-            <div>
-              <span>Ultima estadia</span>
-              <strong>{client.latestStay}</strong>
+            <div className="client-drawer-metrics">
+              <div>
+                <span>Reservas totales</span>
+                <strong>{client.bookings}</strong>
+              </div>
+              <div>
+                <span>Ultima estadia</span>
+                <strong>{client.latestStay}</strong>
+              </div>
             </div>
             <div className="client-reservation-list">
               {reservations.length ? (
                 reservations.map((reservation) => (
                   <article key={reservation.id}>
-                    <strong>{reservation.room}</strong>
-                    <span>{reservation.dates}</span>
-                    <small>
-                      {reservation.guests} - {reservation.status}
-                    </small>
+                    <div className="client-reservation-info">
+                      <strong>
+                        {reservation.habitacionNombre || reservation.room}
+                      </strong>
+                      <span>
+                        {reservation.fechaEntrada} - {reservation.fechaSalida}
+                      </span>
+                      <small>ID: {reservation.id}</small>
+                    </div>
+                    <div
+                      className={`client-reservation-status ${reservation.estado?.toLowerCase()}`}
+                    >
+                      {reservation.estado}
+                    </div>
                   </article>
                 ))
               ) : (
@@ -307,10 +320,16 @@ function ClientDrawer({
 
         {activeTab === "historial" && (
           <div className="client-drawer-panel">
-            <p>Cliente conectado con la cuenta de prueba user.</p>
-            <p>Reservas registradas: {client.bookings}.</p>
-            <p>Ultima estadia: {client.latestStay}.</p>
-            <p>{client.notes}</p>
+            <div className="client-history-list">
+              <article>
+                <strong>Cuenta Creada</strong>
+                <span>El usuario se registró el {new Date(client.createdAt).toLocaleDateString("es-ES")}.</span>
+              </article>
+              <article>
+                <strong>Última Actualización</strong>
+                <span>Los datos del usuario se actualizaron por última vez el {new Date(client.updatedAt).toLocaleDateString("es-ES")}.</span>
+              </article>
+            </div>
           </div>
         )}
       </aside>
@@ -486,14 +505,21 @@ function ClienteAdmin() {
   const featuredClient = selectedClient || clients[0] || null;
 
   const latestStaySummary = useMemo(() => {
-    if (!effectiveReservations.length) {
-      return "Sin estadias registradas";
+    // 1. Filtramos solo por estadías que ya terminaron (fecha de salida es anterior a hoy)
+    const pastStays = effectiveReservations.filter(
+      (r) => new Date(r.fechaSalida) < new Date(),
+    );
+
+    if (!pastStays.length) {
+      return "Sin estadías finalizadas";
     }
-    // Ordenamos solo las reservas efectivas para encontrar la última estadía real
-    const latestReservation = [...effectiveReservations].sort(
-      (a, b) => new Date(b.fechaEntrada) - new Date(a.fechaEntrada),
+
+    // 2. Ordenamos esas estadías pasadas por fecha de salida para encontrar la más reciente
+    const latestStay = [...pastStays].sort(
+      (a, b) => new Date(b.fechaSalida) - new Date(a.fechaSalida),
     )[0];
-    return `${latestReservation.fechaEntrada} - ${latestReservation.fechaSalida}`;
+
+    return `${latestStay.fechaEntrada} - ${latestStay.fechaSalida}`;
   }, [effectiveReservations]);
 
   const filteredClients = useMemo(() => {
@@ -836,7 +862,7 @@ function ClienteAdmin() {
                     >
                       <span>{getInitials(currentClient.name)}</span>
                       <div>
-                        <strong>{currentClient.name}</strong>
+                        <strong>{currentClient.nombre || currentClient.name}</strong>
                         <small>ID: {currentClient.id}</small>
                       </div>
                     </button>
