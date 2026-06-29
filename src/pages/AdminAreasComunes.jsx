@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { areasComunesApi, reservasAreasComunesApi } from "../services/hotelApi.js";
-import { mapBackendArea, mapBackendAreaReservation } from "../services/commonAreasMapper.js";
+import { mapAreaRequest, mapBackendArea, mapBackendAreaReservation } from "../services/commonAreasMapper.js";
 import {
   areaStatusLabels,
   getAreaReservations,
@@ -142,19 +142,32 @@ function AdminAreasComunes() {
     });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const normalizedArea = normalizeCommonArea({
       ...form,
       id: editingId || `area-${Date.now()}`,
     });
 
-    const nextAreas = editingId
-      ? areas.map((area) => (area.id === editingId ? normalizedArea : area))
-      : [normalizedArea, ...areas];
+    setMessage("");
 
-    persistAreas(nextAreas);
-    resetForm();
+    try {
+      const payload = mapAreaRequest(normalizedArea);
+      const response = editingId
+        ? await areasComunesApi.update(editingId, payload)
+        : await areasComunesApi.create(payload);
+      const savedArea = mapBackendArea(response.data);
+
+      const nextAreas = editingId
+        ? areas.map((area) => (area.id === editingId ? savedArea : area))
+        : [savedArea, ...areas];
+
+      persistAreas(nextAreas);
+      resetForm();
+      setMessage(editingId ? "Area comun actualizada." : "Area comun creada.");
+    } catch (error) {
+      setMessage(error.response?.data?.message || "No se pudo guardar el area comun.");
+    }
   };
 
   const deleteArea = (areaId) => {
