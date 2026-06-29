@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./Home.jsx";
+import { areasComunesApi } from "../services/hotelApi.js";
+import { mapBackendArea } from "../services/commonAreasMapper.js";
 import {
   areaStatusLabels,
   getCommonAreas,
@@ -26,10 +28,12 @@ function AreasComunes() {
   const location = useLocation();
   const navigate = useNavigate();
   const minDate = useMemo(todayIso, []);
-  const [commonAreas] = useState(() => getCommonAreas());
+  const [commonAreas, setCommonAreas] = useState(() => getCommonAreas());
   const [selectedArea, setSelectedArea] = useState(() =>
     getCommonAreas().find((area) => area.status === "disponible") || getCommonAreas()[0],
   );
+  const [areasLoading, setAreasLoading] = useState(false);
+  const [areasError, setAreasError] = useState("");
   const [statusFilter, setStatusFilter] = useState("disponible");
   const [date, setDate] = useState(minDate);
   const [startTime, setStartTime] = useState("10:00");
@@ -49,6 +53,43 @@ function AreasComunes() {
   const isSameDay = date === minDate;
   const nowPlusThirty = new Date(Date.now() + 30 * 60 * 1000);
   const selectedStart = new Date(`${date}T${startTime}`);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCommonAreas() {
+      setAreasLoading(true);
+      setAreasError("");
+
+      try {
+        const response = await areasComunesApi.getAll();
+        const backendAreas = response.data.map(mapBackendArea);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setCommonAreas(backendAreas);
+        setSelectedArea(
+          backendAreas.find((area) => area.status === "disponible") || backendAreas[0] || null,
+        );
+      } catch {
+        if (isMounted) {
+          setAreasError("No se pudo conectar con el backend. Mostrando datos locales.");
+        }
+      } finally {
+        if (isMounted) {
+          setAreasLoading(false);
+        }
+      }
+    }
+
+    loadCommonAreas();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSelectArea = (area) => {
     setSelectedArea(area);
@@ -164,8 +205,10 @@ function AreasComunes() {
               <h2>Nuestros espacios</h2>
               <p>
                 Cada area muestra estado, capacidad y precio por hora. Por este
-                avance, los datos se manejan dentro del frontend.
+                avance, los datos se consultan desde el backend.
               </p>
+              {areasLoading && <p className="area-form-message">Cargando areas comunes...</p>}
+              {areasError && <p className="area-form-message">{areasError}</p>}
             </div>
             <div className="areas-filter">
               {[
