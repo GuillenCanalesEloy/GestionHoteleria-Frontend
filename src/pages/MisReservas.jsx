@@ -1,13 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { Header } from "./Home.jsx";
 import { getClientReservations } from "../services/clientReservationsStorage.js";
+import { mapBackendAreaReservation } from "../services/commonAreasMapper.js";
 import {
   getAreaReservations,
   getReservationStart,
   reservationStatusLabels,
   saveAreaReservations,
 } from "../services/commonAreasStorage.js";
+import { reservasAreasComunesApi } from "../services/hotelApi.js";
 
 function MisReservas() {
   const location = useLocation();
@@ -16,6 +18,37 @@ function MisReservas() {
   const session = clientSession ? JSON.parse(clientSession) : null;
   const hasValidToken = Boolean(session?.token);
   const [areaReservations, setAreaReservations] = useState(() => getAreaReservations());
+  const [areaReservationsError, setAreaReservationsError] = useState("");
+
+  useEffect(() => {
+    if (!session?.id) {
+      return;
+    }
+
+    let isMounted = true;
+
+    async function loadAreaReservations() {
+      setAreaReservationsError("");
+
+      try {
+        const response = await reservasAreasComunesApi.getByUsuario(session.id);
+
+        if (isMounted) {
+          setAreaReservations(response.data.map(mapBackendAreaReservation));
+        }
+      } catch {
+        if (isMounted) {
+          setAreaReservationsError("No se pudieron cargar las reservas de areas comunes.");
+        }
+      }
+    }
+
+    loadAreaReservations();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [session?.id]);
   const reservations = useMemo(() => {
     const roomReservations = getClientReservations()
       .filter((reservation) => !session || reservation.guest?.name === session.username)
@@ -26,7 +59,13 @@ function MisReservas() {
       }));
 
     const currentAreaReservations = areaReservations
-      .filter((reservation) => reservation.username === session?.username)
+      .filter((reservation) => {
+        if (reservation.usuarioId && session?.id) {
+          return Number(reservation.usuarioId) === Number(session.id);
+        }
+
+        return reservation.username === session?.username;
+      })
       .map((reservation) => ({
         ...reservation,
         stage: reservationStatusLabels[reservation.status],
@@ -87,6 +126,7 @@ function MisReservas() {
             <div>
               <h2>Reservas registradas</h2>
               <p>{reservations.length} reservas vinculadas a tu cuenta.</p>
+              {areaReservationsError && <p className="area-form-message">{areaReservationsError}</p>}
             </div>
             <Link className="book-link" to="/habitaciones">
               Nueva reserva
