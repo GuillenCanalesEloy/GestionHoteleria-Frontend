@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { areasComunesApi, reservasAreasComunesApi } from "../services/hotelApi.js";
+import { mapBackendArea, mapBackendAreaReservation } from "../services/commonAreasMapper.js";
 import {
   areaStatusLabels,
   getAreaReservations,
@@ -31,12 +33,51 @@ function AdminAreasComunes() {
   const [statusFilter, setStatusFilter] = useState("todos");
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyAreaForm);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (!localStorage.getItem("luxestay.adminSession")) {
       navigate("/login", { replace: true });
     }
   }, [navigate]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadAdminAreas() {
+      setLoading(true);
+      setMessage("");
+
+      try {
+        const [areasResponse, reservationsResponse] = await Promise.all([
+          areasComunesApi.getAll(),
+          reservasAreasComunesApi.getAll(),
+        ]);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setAreas(areasResponse.data.map(mapBackendArea));
+        setReservations(reservationsResponse.data.map(mapBackendAreaReservation));
+      } catch {
+        if (isMounted) {
+          setMessage("No se pudo conectar con el backend. Mostrando datos locales.");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadAdminAreas();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const totals = useMemo(() => {
     return areas.reduce(
@@ -207,6 +248,8 @@ function AdminAreasComunes() {
           <div>
             <h1>Gestion de areas comunes</h1>
             <p>Crea, edita, cambia estado y revisa reservas de instalaciones.</p>
+            {loading && <p className="area-form-message">Cargando datos desde backend...</p>}
+            {message && <p className="area-form-message">{message}</p>}
           </div>
         </section>
 
