@@ -10,7 +10,7 @@ import {
 import {
   areaStatusLabels,
   getCommonAreas,
-  hasScheduleOverlap,
+  minutesFromTime,
 } from "../services/commonAreasStorage.js";
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
@@ -25,6 +25,21 @@ function getHoursBetween(startTime, endTime) {
   const start = startHours * 60 + startMinutes;
   const end = endHours * 60 + endMinutes;
   return Math.max((end - start) / 60, 0);
+}
+
+function hasBackendScheduleOverlap(reservations, startTime, endTime) {
+  const start = minutesFromTime(startTime);
+  const end = minutesFromTime(endTime);
+
+  return reservations.some((reservation) => {
+    if (["CANCELADA", "FINALIZADA"].includes(reservation.estado)) {
+      return false;
+    }
+
+    const reservedStart = minutesFromTime(reservation.horaInicio.slice(0, 5));
+    const reservedEnd = minutesFromTime(reservation.horaFin.slice(0, 5));
+    return start < reservedEnd && end > reservedStart;
+  });
 }
 
 function AreasComunes() {
@@ -140,21 +155,16 @@ function AreasComunes() {
       return;
     }
 
-    if (
-      hasScheduleOverlap({
-        areaId: selectedArea.id,
-        date,
-        startTime,
-        endTime,
-      })
-    ) {
-      setMessage("Horario no disponible");
-      return;
-    }
-
     setReservationLoading(true);
 
     try {
+      const reservationsResponse = await reservasAreasComunesApi.getByAreaAndDate(selectedArea.id, date);
+
+      if (hasBackendScheduleOverlap(reservationsResponse.data, startTime, endTime)) {
+        setMessage("Horario no disponible");
+        return;
+      }
+
       const payload = mapAreaReservationRequest({
         session,
         selectedArea,
