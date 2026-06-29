@@ -54,7 +54,7 @@ export const areasComunesApi = {
   getById: (id) => hotelApi.get(`/areas-comunes/${id}`),
   create: (data) => hotelApi.post("/areas-comunes", data),
   update: (id, data) => hotelApi.put(`/areas-comunes/${id}`, data),
-  updateEstado: (id, estado) => hotelApi.put(`/areas-comunes/${id}/estado`, estado, {
+  updateEstado: (id, estado) => hotelApi.put(`/areas-comunes/${id}/estado`, JSON.stringify(estado), {
     headers: { "Content-Type": "application/json" },
   }),
   delete: (id) => hotelApi.delete(`/areas-comunes/${id}`),
