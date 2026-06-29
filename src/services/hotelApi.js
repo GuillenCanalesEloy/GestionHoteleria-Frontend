@@ -48,4 +48,29 @@ export const habitacionesApi = {
   getById: (id) => hotelApi.get(`/habitaciones/${id}`),
 };
 
+export const areasComunesApi = {
+  getAll: () => hotelApi.get("/areas-comunes"),
+  getDisponibles: () => hotelApi.get("/areas-comunes/disponibles"),
+  getById: (id) => hotelApi.get(`/areas-comunes/${id}`),
+  create: (data) => hotelApi.post("/areas-comunes", data),
+  update: (id, data) => hotelApi.put(`/areas-comunes/${id}`, data),
+  updateEstado: (id, estado) => hotelApi.put(`/areas-comunes/${id}/estado`, estado, {
+    headers: { "Content-Type": "application/json" },
+  }),
+  delete: (id) => hotelApi.delete(`/areas-comunes/${id}`),
+};
+
+export const reservasAreasComunesApi = {
+  getAll: () => hotelApi.get("/reservas-areas-comunes"),
+  getById: (id) => hotelApi.get(`/reservas-areas-comunes/${id}`),
+  getByUsuario: (usuarioId) => hotelApi.get(`/reservas-areas-comunes/usuario/${usuarioId}`),
+  getByArea: (areaComunId) => hotelApi.get(`/reservas-areas-comunes/area/${areaComunId}`),
+  getByAreaAndDate: (areaComunId, fecha) =>
+    hotelApi.get(`/reservas-areas-comunes/area/${areaComunId}/fecha`, { params: { fecha } }),
+  create: (data) => hotelApi.post("/reservas-areas-comunes", data),
+  updateEstado: (id, estado) =>
+    hotelApi.put(`/reservas-areas-comunes/${id}/estado`, { estado }),
+  delete: (id) => hotelApi.delete(`/reservas-areas-comunes/${id}`),
+};
+
 export default hotelApi;
