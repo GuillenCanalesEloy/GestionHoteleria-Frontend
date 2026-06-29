@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./Home.jsx";
-import { areasComunesApi } from "../services/hotelApi.js";
-import { mapBackendArea } from "../services/commonAreasMapper.js";
+import { areasComunesApi, reservasAreasComunesApi } from "../services/hotelApi.js";
+import {
+  mapAreaReservationRequest,
+  mapBackendArea,
+  mapBackendAreaReservation,
+} from "../services/commonAreasMapper.js";
 import {
   areaStatusLabels,
   getCommonAreas,
   hasScheduleOverlap,
-  saveAreaReservation,
 } from "../services/commonAreasStorage.js";
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
@@ -41,6 +44,7 @@ function AreasComunes() {
   const [people, setPeople] = useState("2 personas");
   const [notes, setNotes] = useState("");
   const [message, setMessage] = useState("");
+  const [reservationLoading, setReservationLoading] = useState(false);
 
   const clientSession = localStorage.getItem("luxestay.clientSession");
   const session = clientSession ? JSON.parse(clientSession) : null;
@@ -96,7 +100,7 @@ function AreasComunes() {
     setMessage("");
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setMessage("");
 
@@ -108,6 +112,11 @@ function AreasComunes() {
           returnTo: "/areas-comunes",
         },
       });
+      return;
+    }
+
+    if (!session?.id) {
+      setMessage("Tu sesion no tiene ID de usuario. Cierra sesion e ingresa nuevamente.");
       return;
     }
 
@@ -143,35 +152,28 @@ function AreasComunes() {
       return;
     }
 
-    saveAreaReservation({
-      id: `AREA-${Date.now().toString().slice(-6)}`,
-      type: "area-comun",
-      areaId: selectedArea.id,
-      username: session.username || "user",
-      title: selectedArea.name,
-      image: selectedArea.image,
-      stage: "Reserva de area comun",
-      date,
-      startTime,
-      endTime,
-      dates: `${date} / ${startTime} - ${endTime}`,
-      guests: people,
-      status: "pendiente",
-      total: `$${total.toFixed(2)}`,
-      room: selectedArea.name,
-      duration: reservedHours,
-      pricePerHour: selectedArea.pricePerHour,
-      guest: {
-        name: session.username || "user",
-        email: "user@demo.com",
-        phone: "Por confirmar",
-        requests: notes || "Sin peticiones especiales.",
-      },
-      createdAt: new Date().toISOString(),
-    });
+    setReservationLoading(true);
 
-    setMessage(`Reserva registrada: ${reservedHours} horas, ${date} de ${startTime} a ${endTime}, total $${total.toFixed(2)}.`);
-    setNotes("");
+    try {
+      const payload = mapAreaReservationRequest({
+        session,
+        selectedArea,
+        date,
+        startTime,
+        endTime,
+      });
+      const response = await reservasAreasComunesApi.create(payload);
+      const reservation = mapBackendAreaReservation(response.data);
+
+      setMessage(
+        `Reserva registrada: ${reservation.duration} horas, ${reservation.date} de ${reservation.startTime} a ${reservation.endTime}, total ${reservation.total}.`,
+      );
+      setNotes("");
+    } catch (error) {
+      setMessage(error.response?.data?.message || "No se pudo registrar la reserva en el backend.");
+    } finally {
+      setReservationLoading(false);
+    }
   };
 
   return (
@@ -346,9 +348,9 @@ function AreasComunes() {
                   <button
                     className="reserva-confirm-button"
                     type="submit"
-                    disabled={selectedArea?.status !== "disponible"}
+                    disabled={selectedArea?.status !== "disponible" || reservationLoading}
                   >
-                    Reservar area
+                    {reservationLoading ? "Reservando..." : "Reservar area"}
                   </button>
                 ) : (
                   <Link
