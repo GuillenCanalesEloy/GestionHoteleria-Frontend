@@ -170,8 +170,16 @@ function AdminAreasComunes() {
     }
   };
 
-  const deleteArea = (areaId) => {
-    persistAreas(areas.filter((area) => area.id !== areaId));
+  const deleteArea = async (areaId) => {
+    setMessage("");
+
+    try {
+      await areasComunesApi.delete(areaId);
+      persistAreas(areas.filter((area) => area.id !== areaId));
+      setMessage("Area comun eliminada.");
+    } catch (error) {
+      setMessage(error.response?.data?.message || "No se pudo eliminar el area comun.");
+    }
   };
 
   const updateAreaStatus = (areaId, status) => {
