@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { Header } from "./Home.jsx";
 import { getClientReservations } from "../services/clientReservationsStorage.js";
-import { mapBackendAreaReservation } from "../services/commonAreasMapper.js";
+import {
+  mapBackendAreaReservation,
+  reservationStatusToBackend,
+} from "../services/commonAreasMapper.js";
 import {
   getAreaReservations,
   getReservationStart,
@@ -97,14 +100,24 @@ function MisReservas() {
     setExpandedReservation((current) => (current === title ? null : title));
   };
 
-  const cancelAreaReservation = (reservationId) => {
-    const nextReservations = areaReservations.map((reservation) =>
-      reservation.id === reservationId
-        ? { ...reservation, status: "cancelada", stage: "Reserva cancelada" }
-        : reservation,
-    );
-    setAreaReservations(nextReservations);
-    saveAreaReservations(nextReservations);
+  const cancelAreaReservation = async (reservationId) => {
+    setAreaReservationsError("");
+
+    try {
+      const response = await reservasAreasComunesApi.updateEstado(
+        reservationId,
+        reservationStatusToBackend.cancelada,
+      );
+      const updatedReservation = mapBackendAreaReservation(response.data);
+      const nextReservations = areaReservations.map((reservation) =>
+        reservation.id === reservationId ? updatedReservation : reservation,
+      );
+
+      setAreaReservations(nextReservations);
+      saveAreaReservations(nextReservations);
+    } catch {
+      setAreaReservationsError("No se pudo cancelar la reserva de area comun.");
+    }
   };
 
   return (
