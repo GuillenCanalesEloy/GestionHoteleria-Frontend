@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { areasComunesApi, reservasAreasComunesApi } from "../services/hotelApi.js";
-import { mapAreaRequest, mapBackendArea, mapBackendAreaReservation } from "../services/commonAreasMapper.js";
+import {
+  areaStatusToBackend,
+  mapAreaRequest,
+  mapBackendArea,
+  mapBackendAreaReservation,
+} from "../services/commonAreasMapper.js";
 import {
   areaStatusLabels,
   getAreaReservations,
@@ -182,8 +187,17 @@ function AdminAreasComunes() {
     }
   };
 
-  const updateAreaStatus = (areaId, status) => {
-    persistAreas(areas.map((area) => (area.id === areaId ? { ...area, status } : area)));
+  const updateAreaStatus = async (areaId, status) => {
+    setMessage("");
+
+    try {
+      const response = await areasComunesApi.updateEstado(areaId, areaStatusToBackend[status]);
+      const updatedArea = mapBackendArea(response.data);
+      persistAreas(areas.map((area) => (area.id === areaId ? updatedArea : area)));
+      setMessage("Estado del area actualizado.");
+    } catch (error) {
+      setMessage(error.response?.data?.message || "No se pudo actualizar el estado del area.");
+    }
   };
 
   const updateReservationStatus = (reservationId, status) => {
