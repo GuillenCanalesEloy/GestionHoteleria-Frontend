@@ -46,8 +46,14 @@ function Login() {
     setLoading(true);
 
     try {
+      localStorage.removeItem('luxestay.adminSession');
+      localStorage.removeItem('luxestay.clientSession');
+
       // Llamada a la API de login, unificada para ambos roles
-      const response = await authApi.login({ email, password }); // Ahora 'email' tiene el valor correcto
+      const response = await authApi.login({
+        email: email.trim().toLowerCase(),
+        password: password.trim(),
+      }); // Ahora 'email' tiene el valor correcto
       const sessionData = {
         ...response.data,
         username: response.data.nombre || response.data.email,
@@ -204,7 +210,7 @@ function Login() {
 
           {loginMode === 'guest' ? (
             <p className="login-support">
-              Credenciales de prueba: <strong>user</strong> / <strong>user123</strong>
+              Credenciales de prueba: <strong>cliente@correo.com</strong> / <strong>cliente123</strong>
             </p>
           ) : (
             <p className="login-support">
