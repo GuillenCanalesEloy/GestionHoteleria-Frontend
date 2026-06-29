@@ -4,8 +4,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 const stats = [
   { label: "Ingresos totales", value: "$124,500", note: "+12%" },
   { label: "Reservas activas", value: "42", note: "Este mes" },
-  { label: "Ocupacion", value: "85%", note: "Alta demanda" },
-  { label: "Pagos pendientes", value: "18", note: "Revision" },
+  { label: "Ocupación", value: "85%", note: "Alta demanda" },
+  { label: "Pagos pendientes", value: "18", note: "Revisión" },
 ];
 
 const bookings = [
@@ -46,7 +46,7 @@ const tasks = [
   {
     title: "Mantenimiento requerido",
     room: "Standard King 312",
-    detail: "Revision de aire acondicionado",
+    detail: "Revisión de aire acondicionado",
   },
 ];
 
@@ -97,7 +97,7 @@ function AdminDashboard() {
             className={location.pathname === "/admin/areas-comunes" ? "active" : ""}
             to="/admin/areas-comunes"
           >
-            Areas comunes
+            Áreas comunes
           </Link>
           <Link
             className={location.pathname === "/admin/clientes" ? "active" : ""}
@@ -147,7 +147,7 @@ function AdminDashboard() {
             {profileOpen && (
               <div className="admin-profile-dropdown">
                 <button type="button" onClick={handleLogout}>
-                  Cerrar sesion
+                  Cerrar sesión
                 </button>
               </div>
             )}

@@ -25,7 +25,7 @@ function escapeCsvField(field) {
 const sortLabels = {
   name: "Cliente",
   bookings: "Reservas",
-  latestStay: "Ultima estadia",
+  latestStay: "Última estadía",
 };
 
 function getStoredProfile() {
@@ -69,13 +69,13 @@ function formatReservationStay(reservation) {
     return `${reservation.checkIn} - ${reservation.checkOut}`;
   }
 
-  return "Sin estadias registradas";
+  return "Sin estadías registradas";
 }
 
 function normalizeReservation(reservation) {
   return {
     id: reservation.id || "RES-CLIENTE",
-    room: reservation.room || reservation.title || "Habitacion",
+    room: reservation.room || reservation.title || "Habitación",
     dates: formatReservationStay(reservation),
     guests: reservation.guests || "1 Adulto",
     status: reservation.status || "Confirmada",
@@ -113,7 +113,7 @@ function mapBackendClient(currentClient, reservations, profile) {
     bookings: clientReservations.length,
     latestStay: latestReservation
       ? `${latestReservation.fechaEntrada} - ${latestReservation.fechaSalida}`
-      : "Sin estadias registradas",
+      : "Sin estadías registradas",
     rol: currentClient.rol,
     createdAt: currentClient.createdAt, // Añadimos las fechas para el historial
     updatedAt: currentClient.updatedAt,
@@ -139,7 +139,7 @@ function SidebarNav({ location }) {
           Habitaciones
         </Link>
         <Link className={location.pathname === "/admin/areas-comunes" ? "active" : ""} to="/admin/areas-comunes">
-          Areas comunes
+          Áreas comunes
         </Link>
         <Link className={location.pathname === "/admin/clientes" ? "active" : ""} to="/admin/clientes">
           Clientes
@@ -258,7 +258,7 @@ function ClientDrawer({
               </select>
             </label>
             <label>
-              Telefono
+              Teléfono
               <input name="phone" value={form.phone} onChange={onChange} />
             </label>
             <label>
@@ -287,7 +287,7 @@ function ClientDrawer({
                 <strong>{client.bookings}</strong>
               </div>
               <div>
-                <span>Ultima estadia</span>
+                <span>Última estadía</span>
                 <strong>{client.latestStay}</strong>
               </div>
             </div>
@@ -312,7 +312,7 @@ function ClientDrawer({
                   </article>
                 ))
               ) : (
-                <p>El usuario aun no tiene reservas registradas.</p>
+                <p>El usuario aún no tiene reservas registradas.</p>
               )}
             </div>
           </div>
@@ -675,7 +675,7 @@ function ClienteAdmin() {
       "Nombre",
       "Email",
       "Rol",
-      "Telefono",
+      "Teléfono",
       "Ciudad",
       "Notas",
       "Reservas",
@@ -732,7 +732,7 @@ function ClienteAdmin() {
             {profileOpen && (
               <div className="admin-profile-dropdown">
                 <button type="button" onClick={() => navigate("/")}>
-                  Cerrar sesion
+                  Cerrar sesión
                 </button>
               </div>
             )}
@@ -750,8 +750,8 @@ function ClienteAdmin() {
             <p className="section-kicker">Directory - user</p>
             <h1>Directorio de clientes</h1>
             <p>
-              Consulta la informacion del cliente user, sus reservas acumuladas
-              y la fecha de su ultima estadia.
+              Consulta la información del cliente user, sus reservas acumuladas
+              y la fecha de su última estadía.
             </p>
           </div>
           <div className="clients-admin-heading-actions">
@@ -778,7 +778,7 @@ function ClienteAdmin() {
             tone="blue"
           />
           <MetricCard
-            label="Ultima estadia"
+            label="Última estadía"
             value={latestStaySummary}
             description="Segun ultima reserva"
             change="Actual"
@@ -833,7 +833,7 @@ function ClienteAdmin() {
                 ["name", "Cliente"],
                 ["email", "Contacto"],
                 ["bookings", "Reservas"],
-                ["latestStay", "Ultima estadia"],
+                ["latestStay", "Última estadía"],
               ].map(([key, label]) => (
                 <button key={key} type="button" onClick={() => handleSort(key)}>
                   {label}

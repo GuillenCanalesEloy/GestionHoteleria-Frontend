@@ -170,9 +170,9 @@ function AdminAreasComunes() {
 
       persistAreas(nextAreas);
       resetForm();
-      setMessage(editingId ? "Area comun actualizada." : "Area comun creada.");
+      setMessage(editingId ? "Área común actualizada." : "Área común creada.");
     } catch (error) {
-      setMessage(error.response?.data?.message || "No se pudo guardar el area comun.");
+      setMessage(error.response?.data?.message || "No se pudo guardar el área común.");
     }
   };
 
@@ -182,9 +182,9 @@ function AdminAreasComunes() {
     try {
       await areasComunesApi.delete(areaId);
       persistAreas(areas.filter((area) => area.id !== areaId));
-      setMessage("Area comun eliminada.");
+      setMessage("Área común eliminada.");
     } catch (error) {
-      setMessage(error.response?.data?.message || "No se pudo eliminar el area comun.");
+      setMessage(error.response?.data?.message || "No se pudo eliminar el área común.");
     }
   };
 
@@ -195,9 +195,9 @@ function AdminAreasComunes() {
       const response = await areasComunesApi.updateEstado(areaId, areaStatusToBackend[status]);
       const updatedArea = mapBackendArea(response.data);
       persistAreas(areas.map((area) => (area.id === areaId ? updatedArea : area)));
-      setMessage("Estado del area actualizado.");
+      setMessage("Estado del área actualizado.");
     } catch (error) {
-      setMessage(error.response?.data?.message || "No se pudo actualizar el estado del area.");
+      setMessage(error.response?.data?.message || "No se pudo actualizar el estado del área.");
     }
   };
 
@@ -247,7 +247,7 @@ function AdminAreasComunes() {
             Habitaciones
           </Link>
           <Link className={location.pathname === "/admin/areas-comunes" ? "active" : ""} to="/admin/areas-comunes">
-            Areas comunes
+            Áreas comunes
           </Link>
           <Link className={location.pathname === "/admin/clientes" ? "active" : ""} to="/admin/clientes">
             Clientes
@@ -273,7 +273,7 @@ function AdminAreasComunes() {
         <header className="admin-topbar rooms-admin-topbar">
           <input
             type="search"
-            placeholder="Buscar areas comunes o reservas..."
+            placeholder="Buscar áreas comunes o reservas..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -284,7 +284,7 @@ function AdminAreasComunes() {
             {profileOpen && (
               <div className="admin-profile-dropdown">
                 <button type="button" onClick={handleLogout}>
-                  Cerrar sesion
+                  Cerrar sesión
                 </button>
               </div>
             )}
@@ -293,18 +293,18 @@ function AdminAreasComunes() {
 
         <section className="rooms-admin-heading">
           <div>
-            <h1>Gestion de areas comunes</h1>
+            <h1>Gestión de áreas comunes</h1>
             <p>Crea, edita, cambia estado y revisa reservas de instalaciones.</p>
             {loading && <p className="area-form-message">Cargando datos desde backend...</p>}
             {message && <p className="area-form-message">{message}</p>}
           </div>
         </section>
 
-        <section className="rooms-admin-stats" aria-label="Resumen de areas comunes">
+        <section className="rooms-admin-stats" aria-label="Resumen de áreas comunes">
           <article>
             <span>Total</span>
             <strong>{totals.total}</strong>
-            <small>Areas registradas</small>
+            <small>Áreas registradas</small>
           </article>
           <article>
             <span>Disponibles</span>
@@ -325,7 +325,7 @@ function AdminAreasComunes() {
 
         <section className="admin-area-layout">
           <form className="rooms-modal-form admin-area-form" onSubmit={handleSubmit}>
-            <h2>{editingId ? "Editar area" : "Nueva area comun"}</h2>
+            <h2>{editingId ? "Editar área" : "Nueva área común"}</h2>
             <label>
               Nombre
               <input name="name" value={form.name} onChange={handleInputChange} required />
@@ -359,13 +359,13 @@ function AdminAreasComunes() {
               <input name="image" value={form.image} onChange={handleInputChange} placeholder="URL de imagen" />
             </label>
             <label className="wide">
-              Descripcion
+              Descripción
               <textarea name="description" value={form.description} onChange={handleInputChange} required rows="3" />
             </label>
-            <button type="submit">{editingId ? "Guardar cambios" : "Crear area"}</button>
+            <button type="submit">{editingId ? "Guardar cambios" : "Crear área"}</button>
             {editingId && (
               <button type="button" onClick={resetForm}>
-                Cancelar edicion
+                Cancelar edición
               </button>
             )}
           </form>
@@ -385,7 +385,7 @@ function AdminAreasComunes() {
 
             <article className="rooms-admin-table-card">
               <div className="rooms-admin-table-header common-areas-admin-header">
-                <span>Area</span>
+                <span>Área</span>
                 <span>Estado</span>
                 <span>Capacidad</span>
                 <span>Precio/hora</span>
@@ -427,7 +427,7 @@ function AdminAreasComunes() {
             <div className="reservations-admin-table-header common-area-reservations-header">
               <span>ID</span>
               <span>Usuario</span>
-              <span>Area</span>
+              <span>Área</span>
               <span>Horario</span>
               <span>Estado</span>
               <span>Acciones</span>
@@ -457,7 +457,7 @@ function AdminAreasComunes() {
               ))}
             </div>
             <footer className="rooms-admin-table-footer">
-              Mostrando <strong>{orderedReservations.length}</strong> reservas de areas
+              Mostrando <strong>{orderedReservations.length}</strong> reservas de áreas
             </footer>
           </article>
         </section>

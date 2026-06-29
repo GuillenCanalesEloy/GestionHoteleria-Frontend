@@ -133,7 +133,7 @@ function Habitaciones() {
               <div>
                 <h2>Habitaciones disponibles</h2>
                 <p>
-                  Mostrando {filteredRooms.length} estadias para tus fechas.
+                  Mostrando {filteredRooms.length} estadías para tus fechas.
                 </p>
               </div>
             </div>

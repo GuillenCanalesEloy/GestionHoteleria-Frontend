@@ -72,7 +72,7 @@ function Pagos() {
         id: `RES-${Date.now().toString().slice(-6)}`,
         title: room.title,
         status: "Confirmada",
-        stage: "Proxima estadia",
+        stage: "Próxima estadía",
         dates: reservation ? `${reservation.checkIn} - ${reservation.checkOut}` : "Fechas por confirmar",
         checkIn: reservation?.checkIn || "",
         checkOut: reservation?.checkOut || "",
@@ -82,7 +82,7 @@ function Pagos() {
         guest: {
           name: reservation?.guestName || "Cliente",
           email: reservation?.guestEmail || "user@demo.com",
-          phone: reservation?.guestPhone || "Sin telefono",
+          phone: reservation?.guestPhone || "Sin teléfono",
           requests: reservation?.specialRequests || "Sin peticiones especiales.",
         },
         payment: {
@@ -146,7 +146,7 @@ function Pagos() {
             {paymentMethod === "card" && (
               <div className="payment-fields">
                 <label className="payment-field">
-                  <span>Numero de tarjeta</span>
+                  <span>Número de tarjeta</span>
                   <input
                     inputMode="numeric"
                     name="cardNumber"
@@ -160,7 +160,7 @@ function Pagos() {
                 </label>
 
                 <label className="payment-field">
-                  <span>Expiracion</span>
+                  <span>Expiración</span>
                   <input
                     inputMode="numeric"
                     name="expiry"
@@ -190,7 +190,7 @@ function Pagos() {
             )}
 
             <div className="payment-security-note">
-              Pago 100% seguro con validacion cifrada.
+              Pago 100% seguro con validación cifrada.
             </div>
 
             <button className="payment-submit" type="submit">

@@ -37,7 +37,7 @@ export function mapBackendArea(area) {
     pricePerHour: Number(area.precioPorHora || 0),
     schedule: "08:00 - 22:00",
     image: area.image || defaultAreaImage,
-    description: area.descripcion || "Espacio disponible para huespedes.",
+    description: area.descripcion || "Espacio disponible para huéspedes.",
     raw: area,
   };
 }
@@ -60,8 +60,8 @@ export function mapBackendAreaReservation(reservation) {
     type: "area-comun",
     areaId: reservation.areaComunId,
     usuarioId: reservation.usuarioId,
-    username: reservation.usuarioNombre || "Huesped",
-    title: reservation.areaComunNombre || "Area comun",
+    username: reservation.usuarioNombre || "Huésped",
+    title: reservation.areaComunNombre || "Área común",
     image: defaultAreaImage,
     stage: status,
     date: reservation.fecha,
@@ -71,11 +71,11 @@ export function mapBackendAreaReservation(reservation) {
     guests: "Por confirmar",
     status,
     total: `$${priceTotal.toFixed(2)}`,
-    room: reservation.areaComunNombre || "Area comun",
+    room: reservation.areaComunNombre || "Área común",
     duration: Number(reservation.duracionMinutos || 0) / 60,
     priceTotal,
     guest: {
-      name: reservation.usuarioNombre || "Huesped",
+      name: reservation.usuarioNombre || "Huésped",
       email: "Por confirmar",
       phone: "Por confirmar",
       requests: "Reserva registrada en backend.",

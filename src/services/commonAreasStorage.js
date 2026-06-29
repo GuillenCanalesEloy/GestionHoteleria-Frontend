@@ -26,7 +26,7 @@ const defaultAreas = [
     image:
       "https://images.unsplash.com/photo-1572331165267-854da2b10ccc?auto=format&fit=crop&w=1200&q=80",
     description:
-      "Piscina panoramica con zona de descanso, tumbonas premium y atencion de bebidas.",
+      "Piscina panorámica con zona de descanso, tumbonas premium y atención de bebidas.",
   },
   {
     id: "wellness-spa",
@@ -39,7 +39,7 @@ const defaultAreas = [
     image:
       "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
     description:
-      "Cabinas privadas, sauna y ambiente terapeutico para sesiones de bienestar.",
+      "Cabinas privadas, sauna y ambiente terapéutico para sesiones de bienestar.",
   },
   {
     id: "high-tech-gym",
@@ -65,7 +65,7 @@ const defaultAreas = [
     image:
       "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1200&q=80",
     description:
-      "Salon gastronomico para cenas privadas, reuniones especiales y celebraciones.",
+      "Salón gastronómico para cenas privadas, reuniones especiales y celebraciones.",
   },
   {
     id: "private-lounge",
@@ -78,7 +78,7 @@ const defaultAreas = [
     image:
       "https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1200&q=80",
     description:
-      "Lounge reservado con servicio de cafe, proyector y ambiente ejecutivo.",
+      "Lounge reservado con servicio de café, proyector y ambiente ejecutivo.",
   },
 ];
 
@@ -108,7 +108,7 @@ export function saveCommonAreas(areas) {
 export function normalizeCommonArea(area) {
   return {
     id: area.id || `area-${Date.now()}`,
-    name: area.name?.trim() || "Area comun",
+    name: area.name?.trim() || "Área común",
     badge: area.badge?.trim() || "Hotel",
     status: area.status || "disponible",
     capacity: Number(area.capacity) || 1,
@@ -117,7 +117,7 @@ export function normalizeCommonArea(area) {
     image:
       area.image?.trim() ||
       "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
-    description: area.description?.trim() || "Espacio disponible para huespedes.",
+    description: area.description?.trim() || "Espacio disponible para huéspedes.",
   };
 }
 

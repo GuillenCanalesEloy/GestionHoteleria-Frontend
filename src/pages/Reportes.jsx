@@ -81,7 +81,7 @@ const Reportes = () => {
             className={location.pathname === "/admin/areas-comunes" ? "active" : ""}
             to="/admin/areas-comunes"
           >
-            Areas comunes
+            Áreas comunes
           </Link>
           <Link
             className={location.pathname === "/admin/clientes" ? "active" : ""}

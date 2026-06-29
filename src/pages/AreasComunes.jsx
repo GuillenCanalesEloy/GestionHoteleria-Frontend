@@ -131,12 +131,12 @@ function AreasComunes() {
     }
 
     if (!session?.id) {
-      setMessage("Tu sesion no tiene ID de usuario. Cierra sesion e ingresa nuevamente.");
+      setMessage("Tu sesión no tiene ID de usuario. Cierra sesión e ingresa nuevamente.");
       return;
     }
 
     if (!selectedArea || selectedArea.status !== "disponible") {
-      setMessage("Selecciona un area disponible para reservar.");
+      setMessage("Selecciona un área disponible para reservar.");
       return;
     }
 
@@ -146,12 +146,12 @@ function AreasComunes() {
     }
 
     if (reservedHours > 3) {
-      setMessage("La duracion maxima permitida es de 3 horas.");
+      setMessage("La duración máxima permitida es de 3 horas.");
       return;
     }
 
     if (isSameDay && selectedStart.getTime() < nowPlusThirty.getTime()) {
-      setMessage("Reserva con al menos 30 minutos de anticipacion.");
+      setMessage("Reserva con al menos 30 minutos de anticipación.");
       return;
     }
 
@@ -194,10 +194,10 @@ function AreasComunes() {
         <section className="areas-hero">
           <div className="areas-hero-content">
             <p className="hero-kicker">Experiencia exclusiva</p>
-            <h1>Areas Comunes</h1>
+            <h1>Áreas comunes</h1>
             <p>
               Reserva espacios del hotel para relajarte, entrenar, reunirte o
-              disfrutar servicios premium durante tu estadia.
+              disfrutar servicios premium durante tu estadía.
             </p>
             <div className="hero-actions">
               <a className="hero-primary" href="#areas-catalogo">
@@ -216,10 +216,10 @@ function AreasComunes() {
               <p className="section-kicker">Instalaciones</p>
               <h2>Nuestros espacios</h2>
               <p>
-                Cada area muestra estado, capacidad y precio por hora. Por este
+                Cada área muestra estado, capacidad y precio por hora. Por este
                 avance, los datos se consultan desde el backend.
               </p>
-              {areasLoading && <p className="area-form-message">Cargando areas comunes...</p>}
+              {areasLoading && <p className="area-form-message">Cargando áreas comunes...</p>}
               {areasError && <p className="area-form-message">{areasError}</p>}
             </div>
             <div className="areas-filter">
@@ -240,7 +240,7 @@ function AreasComunes() {
           </div>
 
           <div className="areas-layout">
-            <section className="areas-grid" aria-label="Listado de areas comunes">
+            <section className="areas-grid" aria-label="Listado de áreas comunes">
               {visibleAreas.map((area) => (
                 <article
                   className={`area-card ${selectedArea?.id === area.id ? "selected" : ""}`}
@@ -360,7 +360,7 @@ function AreasComunes() {
                     type="submit"
                     disabled={selectedArea?.status !== "disponible" || reservationLoading}
                   >
-                    {reservationLoading ? "Reservando..." : "Reservar area"}
+                    {reservationLoading ? "Reservando..." : "Reservar área"}
                   </button>
                 ) : (
                   <Link
@@ -372,7 +372,7 @@ function AreasComunes() {
                       returnTo: "/areas-comunes",
                     }}
                   >
-                    Iniciar sesion para reservar
+                    Iniciar sesión para reservar
                   </Link>
                 )}
               </form>

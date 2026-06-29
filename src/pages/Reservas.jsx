@@ -47,7 +47,7 @@ function Reservas() {
           <p className="section-kicker">Reserva</p>
           <h1>Completa tu reserva</h1>
           <p>
-            Selecciona tus fechas, indica el numero de personas y confirma tu
+            Selecciona tus fechas, indica el número de personas y confirma tu
             solicitud.
           </p>
         </section>
@@ -84,7 +84,7 @@ function Reservas() {
             </section>
 
             <section className="reserva-form-section">
-              <h2>Informacion del huesped</h2>
+              <h2>Información del huésped</h2>
               <div className="reserva-fields-grid">
                 <div className="reserva-field">
                   <label htmlFor="guest-name">Nombre completo</label>
@@ -99,7 +99,7 @@ function Reservas() {
                 </div>
 
                 <div className="reserva-field">
-                  <label htmlFor="guest-email">Correo electronico</label>
+                  <label htmlFor="guest-email">Correo electrónico</label>
                   <input
                     id="guest-email"
                     placeholder="juan@ejemplo.com"
@@ -111,7 +111,7 @@ function Reservas() {
                 </div>
 
                 <div className="reserva-field">
-                  <label htmlFor="guest-phone">Telefono de contacto</label>
+                  <label htmlFor="guest-phone">Teléfono de contacto</label>
                   <input
                     id="guest-phone"
                     inputMode="numeric"
@@ -124,7 +124,7 @@ function Reservas() {
                 </div>
 
                 <div className="reserva-field">
-                  <label htmlFor="people">Numero de huespedes</label>
+                  <label htmlFor="people">Número de huéspedes</label>
                   <select
                     id="people"
                     value={people}
@@ -143,7 +143,7 @@ function Reservas() {
                   <label htmlFor="special-requests">Peticiones especiales (opcional)</label>
                   <textarea
                     id="special-requests"
-                    placeholder="Indicanos si tienes alguna necesidad especifica..."
+                    placeholder="Indícanos si tienes alguna necesidad específica..."
                     rows="4"
                     value={specialRequests}
                     onChange={(event) => setSpecialRequests(event.target.value)}
@@ -171,10 +171,10 @@ function Reservas() {
               </>
             ) : (
               <div className="reserva-empty-room">
-                <span>Habitacion</span>
-                <h2>Selecciona una habitacion</h2>
+                <span>Habitación</span>
+                <h2>Selecciona una habitación</h2>
                 <p>
-                  Puedes volver al catalogo y elegir una habitacion para ver su
+                  Puedes volver al catálogo y elegir una habitación para ver su
                   detalle antes de reservar.
                 </p>
                 <Link className="book-link" to="/habitaciones">

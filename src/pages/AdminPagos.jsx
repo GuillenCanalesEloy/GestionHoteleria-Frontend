@@ -63,7 +63,7 @@ function normalizePayment(reservation) {
     methodFilter: paymentMethod,
     amount: parseMoney(reservation.total),
     status: "Pagado",
-    room: reservation.room || reservation.title || "Habitacion",
+    room: reservation.room || reservation.title || "Habitación",
     stay: reservation.dates || "Fechas por confirmar",
   };
 }
@@ -122,7 +122,7 @@ function AdminPagos() {
             Habitaciones
           </Link>
           <Link className={location.pathname === "/admin/areas-comunes" ? "active" : ""} to="/admin/areas-comunes">
-            Areas comunes
+            Áreas comunes
           </Link>
           <Link className={location.pathname === "/admin/clientes" ? "active" : ""} to="/admin/clientes">
             Clientes
@@ -148,7 +148,7 @@ function AdminPagos() {
         <header className="admin-topbar admin-payments-topbar">
           <input
             type="search"
-            placeholder="Buscar pago, reserva o habitacion..."
+            placeholder="Buscar pago, reserva o habitación..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -160,7 +160,7 @@ function AdminPagos() {
             {profileOpen && (
               <div className="admin-profile-dropdown">
                 <button type="button" onClick={() => navigate("/")}>
-                  Cerrar sesion
+                  Cerrar sesión
                 </button>
               </div>
             )}
@@ -212,7 +212,7 @@ function AdminPagos() {
 
         <section className="admin-payments-table-card">
           <div className="admin-payments-table-header">
-            <span>ID transaccion</span>
+            <span>ID transacción</span>
             <span>Cliente</span>
             <span>Reserva</span>
             <span>Metodo</span>
@@ -248,7 +248,7 @@ function AdminPagos() {
                 <h2>No hay pagos registrados</h2>
                 <p>
                   Cuando el usuario complete una reserva y realice el pago, la
-                  transaccion aparecera en este panel.
+                  transacción aparecerá en este panel.
                 </p>
               </div>
             )}

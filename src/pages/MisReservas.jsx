@@ -41,7 +41,7 @@ function MisReservas() {
         }
       } catch {
         if (isMounted) {
-          setAreaReservationsError("No se pudieron cargar las reservas de areas comunes.");
+          setAreaReservationsError("No se pudieron cargar las reservas de áreas comunes.");
         }
       }
     }
@@ -116,7 +116,7 @@ function MisReservas() {
       setAreaReservations(nextReservations);
       saveAreaReservations(nextReservations);
     } catch {
-      setAreaReservationsError("No se pudo cancelar la reserva de area comun.");
+      setAreaReservationsError("No se pudo cancelar la reserva de área común.");
     }
   };
 
@@ -127,10 +127,10 @@ function MisReservas() {
       <main className="bookings-main">
         <section className="bookings-heading">
           <p className="section-kicker">Mis reservas</p>
-          <h1>Gestiona tus estadias</h1>
+          <h1>Gestiona tus estadías</h1>
           <p>
-            Revisa tus proximas reservas, confirma los datos de tu habitacion y
-            mantente al tanto del estado de cada estadia.
+            Revisa tus próximas reservas, confirma los datos de tu habitación y
+            mantente al tanto del estado de cada estadía.
           </p>
         </section>
 
@@ -149,10 +149,10 @@ function MisReservas() {
           <div className="booking-list">
             {reservations.length === 0 && (
               <div className="booking-empty-state">
-                <h3>Aun no tienes reservas guardadas</h3>
-                <p>Elige una habitacion o area comun y completa una reserva para verla aqui.</p>
+                <h3>Aún no tienes reservas guardadas</h3>
+                <p>Elige una habitación o área común y completa una reserva para verla aquí.</p>
                 <Link className="book-link" to="/areas-comunes">
-                  Ver areas comunes
+                  Ver áreas comunes
                 </Link>
               </div>
             )}
@@ -193,8 +193,8 @@ function MisReservas() {
                   <div className="booking-guest-detail">
                     <h4>
                       {reservation.type === "area-comun"
-                        ? "Informacion de la reserva"
-                        : "Informacion del huesped"}
+                        ? "Información de la reserva"
+                        : "Información del huésped"}
                     </h4>
                     <div>
                       <span>Nombre</span>
@@ -205,7 +205,7 @@ function MisReservas() {
                       <strong>{reservation.guest.email}</strong>
                     </div>
                     <div>
-                      <span>Telefono</span>
+                      <span>Teléfono</span>
                       <strong>{reservation.guest.phone}</strong>
                     </div>
                     <div className="wide">
