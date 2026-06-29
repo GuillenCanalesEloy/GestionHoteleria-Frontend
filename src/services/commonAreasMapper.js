@@ -62,6 +62,7 @@ export function mapBackendAreaReservation(reservation) {
     usuarioId: reservation.usuarioId,
     username: reservation.usuarioNombre || "Huesped",
     title: reservation.areaComunNombre || "Area comun",
+    image: defaultAreaImage,
     stage: status,
     date: reservation.fecha,
     startTime: reservation.horaInicio?.slice(0, 5),
