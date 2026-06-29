@@ -6,6 +6,7 @@ import {
   mapAreaRequest,
   mapBackendArea,
   mapBackendAreaReservation,
+  reservationStatusToBackend,
 } from "../services/commonAreasMapper.js";
 import {
   areaStatusLabels,
@@ -200,14 +201,25 @@ function AdminAreasComunes() {
     }
   };
 
-  const updateReservationStatus = (reservationId, status) => {
-    persistReservations(
-      reservations.map((reservation) =>
-        reservation.id === reservationId
-          ? { ...reservation, status, stage: reservationStatusLabels[status] }
-          : reservation,
-      ),
-    );
+  const updateReservationStatus = async (reservationId, status) => {
+    setMessage("");
+
+    try {
+      const response = await reservasAreasComunesApi.updateEstado(
+        reservationId,
+        reservationStatusToBackend[status],
+      );
+      const updatedReservation = mapBackendAreaReservation(response.data);
+
+      persistReservations(
+        reservations.map((reservation) =>
+          reservation.id === reservationId ? updatedReservation : reservation,
+        ),
+      );
+      setMessage("Estado de reserva actualizado.");
+    } catch (error) {
+      setMessage(error.response?.data?.message || "No se pudo actualizar la reserva.");
+    }
   };
 
   const handleLogout = () => {
