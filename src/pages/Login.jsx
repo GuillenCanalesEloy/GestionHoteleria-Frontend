@@ -48,7 +48,10 @@ function Login() {
     try {
       // Llamada a la API de login, unificada para ambos roles
       const response = await authApi.login({ email, password }); // Ahora 'email' tiene el valor correcto
-      const sessionData = response.data; // { token, type, email, nombre, rol }
+      const sessionData = {
+        ...response.data,
+        username: response.data.nombre || response.data.email,
+      }; // { id, token, type, email, nombre, rol, username }
 
       // Guardar la sesión completa (incluyendo el token)
       if (sessionData.rol === 'ADMIN') {
