@@ -2906,6 +2906,7 @@ img {
 }
 
 .areas-layout {
+  align-items: start;
   display: grid;
   gap: 30px;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 390px);
@@ -2913,6 +2914,7 @@ img {
 }
 
 .areas-grid {
+  align-items: start;
   display: grid;
   gap: 20px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
