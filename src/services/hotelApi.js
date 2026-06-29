@@ -8,6 +8,10 @@ const hotelApi = axios.create({
 // Interceptor para añadir el token JWT a cada petición
 hotelApi.interceptors.request.use(
   (config) => {
+    if (config.url?.startsWith("/auth/")) {
+      return config;
+    }
+
     // Intenta obtener la sesión de admin o de cliente desde localStorage
     const adminSessionString = localStorage.getItem("luxestay.adminSession");
     const clientSessionString = localStorage.getItem("luxestay.clientSession");
