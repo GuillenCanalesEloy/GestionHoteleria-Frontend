@@ -36,7 +36,7 @@ export function mapBackendArea(area) {
     capacity: area.capacidadMaxima,
     pricePerHour: Number(area.precioPorHora || 0),
     schedule: "08:00 - 22:00",
-    image: area.image || defaultAreaImage,
+    image: area.imagenUrl || defaultAreaImage,
     description: area.descripcion || "Espacio disponible para huéspedes.",
     raw: area,
   };
@@ -48,6 +48,7 @@ export function mapAreaRequest(area) {
     descripcion: area.description?.trim(),
     capacidadMaxima: Number(area.capacity),
     precioPorHora: Number(area.pricePerHour),
+    imagenUrl: area.image,
   };
 }
 

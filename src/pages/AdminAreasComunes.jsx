@@ -153,10 +153,8 @@ function AdminAreasComunes() {
     const normalizedArea = normalizeCommonArea({
       ...form,
       id: editingId || `area-${Date.now()}`,
+      image: form.image, // Pasar explícitamente la imagen del formulario
     });
-    normalizedArea.image =
-      normalizedArea.image || `https://placehold.co/600x400/041627/FFFFFF/png?text=${normalizedArea.name.replace(/\s/g, "+")}`;
-
     setMessage("");
 
     try {
