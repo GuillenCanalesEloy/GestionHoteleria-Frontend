@@ -522,7 +522,7 @@ function normalizeRoom(room) {
     capacity,
     floor,
     title: room.title || `Habitación ${type} ${number}`,
-    image: room.image || "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=900",
+    image: room.image || `https://placehold.co/600x400/041627/FFFFFF/png?text=Habitacion+${number}`,
     description:
       room.description || `Habitación ${type.toLowerCase()} número ${number}, ubicada en el piso ${floor}.`,
   };

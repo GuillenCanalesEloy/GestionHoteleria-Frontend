@@ -154,6 +154,8 @@ function AdminAreasComunes() {
       ...form,
       id: editingId || `area-${Date.now()}`,
     });
+    normalizedArea.image =
+      normalizedArea.image || `https://placehold.co/600x400/041627/FFFFFF/png?text=${normalizedArea.name.replace(/\s/g, "+")}`;
 
     setMessage("");
 
@@ -420,6 +422,13 @@ function AdminAreasComunes() {
               </div>
             </article>
           </section>
+        </section>
+
+        <section className="rooms-admin-heading" style={{ marginTop: '2rem', borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem' }}>
+          <div>
+            <h2>Reservas de Áreas Comunes</h2>
+            <p>Gestiona las reservas pendientes, confirmadas o canceladas para las áreas comunes.</p>
+          </div>
         </section>
 
         <section className="reservations-admin-layout reservations-admin-layout-single admin-area-reservations">
