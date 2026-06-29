@@ -39,7 +39,7 @@ function DetallesDeHabitacion({ room, onClose }) {
           className="room-detail-close"
           type="button"
           onClick={onClose}
-          aria-label="Cerrar detalle de habitacion"
+          aria-label="Cerrar detalle de habitación"
         >
           x
         </button>
@@ -50,7 +50,7 @@ function DetallesDeHabitacion({ room, onClose }) {
         </div>
 
         <div className="room-detail-content">
-          <p className="section-kicker">Detalle de habitacion</p>
+          <p className="section-kicker">Detalle de habitación</p>
           <h2 id="room-detail-title">{room.title}</h2>
           <p>{room.description}</p>
 

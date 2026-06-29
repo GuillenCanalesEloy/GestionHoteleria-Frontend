@@ -1,11 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./Home.jsx";
+import { areasComunesApi, reservasAreasComunesApi } from "../services/hotelApi.js";
+import {
+  mapAreaReservationRequest,
+  mapBackendArea,
+  mapBackendAreaReservation,
+} from "../services/commonAreasMapper.js";
 import {
   areaStatusLabels,
   getCommonAreas,
-  hasScheduleOverlap,
-  saveAreaReservation,
+  minutesFromTime,
 } from "../services/commonAreasStorage.js";
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
@@ -22,14 +27,31 @@ function getHoursBetween(startTime, endTime) {
   return Math.max((end - start) / 60, 0);
 }
 
+function hasBackendScheduleOverlap(reservations, startTime, endTime) {
+  const start = minutesFromTime(startTime);
+  const end = minutesFromTime(endTime);
+
+  return reservations.some((reservation) => {
+    if (["CANCELADA", "FINALIZADA"].includes(reservation.estado)) {
+      return false;
+    }
+
+    const reservedStart = minutesFromTime(reservation.horaInicio.slice(0, 5));
+    const reservedEnd = minutesFromTime(reservation.horaFin.slice(0, 5));
+    return start < reservedEnd && end > reservedStart;
+  });
+}
+
 function AreasComunes() {
   const location = useLocation();
   const navigate = useNavigate();
   const minDate = useMemo(todayIso, []);
-  const [commonAreas] = useState(() => getCommonAreas());
+  const [commonAreas, setCommonAreas] = useState(() => getCommonAreas());
   const [selectedArea, setSelectedArea] = useState(() =>
     getCommonAreas().find((area) => area.status === "disponible") || getCommonAreas()[0],
   );
+  const [areasLoading, setAreasLoading] = useState(false);
+  const [areasError, setAreasError] = useState("");
   const [statusFilter, setStatusFilter] = useState("disponible");
   const [date, setDate] = useState(minDate);
   const [startTime, setStartTime] = useState("10:00");
@@ -37,6 +59,7 @@ function AreasComunes() {
   const [people, setPeople] = useState("2 personas");
   const [notes, setNotes] = useState("");
   const [message, setMessage] = useState("");
+  const [reservationLoading, setReservationLoading] = useState(false);
 
   const clientSession = localStorage.getItem("luxestay.clientSession");
   const session = clientSession ? JSON.parse(clientSession) : null;
@@ -50,12 +73,49 @@ function AreasComunes() {
   const nowPlusThirty = new Date(Date.now() + 30 * 60 * 1000);
   const selectedStart = new Date(`${date}T${startTime}`);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCommonAreas() {
+      setAreasLoading(true);
+      setAreasError("");
+
+      try {
+        const response = await areasComunesApi.getAll();
+        const backendAreas = response.data.map(mapBackendArea);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setCommonAreas(backendAreas);
+        setSelectedArea(
+          backendAreas.find((area) => area.status === "disponible") || backendAreas[0] || null,
+        );
+      } catch {
+        if (isMounted) {
+          setAreasError("No se pudo conectar con el backend. Mostrando datos locales.");
+        }
+      } finally {
+        if (isMounted) {
+          setAreasLoading(false);
+        }
+      }
+    }
+
+    loadCommonAreas();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const handleSelectArea = (area) => {
     setSelectedArea(area);
     setMessage("");
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setMessage("");
 
@@ -70,8 +130,13 @@ function AreasComunes() {
       return;
     }
 
+    if (!session?.id) {
+      setMessage("Tu sesión no tiene ID de usuario. Cierra sesión e ingresa nuevamente.");
+      return;
+    }
+
     if (!selectedArea || selectedArea.status !== "disponible") {
-      setMessage("Selecciona un area disponible para reservar.");
+      setMessage("Selecciona un área disponible para reservar.");
       return;
     }
 
@@ -81,56 +146,44 @@ function AreasComunes() {
     }
 
     if (reservedHours > 3) {
-      setMessage("La duracion maxima permitida es de 3 horas.");
+      setMessage("La duración máxima permitida es de 3 horas.");
       return;
     }
 
     if (isSameDay && selectedStart.getTime() < nowPlusThirty.getTime()) {
-      setMessage("Reserva con al menos 30 minutos de anticipacion.");
+      setMessage("Reserva con al menos 30 minutos de anticipación.");
       return;
     }
 
-    if (
-      hasScheduleOverlap({
-        areaId: selectedArea.id,
+    setReservationLoading(true);
+
+    try {
+      const reservationsResponse = await reservasAreasComunesApi.getByAreaAndDate(selectedArea.id, date);
+
+      if (hasBackendScheduleOverlap(reservationsResponse.data, startTime, endTime)) {
+        setMessage("Horario no disponible");
+        return;
+      }
+
+      const payload = mapAreaReservationRequest({
+        session,
+        selectedArea,
         date,
         startTime,
         endTime,
-      })
-    ) {
-      setMessage("Horario no disponible");
-      return;
+      });
+      const response = await reservasAreasComunesApi.create(payload);
+      const reservation = mapBackendAreaReservation(response.data);
+
+      setMessage(
+        `Reserva registrada: ${reservation.duration} horas, ${reservation.date} de ${reservation.startTime} a ${reservation.endTime}, total ${reservation.total}.`,
+      );
+      setNotes("");
+    } catch (error) {
+      setMessage(error.response?.data?.message || "No se pudo registrar la reserva en el backend.");
+    } finally {
+      setReservationLoading(false);
     }
-
-    saveAreaReservation({
-      id: `AREA-${Date.now().toString().slice(-6)}`,
-      type: "area-comun",
-      areaId: selectedArea.id,
-      username: session.username || "user",
-      title: selectedArea.name,
-      image: selectedArea.image,
-      stage: "Reserva de area comun",
-      date,
-      startTime,
-      endTime,
-      dates: `${date} / ${startTime} - ${endTime}`,
-      guests: people,
-      status: "pendiente",
-      total: `$${total.toFixed(2)}`,
-      room: selectedArea.name,
-      duration: reservedHours,
-      pricePerHour: selectedArea.pricePerHour,
-      guest: {
-        name: session.username || "user",
-        email: "user@demo.com",
-        phone: "Por confirmar",
-        requests: notes || "Sin peticiones especiales.",
-      },
-      createdAt: new Date().toISOString(),
-    });
-
-    setMessage(`Reserva registrada: ${reservedHours} horas, ${date} de ${startTime} a ${endTime}, total $${total.toFixed(2)}.`);
-    setNotes("");
   };
 
   return (
@@ -141,10 +194,10 @@ function AreasComunes() {
         <section className="areas-hero">
           <div className="areas-hero-content">
             <p className="hero-kicker">Experiencia exclusiva</p>
-            <h1>Areas Comunes</h1>
+            <h1>Áreas comunes</h1>
             <p>
               Reserva espacios del hotel para relajarte, entrenar, reunirte o
-              disfrutar servicios premium durante tu estadia.
+              disfrutar servicios premium durante tu estadía.
             </p>
             <div className="hero-actions">
               <a className="hero-primary" href="#areas-catalogo">
@@ -163,9 +216,11 @@ function AreasComunes() {
               <p className="section-kicker">Instalaciones</p>
               <h2>Nuestros espacios</h2>
               <p>
-                Cada area muestra estado, capacidad y precio por hora. Por este
-                avance, los datos se manejan dentro del frontend.
+                Cada área muestra estado, capacidad y precio por hora. Por este
+                avance, los datos se consultan desde el backend.
               </p>
+              {areasLoading && <p className="area-form-message">Cargando áreas comunes...</p>}
+              {areasError && <p className="area-form-message">{areasError}</p>}
             </div>
             <div className="areas-filter">
               {[
@@ -185,7 +240,7 @@ function AreasComunes() {
           </div>
 
           <div className="areas-layout">
-            <section className="areas-grid" aria-label="Listado de areas comunes">
+            <section className="areas-grid" aria-label="Listado de áreas comunes">
               {visibleAreas.map((area) => (
                 <article
                   className={`area-card ${selectedArea?.id === area.id ? "selected" : ""}`}
@@ -303,9 +358,9 @@ function AreasComunes() {
                   <button
                     className="reserva-confirm-button"
                     type="submit"
-                    disabled={selectedArea?.status !== "disponible"}
+                    disabled={selectedArea?.status !== "disponible" || reservationLoading}
                   >
-                    Reservar area
+                    {reservationLoading ? "Reservando..." : "Reservar área"}
                   </button>
                 ) : (
                   <Link
@@ -317,7 +372,7 @@ function AreasComunes() {
                       returnTo: "/areas-comunes",
                     }}
                   >
-                    Iniciar sesion para reservar
+                    Iniciar sesión para reservar
                   </Link>
                 )}
               </form>

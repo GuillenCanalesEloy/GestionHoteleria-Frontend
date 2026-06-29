@@ -2906,6 +2906,7 @@ img {
 }
 
 .areas-layout {
+  align-items: start;
   display: grid;
   gap: 30px;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 390px);
@@ -2913,6 +2914,7 @@ img {
 }
 
 .areas-grid {
+  align-items: start;
   display: grid;
   gap: 20px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3144,6 +3146,43 @@ img {
 
 .booking-cancel-button {
   margin-top: 8px;
+}
+
+@media (max-width: 980px) {
+  .areas-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .area-booking-panel {
+    position: static;
+    width: 100%;
+  }
+}
+
+@media (max-width: 680px) {
+  .areas-main {
+    padding: 44px 18px 60px;
+  }
+
+  .areas-grid,
+  .area-time-grid,
+  .area-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .areas-filter {
+    width: 100%;
+  }
+
+  .area-card-content,
+  .area-booking-summary,
+  .area-reservation-form {
+    padding: 18px;
+  }
+
+  .area-total strong {
+    font-size: 1.25rem;
+  }
 }
 
 .admin-area-layout {

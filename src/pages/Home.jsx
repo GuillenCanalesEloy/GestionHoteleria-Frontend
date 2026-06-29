@@ -7,35 +7,35 @@ const rooms = [
     price: '$1,200',
     image:
       'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1100&q=80',
-    description: 'Vistas panoramicas a la ciudad, terraza privada y mayordomo 24h.',
+    description: 'Vistas panorámicas a la ciudad, terraza privada y mayordomo 24h.',
   },
   {
-    title: 'Habitacion Deluxe Ejecutiva',
+    title: 'Habitación Deluxe Ejecutiva',
     price: '$450',
     image:
       'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1100&q=80',
-    description: 'Equilibrio perfecto entre trabajo y relajacion con diseno minimalista.',
+    description: 'Equilibrio perfecto entre trabajo y relajación con diseño minimalista.',
   },
 ];
 
 const stats = [
   { value: '15+', label: 'Destinos Luxe' },
   { value: '500+', label: 'Habitaciones Premium' },
-  { value: '4.9/5', label: 'Valoracion Huespedes' },
+  { value: '4.9/5', label: 'Valoración Huéspedes' },
   { value: '24/7', label: 'Servicio Concierge' },
 ];
 
 const experiences = [
   {
-    title: 'Reservas sin friccion',
-    text: 'Elige habitacion, revisa detalles, completa tus datos y confirma tu pago desde un flujo claro.',
+    title: 'Reservas sin fricción',
+    text: 'Elige habitación, revisa detalles, completa tus datos y confirma tu pago desde un flujo claro.',
   },
   {
-    title: 'Atencion personalizada',
-    text: 'Registra peticiones especiales para que cada estadia responda a lo que necesitas.',
+    title: 'Atención personalizada',
+    text: 'Registra peticiones especiales para que cada estadía responda a lo que necesitas.',
   },
   {
-    title: 'Gestion centralizada',
+    title: 'Gestión centralizada',
     text: 'Consulta tus reservas activas y mantente al tanto de fechas, huespedes y estado de pago.',
   },
 ];
@@ -105,13 +105,13 @@ export function Header() {
       <Link className="brand" to="/">
         LUXESTAY
       </Link>
-      <nav className="main-nav" aria-label="Navegacion principal">
+      <nav className="main-nav" aria-label="Navegación principal">
         <NavLink to="/" end>
           Inicio
         </NavLink>
         <NavLink to="/nosotros">Nosotros</NavLink>
         <NavLink to="/habitaciones">Habitaciones</NavLink>
-        <NavLink to="/areas-comunes">Areas comunes</NavLink>
+        <NavLink to="/areas-comunes">Áreas comunes</NavLink>
         <NavLink to="/mis-reservas">Mis reservas</NavLink>
       </nav>
       <div className="header-actions">
@@ -123,7 +123,7 @@ export function Header() {
             {accountOpen && (
               <div className="client-session-dropdown">
                 <button type="button" onClick={handleLogout}>
-                  Cerrar sesion
+                  Cerrar sesión
                 </button>
               </div>
             )}
@@ -134,7 +134,7 @@ export function Header() {
             to="/login"
             state={{ backgroundLocation: location }}
           >
-            Iniciar sesion
+            Iniciar sesión
           </Link>
         )}
         <Link className="book-link" to="/reservar">
@@ -173,10 +173,10 @@ function Home() {
       <main>
         <section className="hero-section">
           <div className="hero-content">
-            <p className="hero-kicker">Gestion hotelera premium</p>
+            <p className="hero-kicker">Gestión hotelera premium</p>
             <h1>LuxeStay</h1>
             <p>
-              Reserva habitaciones exclusivas, organiza tus datos de huesped y
+              Reserva habitaciones exclusivas, organiza tus datos de huésped y
               disfruta una experiencia de lujo desde el primer clic.
             </p>
             <div className="hero-actions">
@@ -193,7 +193,7 @@ function Home() {
             <div className="hero-trust-row" aria-label="Beneficios principales">
               <span>Pago seguro</span>
               <span>Reservas 24/7</span>
-              <span>Atencion personalizada</span>
+              <span>Atención personalizada</span>
             </div>
           </div>
         </section>
@@ -218,11 +218,11 @@ function Home() {
 
         <section className="rooms-section" id="habitaciones">
           <div className="section-heading centered">
-            <p className="section-kicker">Nuestra Seleccion</p>
-            <h2>Habitaciones Destacadas</h2>
+            <p className="section-kicker">Nuestra Selección</p>
+            <h2>Habitaciones destacadas</h2>
             <p>
               Disenadas para el maximo confort, cada una de nuestras suites
-              cuenta una historia de elegancia y sofisticacion.
+              cuenta una historia de elegancia y sofisticación.
             </p>
           </div>
 
@@ -233,7 +233,7 @@ function Home() {
           </div>
 
           <Link className="rooms-cta" to="/habitaciones">
-            Explorar Todas las Habitaciones
+            Explorar todas las habitaciones
           </Link>
         </section>
 
@@ -262,10 +262,10 @@ function Home() {
             </div>
           </div>
           <div>
-            <h3>Navegacion</h3>
+            <h3>Navegación</h3>
             <Link to="/nosotros">Nosotros</Link>
             <Link to="/habitaciones">Habitaciones</Link>
-            <Link to="/areas-comunes">Areas comunes</Link>
+            <Link to="/areas-comunes">Áreas comunes</Link>
             <Link to="/servicios">Servicios</Link>
             <Link to="/contacto">Contacto</Link>
           </div>

@@ -8,6 +8,10 @@ const hotelApi = axios.create({
 // Interceptor para añadir el token JWT a cada petición
 hotelApi.interceptors.request.use(
   (config) => {
+    if (config.url?.startsWith("/auth/")) {
+      return config;
+    }
+
     // Intenta obtener la sesión de admin o de cliente desde localStorage
     const adminSessionString = localStorage.getItem("luxestay.adminSession");
     const clientSessionString = localStorage.getItem("luxestay.clientSession");
@@ -46,6 +50,31 @@ export const reservasApi = {
 export const habitacionesApi = {
   getAll: (params) => hotelApi.get("/habitaciones", { params }),
   getById: (id) => hotelApi.get(`/habitaciones/${id}`),
+};
+
+export const areasComunesApi = {
+  getAll: () => hotelApi.get("/areas-comunes"),
+  getDisponibles: () => hotelApi.get("/areas-comunes/disponibles"),
+  getById: (id) => hotelApi.get(`/areas-comunes/${id}`),
+  create: (data) => hotelApi.post("/areas-comunes", data),
+  update: (id, data) => hotelApi.put(`/areas-comunes/${id}`, data),
+  updateEstado: (id, estado) => hotelApi.put(`/areas-comunes/${id}/estado`, JSON.stringify(estado), {
+    headers: { "Content-Type": "application/json" },
+  }),
+  delete: (id) => hotelApi.delete(`/areas-comunes/${id}`),
+};
+
+export const reservasAreasComunesApi = {
+  getAll: () => hotelApi.get("/reservas-areas-comunes"),
+  getById: (id) => hotelApi.get(`/reservas-areas-comunes/${id}`),
+  getByUsuario: (usuarioId) => hotelApi.get(`/reservas-areas-comunes/usuario/${usuarioId}`),
+  getByArea: (areaComunId) => hotelApi.get(`/reservas-areas-comunes/area/${areaComunId}`),
+  getByAreaAndDate: (areaComunId, fecha) =>
+    hotelApi.get(`/reservas-areas-comunes/area/${areaComunId}/fecha`, { params: { fecha } }),
+  create: (data) => hotelApi.post("/reservas-areas-comunes", data),
+  updateEstado: (id, estado) =>
+    hotelApi.put(`/reservas-areas-comunes/${id}/estado`, { estado }),
+  delete: (id) => hotelApi.delete(`/reservas-areas-comunes/${id}`),
 };
 
 export default hotelApi;

@@ -226,7 +226,7 @@ function AdminHabitaciones() {
             className={location.pathname === "/admin/areas-comunes" ? "active" : ""}
             to="/admin/areas-comunes"
           >
-            Areas comunes
+            Áreas comunes
           </Link>
           <Link
             className={location.pathname === "/admin/clientes" ? "active" : ""}
@@ -276,7 +276,7 @@ function AdminHabitaciones() {
             {profileOpen && (
               <div className="admin-profile-dropdown">
                 <button type="button" onClick={() => navigate("/")}>
-                  Cerrar sesion
+                  Cerrar sesión
                 </button>
               </div>
             )}
@@ -285,14 +285,14 @@ function AdminHabitaciones() {
 
         <section className="rooms-admin-heading">
           <div>
-            <h1>Gestion de habitaciones</h1>
+            <h1>Gestión de habitaciones</h1>
             <p>
               Administra el inventario, disponibilidad y estado operativo de
-              cada habitacion.
+              cada habitación.
             </p>
           </div>
           <button className="rooms-admin-primary" type="button" onClick={openCreateModal}>
-            + Nueva habitacion
+            + Nueva habitación
           </button>
         </section>
 
@@ -313,7 +313,7 @@ function AdminHabitaciones() {
           <article>
             <span>Ocupada</span>
             <strong>{totals.ocupada}</strong>
-            <small>Con huesped activo</small>
+            <small>Con huésped activo</small>
           </article>
           <article>
             <span>Mantenimiento</span>
@@ -330,7 +330,7 @@ function AdminHabitaciones() {
             <span>Buscar</span>
             <input
               type="search"
-              placeholder="Numero o tipo de habitacion..."
+              placeholder="Número o tipo de habitación..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -367,7 +367,7 @@ function AdminHabitaciones() {
         <section className="rooms-admin-layout rooms-admin-layout-single">
           <article className="rooms-admin-table-card">
             <div className="rooms-admin-table-header">
-              <span>Habitacion</span>
+              <span>Habitación</span>
               <span>Tipo</span>
               <span>Estado</span>
               <span>Precio por noche</span>
@@ -391,7 +391,7 @@ function AdminHabitaciones() {
                     <button
                       type="button"
                       onClick={() => openRoomModal(room)}
-                      aria-label={`Ver habitacion ${room.number}`}
+                      aria-label={`Ver habitación ${room.number}`}
                     >
                       Ver
                     </button>
@@ -414,14 +414,14 @@ function AdminHabitaciones() {
                 x
               </button>
               <div className="rooms-modal-heading">
-                <span>Nueva habitacion</span>
-                <h2 id="create-room-title">Registrar habitacion</h2>
+                <span>Nueva habitación</span>
+                <h2 id="create-room-title">Registrar habitación</h2>
               </div>
               <RoomForm
                 form={form}
                 onChange={handleInputChange}
                 onSubmit={handleSubmit}
-                submitLabel="Crear habitacion"
+                submitLabel="Crear habitación"
               />
             </section>
           </div>
@@ -440,8 +440,8 @@ function AdminHabitaciones() {
                 </span>
               </div>
               <div className="rooms-modal-heading">
-                <span>Detalle de habitacion</span>
-                <h2 id="room-detail-title">Habitacion #{selectedRoom.number}</h2>
+                <span>Detalle de habitación</span>
+                <h2 id="room-detail-title">Habitación #{selectedRoom.number}</h2>
                 <p>{selectedRoom.title}</p>
               </div>
               <div className="rooms-modal-info-grid">
@@ -496,7 +496,7 @@ function AdminHabitaciones() {
                 type="button"
                 onClick={() => handleDelete(selectedRoom.id)}
               >
-                Eliminar habitacion
+                Eliminar habitación
               </button>
             </section>
           </div>
@@ -521,10 +521,10 @@ function normalizeRoom(room) {
     price,
     capacity,
     floor,
-    title: room.title || `Habitacion ${type} ${number}`,
-    image: room.image || "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=900",
+    title: room.title || `Habitación ${type} ${number}`,
+    image: room.image || `https://placehold.co/600x400/041627/FFFFFF/png?text=Habitacion+${number}`,
     description:
-      room.description || `Habitacion ${type.toLowerCase()} numero ${number}, ubicada en el piso ${floor}.`,
+      room.description || `Habitación ${type.toLowerCase()} número ${number}, ubicada en el piso ${floor}.`,
   };
 }
 
@@ -532,7 +532,7 @@ function RoomForm({ form, onChange, onSubmit, submitLabel }) {
   return (
     <form className="rooms-modal-form" onSubmit={onSubmit}>
       <label>
-        Numero
+        Número
         <input name="number" value={form.number} onChange={onChange} required placeholder="Ej. 408" />
       </label>
       <label>

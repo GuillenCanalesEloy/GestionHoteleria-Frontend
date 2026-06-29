@@ -4,15 +4,15 @@ import { Header } from './Home.jsx';
 const pillars = [
   {
     title: 'Hospitalidad personalizada',
-    text: 'Acompanamos cada reserva con atencion cercana, recomendaciones utiles y soporte pensado para que el viaje empiece sin fricciones.',
+    text: 'Acompañamos cada reserva con atención cercana, recomendaciones útiles y soporte pensado para que el viaje empiece sin fricciones.',
   },
   {
-    title: 'Gestion hotelera eficiente',
-    text: 'Centralizamos habitaciones, reservas y disponibilidad para que el equipo del hotel pueda trabajar con informacion clara y actualizada.',
+    title: 'Gestión hotelera eficiente',
+    text: 'Centralizamos habitaciones, reservas y disponibilidad para que el equipo del hotel pueda trabajar con información clara y actualizada.',
   },
   {
     title: 'Experiencias memorables',
-    text: 'Conectamos a los huespedes con espacios comodos, servicios confiables y propuestas que elevan cada estadia.',
+    text: 'Conectamos a los huéspedes con espacios cómodos, servicios confiables y propuestas que elevan cada estadía.',
   },
 ];
 
@@ -25,9 +25,9 @@ function Nosotros() {
         <section className="about-hero">
           <div className="about-hero-content">
             <p className="section-kicker">Nosotros</p>
-            <h1>Gestionamos estadias con tecnologia, calidez y detalle.</h1>
+            <h1>Gestionamos estadías con tecnología, calidez y detalle.</h1>
             <p>
-              LuxeStay es una plataforma de gestion hotelera creada para hacer
+              LuxeStay es una plataforma de gestión hotelera creada para hacer
               mas simple la conexion entre huespedes y hoteles. Nuestro enfoque
               combina una experiencia digital clara con servicios pensados para
               reservar, organizar y disfrutar cada visita.
@@ -41,12 +41,12 @@ function Nosotros() {
         <section className="about-section">
           <div className="about-copy">
             <p className="section-kicker">Que hacemos</p>
-            <h2>Facilitamos la reserva y administracion de habitaciones.</h2>
+            <h2>Facilitamos la reserva y administración de habitaciones.</h2>
             <p>
               Ayudamos a mostrar habitaciones, promociones y servicios de forma
-              ordenada para que los clientes encuentren rapidamente la opcion
+              ordenada para que los clientes encuentren rápidamente la opción
               ideal. A la vez, preparamos una base para integrar consultas,
-              reservas, pagos y seguimiento de estadias desde un solo lugar.
+              reservas, pagos y seguimiento de estadías desde un solo lugar.
             </p>
           </div>
 

@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { areasComunesApi, reservasAreasComunesApi } from "../services/hotelApi.js";
+import {
+  areaStatusToBackend,
+  mapAreaRequest,
+  mapBackendArea,
+  mapBackendAreaReservation,
+  reservationStatusToBackend,
+} from "../services/commonAreasMapper.js";
 import {
   areaStatusLabels,
   getAreaReservations,
@@ -31,12 +39,51 @@ function AdminAreasComunes() {
   const [statusFilter, setStatusFilter] = useState("todos");
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyAreaForm);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (!localStorage.getItem("luxestay.adminSession")) {
       navigate("/login", { replace: true });
     }
   }, [navigate]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadAdminAreas() {
+      setLoading(true);
+      setMessage("");
+
+      try {
+        const [areasResponse, reservationsResponse] = await Promise.all([
+          areasComunesApi.getAll(),
+          reservasAreasComunesApi.getAll(),
+        ]);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setAreas(areasResponse.data.map(mapBackendArea));
+        setReservations(reservationsResponse.data.map(mapBackendAreaReservation));
+      } catch {
+        if (isMounted) {
+          setMessage("No se pudo conectar con el backend. Mostrando datos locales.");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadAdminAreas();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const totals = useMemo(() => {
     return areas.reduce(
@@ -101,37 +148,78 @@ function AdminAreasComunes() {
     });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const normalizedArea = normalizeCommonArea({
       ...form,
       id: editingId || `area-${Date.now()}`,
+      image: form.image, // Pasar explícitamente la imagen del formulario
     });
+    setMessage("");
 
-    const nextAreas = editingId
-      ? areas.map((area) => (area.id === editingId ? normalizedArea : area))
-      : [normalizedArea, ...areas];
+    try {
+      const payload = mapAreaRequest(normalizedArea);
+      const response = editingId
+        ? await areasComunesApi.update(editingId, payload)
+        : await areasComunesApi.create(payload);
+      const savedArea = mapBackendArea(response.data);
 
-    persistAreas(nextAreas);
-    resetForm();
+      const nextAreas = editingId
+        ? areas.map((area) => (area.id === editingId ? savedArea : area))
+        : [savedArea, ...areas];
+
+      persistAreas(nextAreas);
+      resetForm();
+      setMessage(editingId ? "Área común actualizada." : "Área común creada.");
+    } catch (error) {
+      setMessage(error.response?.data?.message || "No se pudo guardar el área común.");
+    }
   };
 
-  const deleteArea = (areaId) => {
-    persistAreas(areas.filter((area) => area.id !== areaId));
+  const deleteArea = async (areaId) => {
+    setMessage("");
+
+    try {
+      await areasComunesApi.delete(areaId);
+      persistAreas(areas.filter((area) => area.id !== areaId));
+      setMessage("Área común eliminada.");
+    } catch (error) {
+      setMessage(error.response?.data?.message || "No se pudo eliminar el área común.");
+    }
   };
 
-  const updateAreaStatus = (areaId, status) => {
-    persistAreas(areas.map((area) => (area.id === areaId ? { ...area, status } : area)));
+  const updateAreaStatus = async (areaId, status) => {
+    setMessage("");
+
+    try {
+      const response = await areasComunesApi.updateEstado(areaId, areaStatusToBackend[status]);
+      const updatedArea = mapBackendArea(response.data);
+      persistAreas(areas.map((area) => (area.id === areaId ? updatedArea : area)));
+      setMessage("Estado del área actualizado.");
+    } catch (error) {
+      setMessage(error.response?.data?.message || "No se pudo actualizar el estado del área.");
+    }
   };
 
-  const updateReservationStatus = (reservationId, status) => {
-    persistReservations(
-      reservations.map((reservation) =>
-        reservation.id === reservationId
-          ? { ...reservation, status, stage: reservationStatusLabels[status] }
-          : reservation,
-      ),
-    );
+  const updateReservationStatus = async (reservationId, status) => {
+    setMessage("");
+
+    try {
+      const response = await reservasAreasComunesApi.updateEstado(
+        reservationId,
+        reservationStatusToBackend[status],
+      );
+      const updatedReservation = mapBackendAreaReservation(response.data);
+
+      persistReservations(
+        reservations.map((reservation) =>
+          reservation.id === reservationId ? updatedReservation : reservation,
+        ),
+      );
+      setMessage("Estado de reserva actualizado.");
+    } catch (error) {
+      setMessage(error.response?.data?.message || "No se pudo actualizar la reserva.");
+    }
   };
 
   const handleLogout = () => {
@@ -159,7 +247,7 @@ function AdminAreasComunes() {
             Habitaciones
           </Link>
           <Link className={location.pathname === "/admin/areas-comunes" ? "active" : ""} to="/admin/areas-comunes">
-            Areas comunes
+            Áreas comunes
           </Link>
           <Link className={location.pathname === "/admin/clientes" ? "active" : ""} to="/admin/clientes">
             Clientes
@@ -185,7 +273,7 @@ function AdminAreasComunes() {
         <header className="admin-topbar rooms-admin-topbar">
           <input
             type="search"
-            placeholder="Buscar areas comunes o reservas..."
+            placeholder="Buscar áreas comunes o reservas..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -196,7 +284,7 @@ function AdminAreasComunes() {
             {profileOpen && (
               <div className="admin-profile-dropdown">
                 <button type="button" onClick={handleLogout}>
-                  Cerrar sesion
+                  Cerrar sesión
                 </button>
               </div>
             )}
@@ -205,16 +293,18 @@ function AdminAreasComunes() {
 
         <section className="rooms-admin-heading">
           <div>
-            <h1>Gestion de areas comunes</h1>
+            <h1>Gestión de áreas comunes</h1>
             <p>Crea, edita, cambia estado y revisa reservas de instalaciones.</p>
+            {loading && <p className="area-form-message">Cargando datos desde backend...</p>}
+            {message && <p className="area-form-message">{message}</p>}
           </div>
         </section>
 
-        <section className="rooms-admin-stats" aria-label="Resumen de areas comunes">
+        <section className="rooms-admin-stats" aria-label="Resumen de áreas comunes">
           <article>
             <span>Total</span>
             <strong>{totals.total}</strong>
-            <small>Areas registradas</small>
+            <small>Áreas registradas</small>
           </article>
           <article>
             <span>Disponibles</span>
@@ -235,7 +325,7 @@ function AdminAreasComunes() {
 
         <section className="admin-area-layout">
           <form className="rooms-modal-form admin-area-form" onSubmit={handleSubmit}>
-            <h2>{editingId ? "Editar area" : "Nueva area comun"}</h2>
+            <h2>{editingId ? "Editar área" : "Nueva área común"}</h2>
             <label>
               Nombre
               <input name="name" value={form.name} onChange={handleInputChange} required />
@@ -269,13 +359,13 @@ function AdminAreasComunes() {
               <input name="image" value={form.image} onChange={handleInputChange} placeholder="URL de imagen" />
             </label>
             <label className="wide">
-              Descripcion
+              Descripción
               <textarea name="description" value={form.description} onChange={handleInputChange} required rows="3" />
             </label>
-            <button type="submit">{editingId ? "Guardar cambios" : "Crear area"}</button>
+            <button type="submit">{editingId ? "Guardar cambios" : "Crear área"}</button>
             {editingId && (
               <button type="button" onClick={resetForm}>
-                Cancelar edicion
+                Cancelar edición
               </button>
             )}
           </form>
@@ -295,7 +385,7 @@ function AdminAreasComunes() {
 
             <article className="rooms-admin-table-card">
               <div className="rooms-admin-table-header common-areas-admin-header">
-                <span>Area</span>
+                <span>Área</span>
                 <span>Estado</span>
                 <span>Capacidad</span>
                 <span>Precio/hora</span>
@@ -332,12 +422,19 @@ function AdminAreasComunes() {
           </section>
         </section>
 
+        <section className="rooms-admin-heading" style={{ marginTop: '2rem', borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem' }}>
+          <div>
+            <h2>Reservas de Áreas Comunes</h2>
+            <p>Gestiona las reservas pendientes, confirmadas o canceladas para las áreas comunes.</p>
+          </div>
+        </section>
+
         <section className="reservations-admin-layout reservations-admin-layout-single admin-area-reservations">
           <article className="reservations-admin-table-card">
             <div className="reservations-admin-table-header common-area-reservations-header">
               <span>ID</span>
               <span>Usuario</span>
-              <span>Area</span>
+              <span>Área</span>
               <span>Horario</span>
               <span>Estado</span>
               <span>Acciones</span>
@@ -367,7 +464,7 @@ function AdminAreasComunes() {
               ))}
             </div>
             <footer className="rooms-admin-table-footer">
-              Mostrando <strong>{orderedReservations.length}</strong> reservas de areas
+              Mostrando <strong>{orderedReservations.length}</strong> reservas de áreas
             </footer>
           </article>
         </section>

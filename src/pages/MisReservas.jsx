@@ -1,13 +1,18 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { Header } from "./Home.jsx";
 import { getClientReservations } from "../services/clientReservationsStorage.js";
+import {
+  mapBackendAreaReservation,
+  reservationStatusToBackend,
+} from "../services/commonAreasMapper.js";
 import {
   getAreaReservations,
   getReservationStart,
   reservationStatusLabels,
   saveAreaReservations,
 } from "../services/commonAreasStorage.js";
+import { reservasAreasComunesApi } from "../services/hotelApi.js";
 
 function MisReservas() {
   const location = useLocation();
@@ -16,6 +21,37 @@ function MisReservas() {
   const session = clientSession ? JSON.parse(clientSession) : null;
   const hasValidToken = Boolean(session?.token);
   const [areaReservations, setAreaReservations] = useState(() => getAreaReservations());
+  const [areaReservationsError, setAreaReservationsError] = useState("");
+
+  useEffect(() => {
+    if (!session?.id) {
+      return;
+    }
+
+    let isMounted = true;
+
+    async function loadAreaReservations() {
+      setAreaReservationsError("");
+
+      try {
+        const response = await reservasAreasComunesApi.getByUsuario(session.id);
+
+        if (isMounted) {
+          setAreaReservations(response.data.map(mapBackendAreaReservation));
+        }
+      } catch {
+        if (isMounted) {
+          setAreaReservationsError("No se pudieron cargar las reservas de áreas comunes.");
+        }
+      }
+    }
+
+    loadAreaReservations();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [session?.id]);
   const reservations = useMemo(() => {
     const roomReservations = getClientReservations()
       .filter((reservation) => !session || reservation.guest?.name === session.username)
@@ -26,7 +62,13 @@ function MisReservas() {
       }));
 
     const currentAreaReservations = areaReservations
-      .filter((reservation) => reservation.username === session?.username)
+      .filter((reservation) => {
+        if (reservation.usuarioId && session?.id) {
+          return Number(reservation.usuarioId) === Number(session.id);
+        }
+
+        return reservation.username === session?.username;
+      })
       .map((reservation) => ({
         ...reservation,
         stage: reservationStatusLabels[reservation.status],
@@ -58,14 +100,24 @@ function MisReservas() {
     setExpandedReservation((current) => (current === title ? null : title));
   };
 
-  const cancelAreaReservation = (reservationId) => {
-    const nextReservations = areaReservations.map((reservation) =>
-      reservation.id === reservationId
-        ? { ...reservation, status: "cancelada", stage: "Reserva cancelada" }
-        : reservation,
-    );
-    setAreaReservations(nextReservations);
-    saveAreaReservations(nextReservations);
+  const cancelAreaReservation = async (reservationId) => {
+    setAreaReservationsError("");
+
+    try {
+      const response = await reservasAreasComunesApi.updateEstado(
+        reservationId,
+        reservationStatusToBackend.cancelada,
+      );
+      const updatedReservation = mapBackendAreaReservation(response.data);
+      const nextReservations = areaReservations.map((reservation) =>
+        reservation.id === reservationId ? updatedReservation : reservation,
+      );
+
+      setAreaReservations(nextReservations);
+      saveAreaReservations(nextReservations);
+    } catch {
+      setAreaReservationsError("No se pudo cancelar la reserva de área común.");
+    }
   };
 
   return (
@@ -75,10 +127,10 @@ function MisReservas() {
       <main className="bookings-main">
         <section className="bookings-heading">
           <p className="section-kicker">Mis reservas</p>
-          <h1>Gestiona tus estadias</h1>
+          <h1>Gestiona tus estadías</h1>
           <p>
-            Revisa tus proximas reservas, confirma los datos de tu habitacion y
-            mantente al tanto del estado de cada estadia.
+            Revisa tus próximas reservas, confirma los datos de tu habitación y
+            mantente al tanto del estado de cada estadía.
           </p>
         </section>
 
@@ -87,6 +139,7 @@ function MisReservas() {
             <div>
               <h2>Reservas registradas</h2>
               <p>{reservations.length} reservas vinculadas a tu cuenta.</p>
+              {areaReservationsError && <p className="area-form-message">{areaReservationsError}</p>}
             </div>
             <Link className="book-link" to="/habitaciones">
               Nueva reserva
@@ -96,10 +149,10 @@ function MisReservas() {
           <div className="booking-list">
             {reservations.length === 0 && (
               <div className="booking-empty-state">
-                <h3>Aun no tienes reservas guardadas</h3>
-                <p>Elige una habitacion o area comun y completa una reserva para verla aqui.</p>
+                <h3>Aún no tienes reservas guardadas</h3>
+                <p>Elige una habitación o área común y completa una reserva para verla aquí.</p>
                 <Link className="book-link" to="/areas-comunes">
-                  Ver areas comunes
+                  Ver áreas comunes
                 </Link>
               </div>
             )}
@@ -140,8 +193,8 @@ function MisReservas() {
                   <div className="booking-guest-detail">
                     <h4>
                       {reservation.type === "area-comun"
-                        ? "Informacion de la reserva"
-                        : "Informacion del huesped"}
+                        ? "Información de la reserva"
+                        : "Información del huésped"}
                     </h4>
                     <div>
                       <span>Nombre</span>
@@ -152,7 +205,7 @@ function MisReservas() {
                       <strong>{reservation.guest.email}</strong>
                     </div>
                     <div>
-                      <span>Telefono</span>
+                      <span>Teléfono</span>
                       <strong>{reservation.guest.phone}</strong>
                     </div>
                     <div className="wide">

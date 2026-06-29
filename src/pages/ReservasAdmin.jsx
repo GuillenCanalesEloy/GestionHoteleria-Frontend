@@ -22,7 +22,7 @@ const fallbackReservations = [
     checkOut: "2026-04-29",
     guests: "2 Adultos",
     status: "Confirmada",
-    stage: "Proxima estadia",
+    stage: "Próxima estadía",
     dates: "2026-04-26 - 2026-04-29",
     total: "$450.00",
     guest: {
@@ -50,7 +50,7 @@ function normalizeReservation(reservation) {
   return {
     ...reservation,
     id: reservation.id || `RES-${Date.now().toString().slice(-6)}`,
-    room: reservation.room || reservation.title || "Habitacion",
+    room: reservation.room || reservation.title || "Habitación",
     checkIn: reservation.checkIn || fallbackCheckIn,
     checkOut: reservation.checkOut || fallbackCheckOut,
     guests: reservation.guests || "1 Adulto",
@@ -58,7 +58,7 @@ function normalizeReservation(reservation) {
     guest: {
       name: reservation.guest?.name || "user",
       email: reservation.guest?.email || "user@demo.com",
-      phone: reservation.guest?.phone || "Sin telefono",
+      phone: reservation.guest?.phone || "Sin teléfono",
       requests: reservation.guest?.requests || "Sin peticiones especiales.",
     },
   };
@@ -100,7 +100,7 @@ function ReservasAdmin() {
           id: "current-room",
           title: currentRoom,
           number: "",
-          type: "Habitacion actual",
+          type: "Habitación actual",
         },
         ...availableRooms,
       ];
@@ -200,7 +200,7 @@ function ReservasAdmin() {
             dates: `${form.checkIn} - ${form.checkOut}`,
             guests: form.guests,
             status: form.status,
-            stage: form.status === "Cancelada" ? "Reserva cancelada" : "Proxima estadia",
+            stage: form.status === "Cancelada" ? "Reserva cancelada" : "Próxima estadía",
           }
         : reservation,
     );
@@ -243,7 +243,7 @@ function ReservasAdmin() {
             Habitaciones
           </Link>
           <Link className={location.pathname === "/admin/areas-comunes" ? "active" : ""} to="/admin/areas-comunes">
-            Areas comunes
+            Áreas comunes
           </Link>
           <Link className={location.pathname === "/admin/clientes" ? "active" : ""} to="/admin/clientes">
             Clientes
@@ -269,7 +269,7 @@ function ReservasAdmin() {
         <header className="admin-topbar reservations-admin-topbar">
           <input
             type="search"
-            placeholder="Buscar reserva, habitacion o huesped..."
+            placeholder="Buscar reserva, habitación o huésped..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -280,7 +280,7 @@ function ReservasAdmin() {
             {profileOpen && (
               <div className="admin-profile-dropdown">
                 <button type="button" onClick={() => navigate("/")}>
-                  Cerrar sesion
+                  Cerrar sesión
                 </button>
               </div>
             )}
@@ -289,8 +289,8 @@ function ReservasAdmin() {
 
         <section className="rooms-admin-heading">
           <div>
-            <h1>Gestion de reservas</h1>
-            <p>Revisa las reservas del cliente user y modifica habitacion, fechas o estado.</p>
+            <h1>Gestión de reservas</h1>
+            <p>Revisa las reservas del cliente user y modifica habitación, fechas o estado.</p>
           </div>
         </section>
 
@@ -322,7 +322,7 @@ function ReservasAdmin() {
             <span>Buscar</span>
             <input
               type="search"
-              placeholder="ID, huesped o habitacion..."
+              placeholder="ID, huésped o habitación..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -345,8 +345,8 @@ function ReservasAdmin() {
           <article className="reservations-admin-table-card">
             <div className="reservations-admin-table-header">
               <span>ID</span>
-              <span>Huesped</span>
-              <span>Habitacion</span>
+              <span>Huésped</span>
+              <span>Habitación</span>
               <span>Entrada</span>
               <span>Salida</span>
               <span>Estado</span>
@@ -394,7 +394,7 @@ function ReservasAdmin() {
 
               <div className="rooms-modal-info-grid">
                 <div>
-                  <span>Telefono</span>
+                  <span>Teléfono</span>
                   <strong>{selectedReservation.guest.phone}</strong>
                 </div>
                 <div>
@@ -413,7 +413,7 @@ function ReservasAdmin() {
 
               <form className="rooms-modal-form" onSubmit={handleSubmit}>
                 <label>
-                  Habitacion
+                  Habitación
                   <select name="room" value={form.room} onChange={handleInputChange} required>
                     {!roomOptions.length && (
                       <option value={form.room}>

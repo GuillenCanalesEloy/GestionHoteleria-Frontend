@@ -46,9 +46,18 @@ function Login() {
     setLoading(true);
 
     try {
+      localStorage.removeItem('luxestay.adminSession');
+      localStorage.removeItem('luxestay.clientSession');
+
       // Llamada a la API de login, unificada para ambos roles
-      const response = await authApi.login({ email, password }); // Ahora 'email' tiene el valor correcto
-      const sessionData = response.data; // { token, type, email, nombre, rol }
+      const response = await authApi.login({
+        email: email.trim().toLowerCase(),
+        password: password.trim(),
+      }); // Ahora 'email' tiene el valor correcto
+      const sessionData = {
+        ...response.data,
+        username: response.data.nombre || response.data.email,
+      }; // { id, token, type, email, nombre, rol, username }
 
       // Guardar la sesión completa (incluyendo el token)
       if (sessionData.rol === 'ADMIN') {
@@ -94,7 +103,7 @@ function Login() {
           className="login-modal-close"
           type="button"
           onClick={handleClose}
-          aria-label="Cerrar inicio de sesion"
+          aria-label="Cerrar inicio de sesión"
         >
           <Icon type="close" />
         </button>
@@ -103,7 +112,7 @@ function Login() {
           <div className="login-title">
             <p className="section-kicker">Bienvenido</p>
             <h2 id="login-title">
-              {loginMode === 'admin' ? 'Inicia como administrador' : 'Inicia sesion'}
+              {loginMode === 'admin' ? 'Inicia como administrador' : 'Inicia sesión'}
             </h2>
             <p>
               {loginMode === 'admin'
@@ -125,7 +134,7 @@ function Login() {
                 setPassword('');
               }}
             >
-              Huesped
+              Huésped
             </button>
             <button
               className={loginMode === 'admin' ? 'active' : ''}
@@ -144,7 +153,7 @@ function Login() {
           <form onSubmit={handleSubmit}>
             <div className="login-field">
               <label htmlFor="email">
-                {loginMode === 'admin' ? 'Usuario administrador' : 'Correo electronico'}
+                {loginMode === 'admin' ? 'Usuario administrador' : 'Correo electrónico'}
               </label>
               <div className="login-control">
                 <Icon type="mail" />
@@ -161,9 +170,9 @@ function Login() {
 
             <div className="login-field">
               <div className="login-field-header">
-                <label htmlFor="password">Contrasena</label>
+                <label htmlFor="password">Contraseña</label>
                 {loginMode === 'guest' && (
-                  <Link to="/recuperar-contrasena">Olvide mi contrasena</Link>
+                  <Link to="/recuperar-contrasena">Olvidé mi contraseña</Link>
                 )}
               </div>
               <div className="login-control password-wrapper">
@@ -180,7 +189,7 @@ function Login() {
                   type="button"
                   className="password-toggle"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 >
                   <Icon type={showPassword ? 'eyeOff' : 'eye'} />
                 </button>
@@ -190,7 +199,7 @@ function Login() {
             {loginMode === 'guest' && (
               <div className="login-remember">
                 <input type="checkbox" id="remember" />
-                <label htmlFor="remember">Mantener sesion iniciada</label>
+                <label htmlFor="remember">Mantener sesión iniciada</label>
               </div>
             )}
 
@@ -201,7 +210,7 @@ function Login() {
 
           {loginMode === 'guest' ? (
             <p className="login-support">
-              Credenciales de prueba: <strong>user</strong> / <strong>user123</strong>
+              Credenciales de prueba: <strong>cliente@correo.com</strong> / <strong>cliente123</strong>
             </p>
           ) : (
             <p className="login-support">
