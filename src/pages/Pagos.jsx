@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Header } from "./Home.jsx";
-import { saveClientReservation } from "../services/clientReservationsStorage.js";
 
 const defaultRoom = {
   title: "Grand Royal Suite",
@@ -33,6 +32,7 @@ function Pagos() {
   const location = useLocation();
   const navigate = useNavigate();
   const room = location.state?.room || defaultRoom;
+  const roomPrice = room.price ?? room.precioPorNoche ?? 0;
   const reservation = location.state?.reservation;
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [formData, setFormData] = useState({
@@ -68,35 +68,6 @@ function Pagos() {
     });
 
     setTimeout(() => {
-      saveClientReservation({
-        id: `RES-${Date.now().toString().slice(-6)}`,
-        title: room.title,
-        status: "Confirmada",
-        stage: "Próxima estadía",
-        dates: reservation ? `${reservation.checkIn} - ${reservation.checkOut}` : "Fechas por confirmar",
-        checkIn: reservation?.checkIn || "",
-        checkOut: reservation?.checkOut || "",
-        room: room.title,
-        guests: reservation?.people || "2 Adultos",
-        total: `$${room.price}.00`,
-        guest: {
-          name: reservation?.guestName || "Cliente",
-          email: reservation?.guestEmail || "user@demo.com",
-          phone: reservation?.guestPhone || "Sin teléfono",
-          requests: reservation?.specialRequests || "Sin peticiones especiales.",
-        },
-        payment: {
-          transactionId: `TRX-${Date.now().toString().slice(-6)}`,
-          method: paymentMethod === "paypal" ? "PayPal" : "Tarjeta",
-          cardLast4:
-            paymentMethod === "card"
-              ? formData.cardNumber.replace(/\D/g, "").slice(-4)
-              : "",
-          paidAt: new Date().toISOString(),
-        },
-        image: room.image,
-      });
-
       Swal.fire({
         icon: "success",
         title: "Pago confirmado",
@@ -194,7 +165,7 @@ function Pagos() {
             </div>
 
             <button className="payment-submit" type="submit">
-              Pagar ${room.price}.00
+              Pagar ${roomPrice.toFixed(2)}
             </button>
           </form>
 
@@ -215,7 +186,7 @@ function Pagos() {
               </div>
               <div className="payment-total">
                 <small>Total</small>
-                <strong>${room.price}.00</strong>
+                <strong>${roomPrice.toFixed(2)}</strong>
               </div>
             </div>
           </aside>

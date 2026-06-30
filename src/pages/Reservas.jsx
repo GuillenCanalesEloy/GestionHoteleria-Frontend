@@ -194,7 +194,13 @@ function Reservas() {
           <aside className="reserva-summary">
             {room ? (
               <>
-                <img src={room.image} alt={room.title} />
+                <img
+                  src={room.image || room.imagenUrl}
+                  alt={room.title}
+                  onError={(e) => {
+                    e.target.src = "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=900";
+                  }}
+                />
                 <div>
                   <span>{room.tag}</span>
                   <h2>{room.title}</h2>

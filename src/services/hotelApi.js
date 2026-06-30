@@ -70,6 +70,7 @@ export const reservasApi = {
   getByCliente: (clienteId) => hotelApi.get(`/reservas/cliente/${clienteId}`),
   create: (data) => hotelApi.post("/reservas", data),
   update: (id, data) => hotelApi.put(`/reservas/${id}`, data),
+  updateEstado: (id, estado) => hotelApi.patch(`/reservas/${id}/estado`, { estado }),
   delete: (id) => hotelApi.delete(`/reservas/${id}`),
 };
 

@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  getClientReservations,
-  saveClientReservations,
-} from "../services/clientReservationsStorage.js";
+import { reservasApi } from "../services/hotelApi.js";
 
 const guestOptions = [
   "1 Adulto",
@@ -11,29 +8,6 @@ const guestOptions = [
   "2 Adultos, 1 Nino",
   "Familia 4 Personas",
   "Grupo 6 Personas",
-];
-
-const fallbackReservations = [
-  {
-    id: "RES-94021",
-    title: "Suite 402",
-    room: "Suite 402",
-    checkIn: "2026-04-26",
-    checkOut: "2026-04-29",
-    guests: "2 Adultos",
-    status: "Confirmada",
-    stage: "Próxima estadía",
-    dates: "2026-04-26 - 2026-04-29",
-    total: "$450.00",
-    guest: {
-      name: "user",
-      email: "user@demo.com",
-      phone: "999000000",
-      requests: "Sin peticiones especiales.",
-    },
-    image:
-      "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&q=80&w=900",
-  },
 ];
 
 const statusLabels = {
@@ -68,10 +42,7 @@ function ReservasAdmin() {
   const navigate = useNavigate();
   const location = useLocation();
   const [profileOpen, setProfileOpen] = useState(false);
-  const [reservations, setReservations] = useState(() => {
-    const storedReservations = getClientReservations().map(normalizeReservation);
-    return storedReservations.length ? storedReservations : fallbackReservations;
-  });
+  const [reservations, setReservations] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("todos");
   const [selectedReservationId, setSelectedReservationId] = useState(null);
@@ -87,7 +58,7 @@ function ReservasAdmin() {
     (reservation) => reservation.id === selectedReservationId,
   );
 
-  const availableRooms = useMemo(() => [], []); // Placeholder, se llenará desde la API
+  const availableRooms = useMemo(() => [], []);
   const roomOptions = useMemo(() => {
     const currentRoom = selectedReservation?.room;
     const currentRoomExists = availableRooms.some(
@@ -110,10 +81,29 @@ function ReservasAdmin() {
   }, [availableRooms, selectedReservation]);
 
   useEffect(() => {
-    const storedReservations = getClientReservations().map(normalizeReservation);
-    if (storedReservations.length) {
-      setReservations(storedReservations);
-    }
+    reservasApi.getAll().then((response) => {
+      const data = response.data?.content || response.data || [];
+      const mapped = data.map((r) => normalizeReservation({
+        id: `api-${r.id}`,
+        numericId: r.id,
+        source: "api",
+        room: `Habitación ${r.habitacionTipo || ""} #${r.habitacionNumero || ""}`.trim(),
+        title: `Habitación ${r.habitacionTipo || ""} #${r.habitacionNumero || ""}`.trim(),
+        checkIn: r.fechaEntrada,
+        checkOut: r.fechaSalida,
+        dates: `${r.fechaEntrada} - ${r.fechaSalida}`,
+        guests: `${r.cantidadHuespedes || 1} Adultos`,
+        status: r.estado ? r.estado.charAt(0).toUpperCase() + r.estado.slice(1).toLowerCase() : "Pendiente",
+        total: r.precioTotal ? `$${r.precioTotal}` : "Pendiente",
+        guest: {
+          name: r.usuarioNombre || "Cliente",
+          email: r.usuarioEmail || "Sin correo",
+          phone: "Sin teléfono",
+          requests: "Sin peticiones especiales.",
+        },
+      }));
+      setReservations(mapped);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -181,41 +171,76 @@ function ReservasAdmin() {
     setForm((currentForm) => ({ ...currentForm, [name]: value }));
   };
 
-  const persistReservations = (nextReservations) => {
-    setReservations(nextReservations);
-    saveClientReservations(nextReservations);
+  const updateStatusLocally = (reservationId, newStatus, newStage) => {
+    setReservations((prev) =>
+      prev.map((r) =>
+        r.id === reservationId ? { ...r, status: newStatus, stage: newStage } : r
+      )
+    );
+  };
+
+  const confirmReservation = (reservationId) => {
+    const reservation = reservations.find((r) => r.id === reservationId);
+    if (!reservation) return;
+
+    updateStatusLocally(reservationId, "Confirmada", "Confirmada");
+
+    if (reservation.numericId) {
+      reservasApi.updateEstado(reservation.numericId, "CONFIRMADA").catch(() => {
+        updateStatusLocally(reservationId, "Pendiente", "Pendiente");
+      });
+    }
+  };
+
+  const rejectReservation = (reservationId) => {
+    const reservation = reservations.find((r) => r.id === reservationId);
+    if (!reservation) return;
+
+    updateStatusLocally(reservationId, "Cancelada", "Cancelada");
+
+    if (reservation.numericId) {
+      reservasApi.updateEstado(reservation.numericId, "CANCELADA").catch(() => {
+        updateStatusLocally(reservationId, "Pendiente", "Pendiente");
+      });
+    }
+  };
+
+  const cancelReservation = () => {
+    const reservation = reservations.find((r) => r.id === selectedReservationId);
+    if (!reservation) return;
+
+    updateStatusLocally(selectedReservationId, "Cancelada", "Reserva cancelada");
+
+    if (reservation.numericId) {
+      reservasApi.updateEstado(reservation.numericId, "CANCELADA").catch(() => {
+        updateStatusLocally(selectedReservationId, "Pendiente", "Pendiente");
+      });
+    }
+
+    closeReservationModal();
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    const nextReservations = reservations.map((reservation) =>
-      reservation.id === selectedReservationId
-        ? {
-            ...reservation,
-            title: form.room,
-            room: form.room,
-            checkIn: form.checkIn,
-            checkOut: form.checkOut,
-            dates: `${form.checkIn} - ${form.checkOut}`,
-            guests: form.guests,
-            status: form.status,
-            stage: form.status === "Cancelada" ? "Reserva cancelada" : "Próxima estadía",
-          }
-        : reservation,
+    setReservations((prev) =>
+      prev.map((reservation) =>
+        reservation.id === selectedReservationId
+          ? {
+              ...reservation,
+              title: form.room,
+              room: form.room,
+              checkIn: form.checkIn,
+              checkOut: form.checkOut,
+              dates: `${form.checkIn} - ${form.checkOut}`,
+              guests: form.guests,
+              status: form.status,
+              stage: form.status === "Cancelada" ? "Cancelada" : form.status,
+            }
+          : reservation,
+      )
     );
 
-    persistReservations(nextReservations);
-    closeReservationModal();
-  };
-
-  const cancelReservation = () => {
-    const nextReservations = reservations.map((reservation) =>
-      reservation.id === selectedReservationId
-        ? { ...reservation, status: "Cancelada", stage: "Reserva cancelada" }
-        : reservation,
-    );
-    persistReservations(nextReservations);
     closeReservationModal();
   };
 
@@ -290,7 +315,7 @@ function ReservasAdmin() {
         <section className="rooms-admin-heading">
           <div>
             <h1>Gestión de reservas</h1>
-            <p>Revisa las reservas del cliente user y modifica habitación, fechas o estado.</p>
+            <p>Revisa y gestiona todas las reservas desde la base de datos.</p>
           </div>
         </section>
 
@@ -365,6 +390,24 @@ function ReservasAdmin() {
                     {statusLabels[reservation.status]}
                   </span>
                   <div className="rooms-admin-actions reservations-admin-actions">
+                    {reservation.status === "Pendiente" && (
+                      <>
+                        <button
+                          className="reservation-confirm-btn"
+                          type="button"
+                          onClick={() => confirmReservation(reservation.id)}
+                        >
+                          Confirmar
+                        </button>
+                        <button
+                          className="reservation-reject-btn"
+                          type="button"
+                          onClick={() => rejectReservation(reservation.id)}
+                        >
+                          Rechazar
+                        </button>
+                      </>
+                    )}
                     <button type="button" onClick={() => openReservationModal(reservation)}>
                       Ver reserva
                     </button>
@@ -387,7 +430,7 @@ function ReservasAdmin() {
                 x
               </button>
               <div className="rooms-modal-heading">
-                <span>Reserva del cliente user</span>
+                <span>Reserva del cliente</span>
                 <h2 id="reservation-detail-title">{selectedReservation.id}</h2>
                 <p>{selectedReservation.guest.name} - {selectedReservation.guest.email}</p>
               </div>

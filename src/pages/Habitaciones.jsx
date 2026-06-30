@@ -143,13 +143,16 @@ function Habitaciones() {
                 filteredRooms.map((room) => (
                   <article className="catalog-card" key={room.id}>
                     <div className="catalog-image">
-                      <img src={room.imagenUrl} alt={room.nombre} />
+                      <img
+                        src={room.imagenUrl || "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=900"}
+                        alt={`Habitación ${room.tipo} ${room.numero}`}
+                      />
                       <span className="room-tag">{room.tipo}</span>
                     </div>
 
                     <div className="catalog-content">
                       <div className="catalog-title-row">
-                        <h3>{room.nombre}</h3>
+                        <h3>{room.nombre || `Habitación ${room.tipo} #${room.numero}`}</h3>
                         <span className="rating">⭐ 4.8</span>
                       </div>
                       <div className="room-meta">

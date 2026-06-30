@@ -13,8 +13,7 @@ export function getCurrentUser() {
   if (sessionString) {
     try {
       const session = JSON.parse(sessionString);
-      // The session object from the backend seems to contain a 'user' property
-      return session?.user || null;
+      return session?.id ? session : null;
     } catch (error) {
       console.error("Failed to parse user session:", error);
       return null;

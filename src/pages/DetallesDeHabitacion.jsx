@@ -11,9 +11,18 @@ function DetallesDeHabitacion({ room, onClose }) {
   const handleReserve = () => {
     const clientSession = localStorage.getItem("luxestay.clientSession");
 
+    const mappedRoom = {
+      ...room,
+      image: room.imagenUrl || room.image,
+      price: room.precioPorNoche ?? room.price,
+      title: room.nombre || `Habitación ${room.tipo} #${room.numero}`,
+      tag: room.tipo,
+      description: room.descripcion || room.description,
+    };
+
     if (clientSession) {
       onClose();
-      navigate("/reservar", { state: { room } });
+      navigate("/reservar", { state: { room: mappedRoom } });
       return;
     }
 
@@ -22,7 +31,7 @@ function DetallesDeHabitacion({ room, onClose }) {
       state: {
         backgroundLocation: location,
         returnTo: "/reservar",
-        returnState: { room },
+        returnState: { room: mappedRoom },
       },
     });
   };
@@ -45,25 +54,28 @@ function DetallesDeHabitacion({ room, onClose }) {
         </button>
 
         <div className="room-detail-image">
-          <img src={room.image} alt={room.title} />
-          <span>{room.tag}</span>
+          <img
+            src={room.imagenUrl || "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=900"}
+            alt={`Habitación ${room.tipo} ${room.numero}`}
+          />
+          <span>{room.tipo}</span>
         </div>
 
         <div className="room-detail-content">
           <p className="section-kicker">Detalle de habitación</p>
-          <h2 id="room-detail-title">{room.title}</h2>
-          <p>{room.description}</p>
+          <h2 id="room-detail-title">Habitación {room.tipo} #{room.numero}</h2>
+          <p>{room.descripcion}</p>
 
           <div className="room-detail-features">
-            {room.features.map((feature) => (
-              <span key={feature}>{feature}</span>
-            ))}
+            <span>👤 {room.capacidad} persona{room.capacidad === 1 ? "" : "s"}</span>
+            <span>📏 Piso {room.piso}</span>
+            <span>🏷️ {room.tipo}</span>
           </div>
 
           <div className="room-detail-price">
             <div>
               <small>Precio por noche</small>
-              <strong>${room.price}</strong>
+              <strong>${room.precioPorNoche}</strong>
             </div>
             <button className="book-link" type="button" onClick={handleReserve}>
               Reservar

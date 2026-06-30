@@ -9,6 +9,7 @@ const emptyRoomForm = {
   price: "",
   capacity: "1",
   floor: "",
+  imagenUrl: "",
 };
 
 const statusLabels = {
@@ -34,7 +35,7 @@ function fromApi(room) {
     capacity: Number(room.capacidad),
     floor: Number(room.piso),
     title: room.nombre ?? `Habitacion ${room.tipo} ${room.numero}`,
-    image: room.imagenUrl ?? "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&q=80&w=900",
+    imagenUrl: room.imagenUrl ?? "",
   };
 }
 
@@ -47,6 +48,7 @@ function toApi(form) {
     precioPorNoche: Number(form.price),
     capacidad: Number(form.capacity),
     piso: Number(form.floor),
+    imagenUrl: form.imagenUrl.trim() || null,
   };
 }
 
@@ -137,6 +139,7 @@ function AdminHabitaciones() {
       price: String(room.price),
       capacity: String(room.capacity),
       floor: String(room.floor),
+      imagenUrl: room.imagenUrl ?? "",
     });
   };
 
@@ -159,6 +162,7 @@ function AdminHabitaciones() {
           price: String(updated.price),
           capacity: String(updated.capacity),
           floor: String(updated.floor),
+          imagenUrl: updated.imagenUrl ?? "",
         });
       } else {
         const response = await habitacionesApi.create(toApi(form));
@@ -424,6 +428,13 @@ function AdminHabitaciones() {
                 <h2 id="room-detail-title">Habitación #{selectedRoom.number}</h2>
                 <p>{selectedRoom.title}</p>
               </div>
+              {selectedRoom.imagenUrl && (
+                <img
+                  src={selectedRoom.imagenUrl}
+                  alt={`Habitación ${selectedRoom.number}`}
+                  style={{ width: "100%", maxHeight: "200px", objectFit: "cover", borderRadius: "8px", marginBottom: "12px" }}
+                />
+              )}
               <div className="rooms-modal-info-grid">
                 <div><span>Tipo</span><strong>{selectedRoom.type}</strong></div>
                 <div><span>Precio por noche</span><strong>${selectedRoom.price.toFixed(2)}</strong></div>
@@ -481,6 +492,24 @@ function RoomForm({ form, onChange, onSubmit, submitLabel, disabled }) {
       <label>Precio por noche<input name="price" type="number" min="1" value={form.price} onChange={onChange} required placeholder="220" /></label>
       <label>Capacidad<input name="capacity" type="number" min="1" value={form.capacity} onChange={onChange} required /></label>
       <label>Piso<input name="floor" type="number" min="1" value={form.floor} onChange={onChange} required placeholder="4" /></label>
+      <label>
+        URL de imagen
+        <input
+          name="imagenUrl"
+          type="url"
+          value={form.imagenUrl}
+          onChange={onChange}
+          placeholder="https://ejemplo.com/imagen.jpg"
+        />
+      </label>
+      {form.imagenUrl && (
+        <img
+          src={form.imagenUrl}
+          alt="Vista previa"
+          style={{ width: "100%", maxHeight: "160px", objectFit: "cover", borderRadius: "6px", marginTop: "4px" }}
+          onError={(e) => { e.currentTarget.style.display = "none"; }}
+        />
+      )}
       <button type="submit" disabled={disabled}>{submitLabel}</button>
     </form>
   );
