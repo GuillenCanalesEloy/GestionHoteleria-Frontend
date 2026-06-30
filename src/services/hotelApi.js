@@ -109,4 +109,12 @@ export const reservasAreasComunesApi = {
   delete: (id) => hotelApi.delete(`/reservas-areas-comunes/${id}`),
 };
 
+export const dashboardApi = {
+  getResumen: () => hotelApi.get("/dashboard/resumen"),
+  getReservas: (params) => hotelApi.get("/dashboard/reservas", { params }),
+  getIngresos: (params) => hotelApi.get("/dashboard/ingresos", { params }),
+  getOcupacion: (params) => hotelApi.get("/dashboard/ocupacion", { params }),
+  getMetricas: (params) => hotelApi.get("/dashboard/metricas", { params }),
+};
+
 export default hotelApi;

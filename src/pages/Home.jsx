@@ -129,13 +129,21 @@ export function Header() {
             )}
           </div>
         ) : (
-          <Link
-            className="ghost-link"
-            to="/login"
-            state={{ backgroundLocation: location }}
-          >
-            Iniciar sesión
-          </Link>
+          <>
+            <Link
+              className="ghost-link"
+              to="/registro"
+            >
+              Registrarse
+            </Link>
+            <Link
+              className="ghost-link"
+              to="/login"
+              state={{ backgroundLocation: location }}
+            >
+              Iniciar sesión
+            </Link>
+          </>
         )}
         <Link className="book-link" to="/reservar">
           Reservar

@@ -1,55 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-const stats = [
-  { label: "Ingresos totales", value: "$124,500", note: "+12%" },
-  { label: "Reservas activas", value: "42", note: "Este mes" },
-  { label: "Ocupación", value: "85%", note: "Alta demanda" },
-  { label: "Pagos pendientes", value: "18", note: "Revisión" },
-];
-
-const bookings = [
-  {
-    guest: "Eleanor James",
-    room: "Suite 402",
-    date: "Oct 12 - 15",
-    status: "Confirmada",
-    amount: "$1,240",
-  },
-  {
-    guest: "Marcus Holloway",
-    room: "Room 108",
-    date: "Oct 14 - 16",
-    status: "Pendiente",
-    amount: "$580",
-  },
-  {
-    guest: "Sarah Miller",
-    room: "Penthouse 01",
-    date: "Oct 15 - 20",
-    status: "Confirmada",
-    amount: "$4,500",
-  },
-];
-
-const tasks = [
-  {
-    title: "Limpieza programada",
-    room: "Penthouse Suite 01",
-    detail: "2:00 PM",
-  },
-  {
-    title: "Lista para check-in",
-    room: "Deluxe Double 204",
-    detail: "Housekeeping finalizado",
-  },
-  {
-    title: "Mantenimiento requerido",
-    room: "Standard King 312",
-    detail: "Revisión de aire acondicionado",
-  },
-];
-
 function AdminDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,6 +18,25 @@ function AdminDashboard() {
     navigate("/", { replace: true });
   };
 
+  const stats = [
+    { label: "Ingresos totales", value: "$284,500", note: "Histórico", noteColor: "#4caf50" },
+    { label: "Reservas activas", value: "12", note: "Confirmadas", noteColor: "#4caf50" },
+    { label: "Ocupación", value: "78%", note: "Media demanda", noteColor: "#f59e0b" },
+    { label: "Reservas pendientes", value: "4", note: "Revisión", noteColor: "#f59e0b" },
+  ];
+
+  const reservasRecientes = [
+    { id: 1, nombre: "Carlos Mendoza", habitacion: "101", fechas: "01 jul – 05 jul", estado: "Confirmada", total: "$420" },
+    { id: 2, nombre: "Ana García", habitacion: "204", fechas: "02 jul – 04 jul", estado: "Pendiente", total: "$280" },
+    { id: 3, nombre: "Luis Torres", habitacion: "312", fechas: "03 jul – 07 jul", estado: "Confirmada", total: "$560" },
+  ];
+
+  const tasks = [
+    { title: "Habitaciones disponibles", room: "8 de 20", detail: "Listas para check-in" },
+    { title: "En mantenimiento", room: "2 habitación(es)", detail: "Requieren atención" },
+    { title: "Clientes registrados", room: "45 clientes", detail: "48 usuarios en total" },
+  ];
+
   return (
     <div className="admin-shell">
       <aside className="admin-sidebar">
@@ -79,50 +49,23 @@ function AdminDashboard() {
         </Link>
 
         <nav className="admin-nav" aria-label="Panel administrativo">
-          <Link
-            className={location.pathname === "/admin/dashboard" ? "active" : ""}
-            to="/admin/dashboard"
-          >
-            Dashboard
-          </Link>
-          <Link
-            className={
-              location.pathname === "/admin/habitaciones" ? "active" : ""
-            }
-            to="/admin/habitaciones"
-          >
-            Habitaciones
-          </Link>
-          <Link
-            className={location.pathname === "/admin/areas-comunes" ? "active" : ""}
-            to="/admin/areas-comunes"
-          >
-            Áreas comunes
-          </Link>
-          <Link
-            className={location.pathname === "/admin/clientes" ? "active" : ""}
-            to="/admin/clientes"
-          >
-            Clientes
-          </Link>
-          <Link
-            className={location.pathname === "/admin/reservas" ? "active" : ""}
-            to="/admin/reservas"
-          >
-            Reservas
-          </Link>
-          <Link
-            className={location.pathname === "/admin/pagos" ? "active" : ""}
-            to="/admin/pagos"
-          >
-            Pagos
-          </Link>
-          <Link
-            className={location.pathname === "/admin/reportes" ? "active" : ""}
-            to="/admin/reportes"
-          >
-            Reportes
-          </Link>
+          {[
+            ["/admin/dashboard", "Dashboard"],
+            ["/admin/habitaciones", "Habitaciones"],
+            ["/admin/areas-comunes", "Áreas comunes"],
+            ["/admin/clientes", "Clientes"],
+            ["/admin/reservas", "Reservas"],
+            ["/admin/pagos", "Pagos"],
+            ["/admin/reportes", "Reportes"],
+          ].map(([path, label]) => (
+            <Link
+              key={path}
+              className={location.pathname === path ? "active" : ""}
+              to={path}
+            >
+              {label}
+            </Link>
+          ))}
         </nav>
 
         <div className="admin-user">
@@ -165,7 +108,7 @@ function AdminDashboard() {
         >
           {stats.map((stat) => (
             <article className="admin-stat-card" key={stat.label}>
-              <span>{stat.note}</span>
+              <span style={{ color: stat.noteColor }}>{stat.note}</span>
               <p>{stat.label}</p>
               <strong>{stat.value}</strong>
             </article>
@@ -176,25 +119,18 @@ function AdminDashboard() {
           <article className="admin-table-card">
             <div className="admin-card-heading">
               <h2>Reservas recientes</h2>
-              <button type="button">Ver todas</button>
+              <Link to="/admin/reservas">Ver todas</Link>
             </div>
             <div className="admin-booking-table">
-              {bookings.map((booking) => (
-                <div
-                  className="admin-booking-row"
-                  key={`${booking.guest}-${booking.room}`}
-                >
-                  <span>{booking.guest}</span>
-                  <span>{booking.room}</span>
-                  <span>{booking.date}</span>
-                  <span
-                    className={
-                      booking.status === "Confirmada" ? "confirmed" : "pending"
-                    }
-                  >
-                    {booking.status}
+              {reservasRecientes.map((r) => (
+                <div className="admin-booking-row" key={r.id}>
+                  <span>{r.nombre}</span>
+                  <span>{r.habitacion}</span>
+                  <span>{r.fechas}</span>
+                  <span className={r.estado === "Confirmada" ? "confirmed" : "pending"}>
+                    {r.estado}
                   </span>
-                  <strong>{booking.amount}</strong>
+                  <strong>{r.total}</strong>
                 </div>
               ))}
             </div>
@@ -202,19 +138,23 @@ function AdminDashboard() {
 
           <article className="admin-revenue-card">
             <h2>Ingresos semanales</h2>
-            <p>Rendimiento por dia</p>
+            <p>Últimos 7 días</p>
             <div className="admin-bars" aria-hidden="true">
               {[42, 58, 86, 72, 66, 82, 54].map((height, index) => (
                 <span
                   className={index === 2 || index === 5 ? "highlight" : ""}
-                  key={height}
+                  key={index}
                   style={{ height: `${height}%` }}
                 />
               ))}
             </div>
             <div className="admin-revenue-summary">
+              <span>Total semanal</span>
+              <strong>$12,400</strong>
+            </div>
+            <div className="admin-revenue-summary" style={{ marginTop: "0.25rem" }}>
               <span>Promedio diario</span>
-              <strong>$16,714</strong>
+              <strong>$1,771</strong>
             </div>
           </article>
         </section>
