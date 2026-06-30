@@ -434,11 +434,6 @@ function AdminHabitaciones() {
                   <strong className={`rooms-status ${selectedRoom.status}`}>{statusLabels[selectedRoom.status]}</strong>
                 </div>
               </div>
-              <div className="rooms-modal-status-actions">
-                <button type="button" onClick={() => updateRoomStatus(selectedRoom.id, "ocupada")} disabled={selectedRoom.status === "ocupada"}>Marcar ocupada</button>
-                <button type="button" onClick={() => updateRoomStatus(selectedRoom.id, "disponible")} disabled={selectedRoom.status === "disponible"}>Marcar desocupada</button>
-                <button type="button" onClick={() => updateRoomStatus(selectedRoom.id, "mantenimiento")} disabled={selectedRoom.status === "mantenimiento"}>Marcar mantenimiento</button>
-              </div>
               <RoomForm
                 form={form}
                 onChange={handleInputChange}
