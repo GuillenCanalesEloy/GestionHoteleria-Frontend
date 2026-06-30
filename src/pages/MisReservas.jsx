@@ -59,7 +59,7 @@ function MisReservas() {
         setLoadingApiReservations(true);
         setApiError("");
         const response = await reservasApi.getByCliente(clienteId);
-        setApiReservations(response.data || []);
+        setApiReservations(response.data.content || []);
       } catch {
         setApiError("No se pudieron cargar las reservas del servidor.");
       } finally {

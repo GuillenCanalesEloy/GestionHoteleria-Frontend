@@ -1,26 +1,29 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./Home.jsx";
 import { reservasApi } from "../services/hotelApi";
+import { getCurrentUser } from "../services/authService.js";
 
 function Reservas() {
   const location = useLocation();
   const navigate = useNavigate();
   const room = location.state?.room;
+  const currentUser = useMemo(getCurrentUser, []);
+
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [checkIn, setCheckIn] = useState(today);
   const [checkOut, setCheckOut] = useState("");
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
-  const [guestPhone, setGuestPhone] = useState("");
   const [people, setPeople] = useState("2 Adultos");
   const [specialRequests, setSpecialRequests] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handlePhoneChange = (event) => {
-    setGuestPhone(event.target.value.replace(/\D/g, "").slice(0, 15));
-  };
+  useEffect(() => {
+    if (!currentUser) {
+      // Redirect to login if no user is found, passing the current page as return url
+      navigate("/login", { state: { from: location } });
+    }
+  }, [currentUser, navigate, location]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -28,6 +31,12 @@ function Reservas() {
 
     if (!room?.id) {
       setErrorMessage("Selecciona una habitacion antes de reservar.");
+      return;
+    }
+
+    if (!currentUser?.id) {
+      setErrorMessage("Debes iniciar sesión para poder reservar.");
+      navigate("/login", { state: { from: location } });
       return;
     }
 
@@ -39,16 +48,15 @@ function Reservas() {
     try {
       setLoading(true);
 
-      await reservasApi.create({
+      const reservaData = {
+        usuarioId: currentUser.id,
         habitacionId: room.id,
         fechaEntrada: checkIn,
         fechaSalida: checkOut,
         cantidadHuespedes: Number(people.match(/\d+/)?.[0] || 1),
-        nombreHuesped: guestName,
-        emailHuesped: guestEmail,
-        telefonoHuesped: guestPhone,
-        solicitudesEspeciales: specialRequests,
-      });
+      };
+
+      await reservasApi.create(reservaData);
 
       navigate("/pago", {
         state: {
@@ -56,9 +64,8 @@ function Reservas() {
           reservation: {
             checkIn,
             checkOut,
-            guestName,
-            guestEmail,
-            guestPhone,
+            guestName: currentUser.nombre,
+            guestEmail: currentUser.email,
             people,
             specialRequests,
           },
@@ -72,6 +79,17 @@ function Reservas() {
       setLoading(false);
     }
   };
+
+  if (!currentUser) {
+    return (
+      <div className="home-page reserva-page">
+        <Header />
+        <main className="reserva-main">
+          <p>Redirigiendo al login...</p>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="home-page reserva-page">
@@ -124,40 +142,13 @@ function Reservas() {
               <h2>Información del huésped</h2>
               <div className="reserva-fields-grid">
                 <div className="reserva-field">
-                  <label htmlFor="guest-name">Nombre completo</label>
-                  <input
-                    id="guest-name"
-                    placeholder="Ej. Juan Perez"
-                    type="text"
-                    value={guestName}
-                    onChange={(event) => setGuestName(event.target.value)}
-                    required
-                  />
+                  <label>Nombre completo</label>
+                  <p>{currentUser.nombre}</p>
                 </div>
 
                 <div className="reserva-field">
-                  <label htmlFor="guest-email">Correo electrónico</label>
-                  <input
-                    id="guest-email"
-                    placeholder="juan@ejemplo.com"
-                    type="email"
-                    value={guestEmail}
-                    onChange={(event) => setGuestEmail(event.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="reserva-field">
-                  <label htmlFor="guest-phone">Teléfono de contacto</label>
-                  <input
-                    id="guest-phone"
-                    inputMode="numeric"
-                    placeholder="999000000"
-                    type="tel"
-                    value={guestPhone}
-                    onChange={handlePhoneChange}
-                    required
-                  />
+                  <label>Correo electrónico</label>
+                  <p>{currentUser.email}</p>
                 </div>
 
                 <div className="reserva-field">
