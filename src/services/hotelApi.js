@@ -1,9 +1,35 @@
 import axios from "axios";
 
+const isDev = import.meta.env.DEV;
+
 const hotelApi = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "/api",
-  timeout: 8000,
+  // En local falla rápido; en producción (Render free tier) espera el cold-start
+  timeout: isDev ? 8000 : 35000,
 });
+
+// En producción: reintenta hasta 2 veces solo si fue timeout (cold-start de Render)
+// En local: falla inmediatamente para no ocultar que el backend no está levantado
+hotelApi.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const config = error.config;
+    if (!config || isDev) return Promise.reject(error);
+
+    const isTimeout = error.code === "ECONNABORTED";
+    config._retryCount = config._retryCount ?? 0;
+
+    if (isTimeout && config._retryCount < 2) {
+      config._retryCount += 1;
+      await new Promise((resolve) =>
+        setTimeout(resolve, config._retryCount * 2000),
+      );
+      return hotelApi(config);
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 // Interceptor para añadir el token JWT a cada petición
 hotelApi.interceptors.request.use(
@@ -50,6 +76,10 @@ export const reservasApi = {
 export const habitacionesApi = {
   getAll: (params) => hotelApi.get("/habitaciones", { params }),
   getById: (id) => hotelApi.get(`/habitaciones/${id}`),
+  create: (data) => hotelApi.post("/habitaciones", data),
+  update: (id, data) => hotelApi.put(`/habitaciones/${id}`, data),
+  patch: (id, data) => hotelApi.patch(`/habitaciones/${id}`, data),
+  delete: (id) => hotelApi.delete(`/habitaciones/${id}`),
 };
 
 export const areasComunesApi = {
