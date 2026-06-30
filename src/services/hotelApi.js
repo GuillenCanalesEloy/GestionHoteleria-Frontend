@@ -31,20 +31,15 @@ hotelApi.interceptors.response.use(
   },
 );
 
-// Interceptor para añadir el token JWT a cada petición
 hotelApi.interceptors.request.use(
   (config) => {
     if (config.url?.startsWith("/auth/")) {
       return config;
     }
-
-    // Intenta obtener la sesión de admin o de cliente desde localStorage
     const adminSessionString = localStorage.getItem("luxestay.adminSession");
     const clientSessionString = localStorage.getItem("luxestay.clientSession");
 
     let token = null;
-
-    // Priorizamos la sesión de admin si ambas existen
     const sessionString = adminSessionString || clientSessionString;
 
     if (sessionString) {
@@ -55,12 +50,12 @@ hotelApi.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error),
 );
 
-// Clientes (Usuarios)
 export const clientesApi = {
   getAll: () => hotelApi.get("/clientes"),
   getById: (id) => hotelApi.get(`/clientes/${id}`),
@@ -71,11 +66,17 @@ export const clientesApi = {
 
 export const reservasApi = {
   getAll: (params) => hotelApi.get("/reservas", { params }),
+  getById: (id) => hotelApi.get(`/reservas/${id}`),
+  getByCliente: (clienteId) => hotelApi.get(`/reservas/cliente/${clienteId}`),
+  create: (data) => hotelApi.post("/reservas", data),
+  update: (id, data) => hotelApi.put(`/reservas/${id}`, data),
+  delete: (id) => hotelApi.delete(`/reservas/${id}`),
 };
 
 export const habitacionesApi = {
   getAll: (params) => hotelApi.get("/habitaciones", { params }),
   getById: (id) => hotelApi.get(`/habitaciones/${id}`),
+  getDisponibles: (params) => hotelApi.get("/habitaciones/disponibles", { params }),
   create: (data) => hotelApi.post("/habitaciones", data),
   update: (id, data) => hotelApi.put(`/habitaciones/${id}`, data),
   patch: (id, data) => hotelApi.patch(`/habitaciones/${id}`, data),
