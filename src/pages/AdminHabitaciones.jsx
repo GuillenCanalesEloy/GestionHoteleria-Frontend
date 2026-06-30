@@ -4,7 +4,7 @@ import { habitacionesApi } from "../services/hotelApi.js";
 
 const emptyRoomForm = {
   number: "",
-  type: "Individual",
+  type: "Simple",
   status: "disponible",
   price: "",
   capacity: "1",
@@ -19,8 +19,8 @@ const statusLabels = {
 };
 
 // Mapeo frontend <-> backend
-const typeToBackend = { Individual: "INDIVIDUAL", Doble: "DOBLE", Suite: "SUITE" };
-const typeToFront  = { INDIVIDUAL: "Individual", DOBLE: "Doble", SUITE: "Suite" };
+const typeToBackend = { Simple: "SIMPLE", Doble: "DOBLE", Matrimonial: "MATRIMONIAL", Familiar: "FAMILIAR", Suite: "SUITE" };
+const typeToFront  = { SIMPLE: "Simple", DOBLE: "Doble", MATRIMONIAL: "Matrimonial", FAMILIAR: "Familiar", SUITE: "Suite" };
 const statusToBackend = { disponible: "DISPONIBLE", ocupada: "OCUPADA", mantenimiento: "MANTENIMIENTO" };
 const statusToFront   = { DISPONIBLE: "disponible", OCUPADA: "ocupada", MANTENIMIENTO: "mantenimiento" };
 
@@ -352,8 +352,10 @@ function AdminHabitaciones() {
             <span>Tipo</span>
             <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
               <option value="todos">Todos los tipos</option>
-              <option value="Individual">Individual</option>
+              <option value="Simple">Simple</option>
               <option value="Doble">Doble</option>
+              <option value="Matrimonial">Matrimonial</option>
+              <option value="Familiar">Familiar</option>
               <option value="Suite">Suite</option>
             </select>
           </label>
@@ -477,8 +479,10 @@ function RoomForm({ form, onChange, onSubmit, submitLabel, disabled }) {
       <label>
         Tipo
         <select name="type" value={form.type} onChange={onChange}>
-          <option value="Individual">Individual</option>
+          <option value="Simple">Simple</option>
           <option value="Doble">Doble</option>
+          <option value="Matrimonial">Matrimonial</option>
+          <option value="Familiar">Familiar</option>
           <option value="Suite">Suite</option>
         </select>
       </label>
