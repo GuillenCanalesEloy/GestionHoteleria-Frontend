@@ -208,7 +208,7 @@ function Login() {
             </button>
           </form>
 
-          {loginMode === 'guest' ? (
+          {import.meta.env.DEV && (loginMode === 'guest' ? (
             <p className="login-support">
               Credenciales de prueba: <strong>cliente@correo.com</strong> / <strong>cliente123</strong>
             </p>
@@ -216,7 +216,7 @@ function Login() {
             <p className="login-support">
               Credenciales de prueba: <strong>Admin</strong> / <strong>123</strong>
             </p>
-          )}
+          ))}
         </div>
       </section>
     </div>

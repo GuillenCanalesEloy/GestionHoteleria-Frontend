@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getClientReservations } from "../services/clientReservationsStorage.js";
+import { pagosApi } from "../services/hotelApi.js";
 
 function getInitials(name) {
   return name
@@ -68,17 +69,78 @@ function normalizePayment(reservation) {
   };
 }
 
+function normalizeBackendPayment(payment) {
+  const guestName =
+    payment.usuarioNombre ||
+    payment.clienteNombre ||
+    payment.reserva?.usuarioNombre ||
+    "Cliente";
+  const method = payment.metodoPago || payment.method || "Tarjeta";
+
+  return {
+    id: payment.codigoOperacion || payment.id || `TRX-${payment.reservaId || Date.now()}`,
+    reservationId: payment.reservaId || payment.reserva?.id || "RES",
+    guest: guestName,
+    initials: getInitials(guestName),
+    date: formatDate(payment.fechaPago || payment.createdAt),
+    rawDate: payment.fechaPago || payment.createdAt || "",
+    method,
+    methodFilter: String(method).toLowerCase().includes("paypal") ? "PayPal" : "Tarjeta",
+    amount: Number(payment.monto || payment.total || payment.reserva?.precioTotal || 0),
+    status: payment.estado || "Pagado",
+    room:
+      payment.habitacionNumero ||
+      payment.reserva?.habitacionNumero ||
+      payment.reserva?.habitacionTipo ||
+      "Habitacion",
+    stay:
+      payment.reserva?.fechaEntrada && payment.reserva?.fechaSalida
+        ? `${payment.reserva.fechaEntrada} - ${payment.reserva.fechaSalida}`
+        : "Fechas por confirmar",
+  };
+}
+
 function AdminPagos() {
   const navigate = useNavigate();
   const location = useLocation();
   const [profileOpen, setProfileOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [filterMethod, setFilterMethod] = useState("todos");
+  const [backendPayments, setBackendPayments] = useState([]);
+  const [paymentsError, setPaymentsError] = useState("");
 
-  const payments = useMemo(
-    () => getClientReservations().map(normalizePayment),
-    [],
-  );
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadPayments() {
+      try {
+        const response = await pagosApi.getAll();
+        const paymentsData = response.data?.content || response.data || [];
+        if (isMounted && Array.isArray(paymentsData)) {
+          setBackendPayments(paymentsData);
+          setPaymentsError("");
+        }
+      } catch {
+        if (isMounted) {
+          setPaymentsError("Mostrando pagos locales porque no se pudo cargar el modulo de pagos.");
+        }
+      }
+    }
+
+    loadPayments();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const payments = useMemo(() => {
+    if (backendPayments.length) {
+      return backendPayments.map(normalizeBackendPayment);
+    }
+
+    return getClientReservations().map(normalizePayment);
+  }, [backendPayments]);
 
   const filteredPayments = useMemo(() => {
     return payments.filter((payment) => {
@@ -209,6 +271,8 @@ function AdminPagos() {
             Limpiar busqueda
           </button>
         </section>
+
+        {paymentsError && <p className="form-error-message">{paymentsError}</p>}
 
         <section className="admin-payments-table-card">
           <div className="admin-payments-table-header">

@@ -74,6 +74,13 @@ export const reservasApi = {
   delete: (id) => hotelApi.delete(`/reservas/${id}`),
 };
 
+export const pagosApi = {
+  getAll: () => hotelApi.get("/pagos"),
+  getById: (id) => hotelApi.get(`/pagos/${id}`),
+  getByReserva: (reservaId) => hotelApi.get(`/pagos/reserva/${reservaId}`),
+  create: (data) => hotelApi.post("/pagos", data),
+};
+
 export const habitacionesApi = {
   getAll: (params) => hotelApi.get("/habitaciones", { params }),
   getById: (id) => hotelApi.get(`/habitaciones/${id}`),

@@ -14,3 +14,11 @@ export const crearReserva = async (reserva) => {
   const response = await hotelApi.post("/reservas", reserva);
   return response.data;
 };
+
+export const confirmarPagoSimulado = async (reservaId, metodoPago) => {
+  const response = await hotelApi.post("/pagos", {
+    reservaId,
+    metodoPago,
+  });
+  return response.data;
+};

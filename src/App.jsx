@@ -15,6 +15,7 @@ import Reportes from './pages/Reportes.jsx';
 import AdminPagos from './pages/AdminPagos.jsx';
 import AreasComunes from './pages/AreasComunes.jsx';
 import AdminAreasComunes from './pages/AdminAreasComunes.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 function AppRoutes() {
   const location = useLocation();
@@ -30,16 +31,16 @@ function AppRoutes() {
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/habitaciones" element={<Habitaciones />} />
         <Route path="/areas-comunes" element={<AreasComunes />} />
-        <Route path="/mis-reservas" element={<MisReservas />} />
-        <Route path="/reservar" element={<Reservas />} />
-        <Route path="/pago" element={<Pagos />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/habitaciones" element={<AdminHabitaciones />} />
-        <Route path="/admin/areas-comunes" element={<AdminAreasComunes />} />
-        <Route path="/admin/clientes" element={<ClienteAdmin />} />
-        <Route path="/admin/reservas" element={<ReservasAdmin />} />
-        <Route path="/admin/reportes" element={<Reportes />} />
-        <Route path="/admin/pagos" element={<AdminPagos />} />
+        <Route path="/mis-reservas" element={<ProtectedRoute role="CLIENTE"><MisReservas /></ProtectedRoute>} />
+        <Route path="/reservar" element={<ProtectedRoute role="CLIENTE"><Reservas /></ProtectedRoute>} />
+        <Route path="/pago" element={<ProtectedRoute role="CLIENTE"><Pagos /></ProtectedRoute>} />
+        <Route path="/admin/dashboard" element={<ProtectedRoute role="ADMIN"><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/habitaciones" element={<ProtectedRoute role="ADMIN"><AdminHabitaciones /></ProtectedRoute>} />
+        <Route path="/admin/areas-comunes" element={<ProtectedRoute role="ADMIN"><AdminAreasComunes /></ProtectedRoute>} />
+        <Route path="/admin/clientes" element={<ProtectedRoute role="ADMIN"><ClienteAdmin /></ProtectedRoute>} />
+        <Route path="/admin/reservas" element={<ProtectedRoute role="ADMIN"><ReservasAdmin /></ProtectedRoute>} />
+        <Route path="/admin/reportes" element={<ProtectedRoute role="ADMIN"><Reportes /></ProtectedRoute>} />
+        <Route path="/admin/pagos" element={<ProtectedRoute role="ADMIN"><AdminPagos /></ProtectedRoute>} />
         {/* Redirección por defecto si la ruta no existe */}
         <Route path="*" element={<Home />} />
       </Routes>

@@ -901,6 +901,27 @@ img {
   margin: 8px 0 0;
 }
 
+.catalog-sort-control {
+  display: grid;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.catalog-sort-control span {
+  color: #707885;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.catalog-sort-control select {
+  background: #ffffff;
+  border: 1px solid #dfe4ec;
+  border-radius: 7px;
+  color: #061525;
+  font: inherit;
+  padding: 10px 12px;
+}
+
 .view-toggle {
   background: #edf2f8;
   border-radius: 7px;
@@ -3224,8 +3245,8 @@ img {
 
 .admin-area-layout {
   display: grid;
-  gap: 28px;
-  grid-template-columns: minmax(320px, 0.42fr) minmax(0, 1fr);
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr);
   margin-bottom: 34px;
 }
 
@@ -3237,6 +3258,12 @@ img {
   box-shadow: 0 10px 30px rgba(12, 24, 40, 0.06);
   overflow: hidden;
   padding: 24px;
+}
+
+.admin-area-modal-form {
+  box-shadow: none;
+  margin-top: 18px;
+  padding: 0;
 }
 
 .admin-area-form h2 {
@@ -3276,11 +3303,81 @@ img {
 
 .common-areas-admin-header,
 .common-areas-admin-row {
-  grid-template-columns: minmax(170px, 1.3fr) 140px 120px 120px minmax(320px, 1.6fr);
+  grid-template-columns: minmax(220px, 1.45fr) 140px 130px 130px minmax(190px, 0.9fr);
 }
 
 .common-area-actions {
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.admin-area-toolbar {
+  grid-template-columns: minmax(220px, 280px) 150px;
+  justify-content: start;
+}
+
+.admin-area-name-cell {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.admin-area-name-cell strong {
+  color: #061525;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-area-name-cell small {
+  color: #707885;
+  font-size: 0.78rem;
+}
+
+.admin-area-empty {
+  color: #45546a;
+  margin: 0;
+  padding: 22px;
+}
+
+.admin-area-section-divider {
+  border-top: 1px solid #e5e7eb;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+}
+
+.admin-area-modal {
+  max-width: 620px;
+  width: min(100%, 620px);
+}
+
+.admin-area-detail-modal .rooms-modal-heading p {
+  line-height: 1.55;
+}
+
+.admin-area-modal-actions {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.admin-area-modal-actions button {
+  border: 0;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 900;
+  min-height: 44px;
+}
+
+.admin-area-modal-actions button:first-child {
+  background: #041120;
+  color: #ffffff;
+}
+
+.admin-area-modal-actions button:last-child {
+  background: #fff1f1;
+  color: #b22020;
 }
 
 .admin-area-reservations {
@@ -5464,6 +5561,13 @@ img {
 
   .rooms-admin-primary {
     width: 100%;
+  }
+
+  .admin-area-modal-form,
+  .rooms-modal-info-grid,
+  .rooms-modal-status-actions,
+  .admin-area-modal-actions {
+    grid-template-columns: 1fr;
   }
 
   .login-modal-backdrop {

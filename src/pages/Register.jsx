@@ -57,9 +57,31 @@ function Register() {
         nombre: nombre.trim(),
         email: email.trim().toLowerCase(),
         password,
+      }).then((response) => {
+        if (!response.data?.token) {
+          return;
+        }
+
+        const sessionData = {
+          ...response.data,
+          username: response.data.nombre || response.data.email,
+        };
+        const sessionKey =
+          sessionData.rol === "ADMIN" ? "luxestay.adminSession" : "luxestay.clientSession";
+
+        localStorage.setItem(sessionKey, JSON.stringify(sessionData));
+        window.dispatchEvent(new Event("luxestay:client-session-change"));
       });
       setSuccess(true);
-      setTimeout(() => navigate('/login'), 2500);
+      setTimeout(() => {
+        const clientSession = localStorage.getItem("luxestay.clientSession");
+        const adminSession = localStorage.getItem("luxestay.adminSession");
+        if (adminSession) {
+          navigate("/admin/dashboard");
+          return;
+        }
+        navigate(clientSession ? "/" : "/login");
+      }, 2500);
     } catch (apiError) {
       setError(
         apiError.response?.data?.message ||

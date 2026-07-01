@@ -1,5 +1,5 @@
 import { Header } from "./Home.jsx";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DetallesDeHabitacion from "./DetallesDeHabitacion.jsx";
 import { habitacionesApi } from "../services/hotelApi.js";
 
@@ -7,9 +7,12 @@ function Habitaciones() {
   // 2. Estados para los filtros
   const [maxPrice, setMaxPrice] = useState(1000);
   const [selectedTypes, setSelectedTypes] = useState([]);
+  const [sortBy, setSortBy] = useState("precio-asc");
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [catalogRooms, setCatalogRooms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const roomsPerPage = 6;
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -38,6 +41,32 @@ function Habitaciones() {
     return matchesPrice && matchesType;
   });
 
+  const sortedRooms = useMemo(() => {
+    return [...filteredRooms].sort((firstRoom, secondRoom) => {
+      const priceDifference = firstRoom.precioPorNoche - secondRoom.precioPorNoche;
+
+      if (sortBy === "precio-desc") {
+        return -priceDifference;
+      }
+
+      if (sortBy === "capacidad-desc") {
+        return secondRoom.capacidad - firstRoom.capacidad;
+      }
+
+      return priceDifference;
+    });
+  }, [filteredRooms, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedRooms.length / roomsPerPage));
+  const pageRooms = sortedRooms.slice(
+    (currentPage - 1) * roomsPerPage,
+    currentPage * roomsPerPage,
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [maxPrice, selectedTypes, sortBy]);
+
   // 4. Función para manejar los checkboxes
   const handleTypeChange = (type) => {
     setSelectedTypes((prev) =>
@@ -47,6 +76,7 @@ function Habitaciones() {
   const handleReset = () => {
     setMaxPrice(1000);    // Volver al precio máximo
     setSelectedTypes([]); // Desmarcar todos los checkboxes
+    setSortBy("precio-asc");
   };
 
   return (
@@ -133,14 +163,22 @@ function Habitaciones() {
               <div>
                 <h2>Habitaciones disponibles</h2>
                 <p>
-                  Mostrando {filteredRooms.length} estadías para tus fechas.
+                  Mostrando {sortedRooms.length} estadías para tus fechas.
                 </p>
               </div>
+              <label className="catalog-sort-control">
+                <span>Ordenar por</span>
+                <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+                  <option value="precio-asc">Menor precio</option>
+                  <option value="precio-desc">Mayor precio</option>
+                  <option value="capacidad-desc">Mayor capacidad</option>
+                </select>
+              </label>
             </div>
 
             <div className="catalog-grid">
-              {loading ? <p>Cargando habitaciones...</p> : filteredRooms.length > 0 ? (
-                filteredRooms.map((room) => (
+              {loading ? <p>Cargando habitaciones...</p> : pageRooms.length > 0 ? (
+                pageRooms.map((room) => (
                   <article className="catalog-card" key={room.id}>
                     <div className="catalog-image">
                       <img
@@ -192,12 +230,17 @@ function Habitaciones() {
               )}
             </div>
 
-            {/* Paginación (Opcional por ahora) */}
-            <nav className="pagination-row">
-              <button type="button" className="active">
-                1
-              </button>
-              <button type="button">2</button>
+            <nav className="pagination-row" aria-label="Paginacion de habitaciones">
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                <button
+                  key={page}
+                  type="button"
+                  className={page === currentPage ? "active" : ""}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              ))}
             </nav>
           </div>
         </section>

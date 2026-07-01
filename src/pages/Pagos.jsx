@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Header } from "./Home.jsx";
+import { confirmarPagoSimulado } from "../services/reservasService.js";
 
 const defaultRoom = {
   title: "Grand Royal Suite",
@@ -34,12 +35,31 @@ function Pagos() {
   const room = location.state?.room || defaultRoom;
   const roomPrice = room.price ?? room.precioPorNoche ?? 0;
   const reservation = location.state?.reservation;
+  const reservaBackend = location.state?.reservaBackend;
+  const reservaId = reservaBackend?.id;
   const [paymentMethod, setPaymentMethod] = useState("card");
+  const [paying, setPaying] = useState(false);
   const [formData, setFormData] = useState({
     cardNumber: "",
     expiry: "",
     cvv: "",
   });
+  const selectedBackendMethod = paymentMethod === "paypal" ? "PAYPAL" : "TARJETA";
+
+  useEffect(() => {
+    if (reservaId) {
+      return;
+    }
+
+    Swal.fire({
+      icon: "warning",
+      title: "Crea una reserva primero",
+      text: "Para continuar con el pago debes crear una reserva valida.",
+      confirmButtonColor: "#041627",
+    }).then(() => {
+      navigate("/reservar", { replace: true });
+    });
+  }, [navigate, reservaId]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -55,29 +75,54 @@ function Pagos() {
     }));
   };
 
-  const handlePay = (event) => {
+  const handlePay = async (event) => {
     event.preventDefault();
 
-    Swal.fire({
-      title: "Procesando pago...",
-      text: "Estamos validando tu tarjeta",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-
-    setTimeout(() => {
+    if (!reservaId) {
       Swal.fire({
+        icon: "error",
+        title: "Reserva no encontrada",
+        text: "Primero debes crear una reserva antes de confirmar el pago.",
+        confirmButtonColor: "#041627",
+      });
+      return;
+    }
+
+    setPaying(true);
+
+    try {
+      Swal.fire({
+        title: "Procesando pago...",
+        text: "Estamos confirmando tu reserva",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const response = await confirmarPagoSimulado(reservaId, selectedBackendMethod);
+
+      await Swal.fire({
         icon: "success",
         title: "Pago confirmado",
-        text: `Tu reserva en ${room.title} ha sido procesada con exito.`,
+        text: `Tu reserva en ${room.title} quedo ${response.estado}. Codigo de operacion: ${response.codigoOperacion}`,
         confirmButtonText: "Ver mis reservas",
         confirmButtonColor: "#041627",
-      }).then(() => {
-        navigate("/mis-reservas");
       });
-    }, 1200);
+
+      navigate("/mis-reservas");
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "No se pudo confirmar el pago",
+        text:
+          error.response?.data?.message ||
+          "Intenta nuevamente. Tu reserva no fue confirmada.",
+        confirmButtonColor: "#041627",
+      });
+    } finally {
+      setPaying(false);
+    }
   };
 
   return (
@@ -102,6 +147,7 @@ function Pagos() {
                 className={paymentMethod === "card" ? "active" : ""}
                 type="button"
                 onClick={() => setPaymentMethod("card")}
+                disabled={paying}
               >
                 Tarjeta de credito o debito
               </button>
@@ -109,6 +155,7 @@ function Pagos() {
                 className={paymentMethod === "paypal" ? "active" : ""}
                 type="button"
                 onClick={() => setPaymentMethod("paypal")}
+                disabled={paying}
               >
                 PayPal
               </button>
@@ -164,8 +211,8 @@ function Pagos() {
               Pago 100% seguro con validación cifrada.
             </div>
 
-            <button className="payment-submit" type="submit">
-              Pagar ${roomPrice.toFixed(2)}
+            <button className="payment-submit" type="submit" disabled={paying}>
+              {paying ? "Procesando pago..." : `Pagar $${roomPrice.toFixed(2)}`}
             </button>
           </form>
 

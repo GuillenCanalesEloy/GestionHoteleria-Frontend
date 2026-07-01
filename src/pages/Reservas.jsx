@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./Home.jsx";
-import { reservasApi } from "../services/hotelApi";
+import { habitacionesApi, reservasApi } from "../services/hotelApi";
 import { getCurrentUser } from "../services/authService.js";
 
 function Reservas() {
@@ -48,6 +48,24 @@ function Reservas() {
     try {
       setLoading(true);
 
+      try {
+        const availabilityResponse = await habitacionesApi.getDisponibles({
+          fechaEntrada: checkIn,
+          fechaSalida: checkOut,
+        });
+        const availableRooms = availabilityResponse.data?.content || availabilityResponse.data || [];
+        const isAvailable = availableRooms.some(
+          (availableRoom) => Number(availableRoom.id) === Number(room.id),
+        );
+
+        if (Array.isArray(availableRooms) && !isAvailable) {
+          setErrorMessage("La habitacion seleccionada no esta disponible para esas fechas.");
+          return;
+        }
+      } catch {
+        // Si el endpoint de disponibilidad no responde, el backend valida al crear la reserva.
+      }
+
       const reservaData = {
         usuarioId: currentUser.id,
         habitacionId: room.id,
@@ -56,7 +74,7 @@ function Reservas() {
         cantidadHuespedes: Number(people.match(/\d+/)?.[0] || 1),
       };
 
-      await reservasApi.create(reservaData);
+      const reservaBackend = await reservasApi.create(reservaData);
 
       navigate("/pago", {
         state: {
@@ -69,6 +87,7 @@ function Reservas() {
             people,
             specialRequests,
           },
+          reservaBackend: reservaBackend.data,
         },
       });
     } catch (error) {

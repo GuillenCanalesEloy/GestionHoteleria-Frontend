@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { dashboardApi } from "../services/hotelApi.js";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -18,24 +19,91 @@ function AdminDashboard() {
     navigate("/", { replace: true });
   };
 
-  const stats = [
+  const [stats, setStats] = useState([
     { label: "Ingresos totales", value: "$284,500", note: "Histórico", noteColor: "#4caf50" },
     { label: "Reservas activas", value: "12", note: "Confirmadas", noteColor: "#4caf50" },
     { label: "Ocupación", value: "78%", note: "Media demanda", noteColor: "#f59e0b" },
     { label: "Reservas pendientes", value: "4", note: "Revisión", noteColor: "#f59e0b" },
-  ];
+  ]);
 
-  const reservasRecientes = [
+  const [reservasRecientes, setReservasRecientes] = useState([
     { id: 1, nombre: "Carlos Mendoza", habitacion: "101", fechas: "01 jul – 05 jul", estado: "Confirmada", total: "$420" },
     { id: 2, nombre: "Ana García", habitacion: "204", fechas: "02 jul – 04 jul", estado: "Pendiente", total: "$280" },
     { id: 3, nombre: "Luis Torres", habitacion: "312", fechas: "03 jul – 07 jul", estado: "Confirmada", total: "$560" },
-  ];
+  ]);
 
   const tasks = [
     { title: "Habitaciones disponibles", room: "8 de 20", detail: "Listas para check-in" },
     { title: "En mantenimiento", room: "2 habitación(es)", detail: "Requieren atención" },
     { title: "Clientes registrados", room: "45 clientes", detail: "48 usuarios en total" },
   ];
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadDashboardData() {
+      const [resumenResult, reservasResult] = await Promise.allSettled([
+        dashboardApi.getResumen(),
+        dashboardApi.getReservas({ page: 0, size: 5 }),
+      ]);
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (resumenResult.status === "fulfilled") {
+        const resumen = resumenResult.value.data || {};
+        setStats([
+          {
+            label: "Ingresos totales",
+            value: `$${Number(resumen.ingresosTotales ?? resumen.ingresos ?? 0).toLocaleString("en-US")}`,
+            note: "Acumulado",
+            noteColor: "#4caf50",
+          },
+          {
+            label: "Reservas activas",
+            value: String(resumen.reservasActivas ?? resumen.reservasConfirmadas ?? 0),
+            note: "Confirmadas",
+            noteColor: "#4caf50",
+          },
+          {
+            label: "Ocupacion",
+            value: `${Number(resumen.ocupacion ?? resumen.porcentajeOcupacion ?? 0)}%`,
+            note: "Actual",
+            noteColor: "#f59e0b",
+          },
+          {
+            label: "Reservas pendientes",
+            value: String(resumen.reservasPendientes ?? 0),
+            note: "Revision",
+            noteColor: "#f59e0b",
+          },
+        ]);
+      }
+
+      if (reservasResult.status === "fulfilled") {
+        const reservas = reservasResult.value.data?.content || reservasResult.value.data || [];
+        if (Array.isArray(reservas) && reservas.length) {
+          setReservasRecientes(
+            reservas.slice(0, 5).map((reserva) => ({
+              id: reserva.id,
+              nombre: reserva.usuarioNombre || reserva.clienteNombre || "Cliente",
+              habitacion: reserva.habitacionNumero || reserva.habitacionId || "-",
+              fechas: `${reserva.fechaEntrada || ""} - ${reserva.fechaSalida || ""}`,
+              estado: reserva.estado || "Pendiente",
+              total: reserva.precioTotal ? `$${reserva.precioTotal}` : "Pendiente",
+            })),
+          );
+        }
+      }
+    }
+
+    loadDashboardData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="admin-shell">
