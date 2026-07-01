@@ -20,89 +20,115 @@ function AdminDashboard() {
   };
 
   const [stats, setStats] = useState([
-    { label: "Ingresos totales", value: "$284,500", note: "Histórico", noteColor: "#4caf50" },
-    { label: "Reservas activas", value: "12", note: "Confirmadas", noteColor: "#4caf50" },
-    { label: "Ocupación", value: "78%", note: "Media demanda", noteColor: "#f59e0b" },
-    { label: "Reservas pendientes", value: "4", note: "Revisión", noteColor: "#f59e0b" },
+    { label: "Ingresos totales", value: "$0", note: "Histórico", noteColor: "#4caf50" },
+    { label: "Reservas activas", value: "0", note: "Confirmadas", noteColor: "#4caf50" },
+    { label: "Ocupación", value: "0%", note: "Actual", noteColor: "#f59e0b" },
+    { label: "Reservas pendientes", value: "0", note: "Revisión", noteColor: "#f59e0b" },
   ]);
 
-  const [reservasRecientes, setReservasRecientes] = useState([
-    { id: 1, nombre: "Carlos Mendoza", habitacion: "101", fechas: "01 jul – 05 jul", estado: "Confirmada", total: "$420" },
-    { id: 2, nombre: "Ana García", habitacion: "204", fechas: "02 jul – 04 jul", estado: "Pendiente", total: "$280" },
-    { id: 3, nombre: "Luis Torres", habitacion: "312", fechas: "03 jul – 07 jul", estado: "Confirmada", total: "$560" },
+  const [reservasRecientes, setReservasRecientes] = useState([]);
+
+  const [tasks, setTasks] = useState([
+    { title: "Habitaciones disponibles", room: "—", detail: "Listas para check-in" },
+    { title: "En mantenimiento", room: "—", detail: "Requieren atención" },
+    { title: "Clientes registrados", room: "—", detail: "Usuarios en total" },
   ]);
 
-  const tasks = [
-    { title: "Habitaciones disponibles", room: "8 de 20", detail: "Listas para check-in" },
-    { title: "En mantenimiento", room: "2 habitación(es)", detail: "Requieren atención" },
-    { title: "Clientes registrados", room: "45 clientes", detail: "48 usuarios en total" },
-  ];
+  const [weeklyTotal, setWeeklyTotal] = useState(0);
+  const [weeklyAvg, setWeeklyAvg] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadDashboardData() {
-      const [resumenResult, reservasResult] = await Promise.allSettled([
-        dashboardApi.getResumen(),
-        dashboardApi.getReservas({ page: 0, size: 5 }),
-      ]);
+      const [resumenResult, reservasResult, ingresosResult] =
+        await Promise.allSettled([
+          dashboardApi.getResumen(),
+          dashboardApi.getReservas({ page: 0, size: 5 }),
+          dashboardApi.getIngresos({}),
+        ]);
 
-      if (!isMounted) {
-        return;
-      }
+      if (!isMounted) return;
 
       if (resumenResult.status === "fulfilled") {
-        const resumen = resumenResult.value.data || {};
+        const r = resumenResult.value.data || {};
+        const total = r.totalHabitaciones || 0;
+        const ocupadas = r.habitacionesOcupadas || 0;
+        const ocupacionPct = total > 0 ? Math.round((ocupadas / total) * 100) : 0;
+
         setStats([
           {
             label: "Ingresos totales",
-            value: `$${Number(resumen.ingresosTotales ?? resumen.ingresos ?? 0).toLocaleString("en-US")}`,
-            note: "Acumulado",
+            value: `$${Number(r.ingresosHistoricos ?? 0).toLocaleString("en-US")}`,
+            note: "Histórico",
             noteColor: "#4caf50",
           },
           {
             label: "Reservas activas",
-            value: String(resumen.reservasActivas ?? resumen.reservasConfirmadas ?? 0),
+            value: String(r.reservasConfirmadas ?? 0),
             note: "Confirmadas",
             noteColor: "#4caf50",
           },
           {
-            label: "Ocupacion",
-            value: `${Number(resumen.ocupacion ?? resumen.porcentajeOcupacion ?? 0)}%`,
+            label: "Ocupación",
+            value: `${ocupacionPct}%`,
             note: "Actual",
             noteColor: "#f59e0b",
           },
           {
             label: "Reservas pendientes",
-            value: String(resumen.reservasPendientes ?? 0),
-            note: "Revision",
+            value: String(r.reservasPendientes ?? 0),
+            note: "Revisión",
             noteColor: "#f59e0b",
+          },
+        ]);
+
+        setTasks([
+          {
+            title: "Habitaciones disponibles",
+            room: `${r.habitacionesDisponibles ?? 0} de ${total}`,
+            detail: "Listas para check-in",
+          },
+          {
+            title: "En mantenimiento",
+            room: `${r.habitacionesMantenimiento ?? 0} habitación(es)`,
+            detail: "Requieren atención",
+          },
+          {
+            title: "Clientes registrados",
+            room: `${r.totalClientes ?? 0} clientes`,
+            detail: `${r.totalUsuarios ?? 0} usuarios en total`,
           },
         ]);
       }
 
       if (reservasResult.status === "fulfilled") {
-        const reservas = reservasResult.value.data?.content || reservasResult.value.data || [];
-        if (Array.isArray(reservas) && reservas.length) {
+        const data = reservasResult.value.data;
+        const reservas = data?.content ?? (Array.isArray(data) ? data : []);
+        if (reservas.length) {
           setReservasRecientes(
-            reservas.slice(0, 5).map((reserva) => ({
-              id: reserva.id,
-              nombre: reserva.usuarioNombre || reserva.clienteNombre || "Cliente",
-              habitacion: reserva.habitacionNumero || reserva.habitacionId || "-",
-              fechas: `${reserva.fechaEntrada || ""} - ${reserva.fechaSalida || ""}`,
-              estado: reserva.estado || "Pendiente",
-              total: reserva.precioTotal ? `$${reserva.precioTotal}` : "Pendiente",
+            reservas.slice(0, 5).map((rv) => ({
+              id: rv.id,
+              nombre: rv.usuarioNombre || "Cliente",
+              habitacion: rv.habitacionNumero || rv.habitacionId || "-",
+              fechas: `${rv.fechaEntrada || ""} – ${rv.fechaSalida || ""}`,
+              estado: rv.estado || "Pendiente",
+              total: rv.precioTotal != null ? `$${Number(rv.precioTotal).toLocaleString("en-US")}` : "—",
             })),
           );
         }
       }
+
+      if (ingresosResult.status === "fulfilled") {
+        const ing = ingresosResult.value.data || {};
+        const total = Number(ing.ingresosTotales ?? 0);
+        setWeeklyTotal(total);
+        setWeeklyAvg(0);
+      }
     }
 
     loadDashboardData();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, []);
 
   return (
@@ -144,15 +170,9 @@ function AdminDashboard() {
 
       <main className="admin-main">
         <header className="admin-topbar">
-          <input
-            type="search"
-            placeholder="Buscar reservas, habitaciones o huespedes..."
-          />
+          <input type="search" placeholder="Buscar reservas, habitaciones o huespedes..." />
           <div className="admin-profile-menu">
-            <button
-              type="button"
-              onClick={() => setProfileOpen((open) => !open)}
-            >
+            <button type="button" onClick={() => setProfileOpen((o) => !o)}>
               Admin Profile
             </button>
             {profileOpen && (
@@ -170,10 +190,7 @@ function AdminDashboard() {
           <h1>Bienvenido, Admin.</h1>
         </section>
 
-        <section
-          className="admin-stats-grid"
-          aria-label="Estadisticas administrativas"
-        >
+        <section className="admin-stats-grid" aria-label="Estadisticas administrativas">
           {stats.map((stat) => (
             <article className="admin-stat-card" key={stat.label}>
               <span style={{ color: stat.noteColor }}>{stat.note}</span>
@@ -190,23 +207,33 @@ function AdminDashboard() {
               <Link to="/admin/reservas">Ver todas</Link>
             </div>
             <div className="admin-booking-table">
-              {reservasRecientes.map((r) => (
-                <div className="admin-booking-row" key={r.id}>
-                  <span>{r.nombre}</span>
-                  <span>{r.habitacion}</span>
-                  <span>{r.fechas}</span>
-                  <span className={r.estado === "Confirmada" ? "confirmed" : "pending"}>
-                    {r.estado}
-                  </span>
-                  <strong>{r.total}</strong>
-                </div>
-              ))}
+              {reservasRecientes.length === 0 ? (
+                <p style={{ padding: "1rem", color: "#888" }}>Cargando reservas...</p>
+              ) : (
+                reservasRecientes.map((r) => (
+                  <div className="admin-booking-row" key={r.id}>
+                    <span>{r.nombre}</span>
+                    <span>{r.habitacion}</span>
+                    <span>{r.fechas}</span>
+                    <span
+                      className={
+                        r.estado === "CONFIRMADA" || r.estado === "Confirmada"
+                          ? "confirmed"
+                          : "pending"
+                      }
+                    >
+                      {r.estado}
+                    </span>
+                    <strong>{r.total}</strong>
+                  </div>
+                ))
+              )}
             </div>
           </article>
 
           <article className="admin-revenue-card">
-            <h2>Ingresos semanales</h2>
-            <p>Últimos 7 días</p>
+            <h2>Resumen de ingresos</h2>
+            <p>Histórico acumulado</p>
             <div className="admin-bars" aria-hidden="true">
               {[42, 58, 86, 72, 66, 82, 54].map((height, index) => (
                 <span
@@ -217,12 +244,12 @@ function AdminDashboard() {
               ))}
             </div>
             <div className="admin-revenue-summary">
-              <span>Total semanal</span>
-              <strong>$12,400</strong>
+              <span>Total histórico</span>
+              <strong>${weeklyTotal.toLocaleString("en-US")}</strong>
             </div>
             <div className="admin-revenue-summary" style={{ marginTop: "0.25rem" }}>
-              <span>Promedio diario</span>
-              <strong>$1,771</strong>
+              <span>Promedio por reserva</span>
+              <strong>${weeklyAvg.toLocaleString("en-US")}</strong>
             </div>
           </article>
         </section>
