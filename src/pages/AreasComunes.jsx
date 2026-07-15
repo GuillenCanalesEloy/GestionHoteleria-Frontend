@@ -15,6 +15,10 @@ import {
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
+function isAreaReservable(area) {
+  return Boolean(area) && area.status !== "mantenimiento";
+}
+
 function getHoursBetween(startTime, endTime) {
   if (!startTime || !endTime) {
     return 0;
@@ -48,11 +52,11 @@ function AreasComunes() {
   const minDate = useMemo(todayIso, []);
   const [commonAreas, setCommonAreas] = useState(() => getCommonAreas());
   const [selectedArea, setSelectedArea] = useState(() =>
-    getCommonAreas().find((area) => area.status === "disponible") || getCommonAreas()[0],
+    getCommonAreas().find(isAreaReservable) || getCommonAreas()[0],
   );
   const [areasLoading, setAreasLoading] = useState(false);
   const [areasError, setAreasError] = useState("");
-  const [statusFilter, setStatusFilter] = useState("disponible");
+  const [statusFilter, setStatusFilter] = useState("reservables");
   const [date, setDate] = useState(minDate);
   const [startTime, setStartTime] = useState("10:00");
   const [endTime, setEndTime] = useState("12:00");
@@ -65,7 +69,10 @@ function AreasComunes() {
   const session = clientSession ? JSON.parse(clientSession) : null;
   const hasValidToken = Boolean(session?.token);
   const visibleAreas = commonAreas.filter(
-    (area) => statusFilter === "todos" || area.status === statusFilter,
+    (area) =>
+      statusFilter === "todos" ||
+      (statusFilter === "reservables" && isAreaReservable(area)) ||
+      area.status === statusFilter,
   );
   const reservedHours = getHoursBetween(startTime, endTime);
   const total = selectedArea ? reservedHours * selectedArea.pricePerHour : 0;
@@ -90,7 +97,7 @@ function AreasComunes() {
 
         setCommonAreas(backendAreas);
         setSelectedArea(
-          backendAreas.find((area) => area.status === "disponible") || backendAreas[0] || null,
+          backendAreas.find(isAreaReservable) || backendAreas[0] || null,
         );
       } catch {
         if (isMounted) {
@@ -135,8 +142,8 @@ function AreasComunes() {
       return;
     }
 
-    if (!selectedArea || selectedArea.status !== "disponible") {
-      setMessage("Selecciona un área disponible para reservar.");
+    if (!isAreaReservable(selectedArea)) {
+      setMessage("Esta área esta en mantenimiento y no se puede reservar.");
       return;
     }
 
@@ -224,7 +231,7 @@ function AreasComunes() {
             </div>
             <div className="areas-filter">
               {[
-                ["disponible", "Disponible"],
+                ["reservables", "Reservables"],
                 ["todos", "Todos"],
               ].map(([status, label]) => (
                 <button
@@ -358,7 +365,7 @@ function AreasComunes() {
                   <button
                     className="reserva-confirm-button"
                     type="submit"
-                    disabled={selectedArea?.status !== "disponible" || reservationLoading}
+                    disabled={!isAreaReservable(selectedArea) || reservationLoading}
                   >
                     {reservationLoading ? "Reservando..." : "Reservar área"}
                   </button>

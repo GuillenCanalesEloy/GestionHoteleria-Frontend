@@ -1,8 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { Header } from "./Home.jsx";
 import { habitacionesApi, reservasApi } from "../services/hotelApi";
 import { getCurrentUser } from "../services/authService.js";
+
+const unavailableRoomMessage = "La habitacion seleccionada no esta disponible para esas fechas.";
+
+function showUnavailableRoomModal(message = unavailableRoomMessage) {
+  return Swal.fire({
+    icon: "warning",
+    title: "Habitacion no disponible",
+    text: message,
+    confirmButtonText: "Cambiar fechas",
+    confirmButtonColor: "#041627",
+  });
+}
 
 function Reservas() {
   const location = useLocation();
@@ -59,7 +72,7 @@ function Reservas() {
         );
 
         if (Array.isArray(availableRooms) && !isAvailable) {
-          setErrorMessage("La habitacion seleccionada no esta disponible para esas fechas.");
+          await showUnavailableRoomModal();
           return;
         }
       } catch {
@@ -91,9 +104,18 @@ function Reservas() {
         },
       });
     } catch (error) {
-      setErrorMessage(
-        error.response?.data?.message || "No se pudo registrar la reserva.",
-      );
+      const backendMessage = error.response?.data?.message || "No se pudo registrar la reserva.";
+
+      if (
+        error.response?.status === 409 ||
+        backendMessage.toLowerCase().includes("disponible") ||
+        backendMessage.toLowerCase().includes("solap")
+      ) {
+        await showUnavailableRoomModal(backendMessage);
+        return;
+      }
+
+      setErrorMessage(backendMessage);
     } finally {
       setLoading(false);
     }
