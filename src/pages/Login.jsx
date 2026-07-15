@@ -38,7 +38,6 @@ function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loginMode, setLoginMode] = useState('guest');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -111,56 +110,21 @@ function Login() {
         <div className="login-panel">
           <div className="login-title">
             <p className="section-kicker">Bienvenido</p>
-            <h2 id="login-title">
-              {loginMode === 'admin' ? 'Inicia como administrador' : 'Inicia sesión'}
-            </h2>
-            <p>
-              {loginMode === 'admin'
-                ? 'Accede al panel interno de trabajadores con credenciales de prueba.'
-                : 'Ingresa con tu usuario para continuar con tus reservas.'}
-            </p>
+            <h2 id="login-title">Inicia sesión</h2>
+            <p>Ingresa con tu usuario para continuar.</p>
           </div>
 
           {error && <p className="login-error">{error}</p>}
 
-          <div className="login-mode-switch" aria-label="Tipo de acceso">
-            <button
-              className={loginMode === 'guest' ? 'active' : ''}
-              type="button"
-              onClick={() => {
-                setLoginMode('guest');
-                setError('');
-                setEmail(''); // Limpiar el campo de email
-                setPassword('');
-              }}
-            >
-              Huésped
-            </button>
-            <button
-              className={loginMode === 'admin' ? 'active' : ''}
-              type="button"
-              onClick={() => {
-                setLoginMode('admin');
-                setError('');
-                setEmail(''); // Limpiar el campo de email
-                setPassword('');
-              }}
-            >
-              Ingresar como administrador
-            </button>
-          </div>
-
           <form onSubmit={handleSubmit}>
             <div className="login-field">
-              <label htmlFor="email">
-                {loginMode === 'admin' ? 'Usuario administrador' : 'Correo electrónico'}
-              </label>
+              <label htmlFor="email">Correo electrónico</label>
               <div className="login-control">
                 <Icon type="mail" />
                 <input
                   id="email"
                   type="text"
-                  placeholder={loginMode === 'admin' ? 'admin@hotel.com' : 'cliente@correo.com'}
+                  placeholder="cliente@correo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -171,9 +135,7 @@ function Login() {
             <div className="login-field">
               <div className="login-field-header">
                 <label htmlFor="password">Contraseña</label>
-                {loginMode === 'guest' && (
-                  <Link to="/recuperar-contrasena">Olvidé mi contraseña</Link>
-                )}
+                <Link to="/recuperar-contrasena">Olvidé mi contraseña</Link>
               </div>
               <div className="login-control password-wrapper">
                 <Icon type="lock" />
@@ -196,27 +158,15 @@ function Login() {
               </div>
             </div>
 
-            {loginMode === 'guest' && (
-              <div className="login-remember">
-                <input type="checkbox" id="remember" />
-                <label htmlFor="remember">Mantener sesión iniciada</label>
-              </div>
-            )}
+            <div className="login-remember">
+              <input type="checkbox" id="remember" />
+              <label htmlFor="remember">Mantener sesión iniciada</label>
+            </div>
 
             <button type="submit" className="login-submit" disabled={loading}>
               {loading ? 'Ingresando...' : 'Ingresar'}
             </button>
           </form>
-
-          {import.meta.env.DEV && (loginMode === 'guest' ? (
-            <p className="login-support">
-              Credenciales de prueba: <strong>cliente@correo.com</strong> / <strong>cliente123</strong>
-            </p>
-          ) : (
-            <p className="login-support">
-              Credenciales de prueba: <strong>Admin</strong> / <strong>123</strong>
-            </p>
-          ))}
         </div>
       </section>
     </div>

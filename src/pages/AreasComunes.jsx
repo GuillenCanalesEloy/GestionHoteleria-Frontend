@@ -258,7 +258,7 @@ function AreasComunes() {
                       </div>
                       <div className="area-meta">
                         <span>{areaStatusLabels[area.status]}</span>
-                        <span>{area.capacity} personas</span>
+                        <span>{area.capacity} persona{area.capacity === 1 ? "" : "s"}</span>
                         <span>${area.pricePerHour}/hora</span>
                       </div>
                     </div>
@@ -279,7 +279,7 @@ function AreasComunes() {
                   </div>
                   <div>
                     <small>Capacidad</small>
-                    <strong>{selectedArea?.capacity} personas</strong>
+                    <strong>{selectedArea?.capacity} persona{selectedArea?.capacity === 1 ? "" : "s"}</strong>
                   </div>
                 </div>
               </div>

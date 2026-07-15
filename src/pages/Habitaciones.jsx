@@ -194,7 +194,7 @@ function Habitaciones() {
                         <span className="rating">⭐ 4.8</span>
                       </div>
                       <div className="room-meta">
-                        <span>👤 {room.capacidad} personas</span>
+                        <span>👤 {room.capacidad} persona{room.capacidad === 1 ? "" : "s"}</span>
                         <span>📏 Piso {room.piso}</span>
                       </div>
                       <div className="catalog-footer">

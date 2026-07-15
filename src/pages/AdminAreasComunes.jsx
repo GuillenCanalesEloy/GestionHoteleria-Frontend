@@ -415,7 +415,7 @@ function AdminAreasComunes() {
                     <small>{area.schedule}</small>
                   </div>
                   <span className={`rooms-status ${area.status}`}>{areaStatusLabels[area.status]}</span>
-                  <span>{area.capacity} personas</span>
+                  <span>{area.capacity} persona{area.capacity === 1 ? "" : "s"}</span>
                   <span>${area.pricePerHour.toFixed(2)}</span>
                   <div className="rooms-admin-actions common-area-actions">
                     <button type="button" onClick={() => openAreaDetailModal(area)}>
@@ -546,7 +546,7 @@ function AdminAreasComunes() {
                 </div>
                 <div>
                   <span>Capacidad</span>
-                  <strong>{selectedArea.capacity} personas</strong>
+                  <strong>{selectedArea.capacity} persona{selectedArea.capacity === 1 ? "" : "s"}</strong>
                 </div>
                 <div>
                   <span>Precio por hora</span>

@@ -92,7 +92,7 @@ function ReservasAdmin() {
         checkIn: r.fechaEntrada,
         checkOut: r.fechaSalida,
         dates: `${r.fechaEntrada} - ${r.fechaSalida}`,
-        guests: `${r.cantidadHuespedes || 1} Adultos`,
+        guests: `${r.cantidadHuespedes || 1} Adulto${(r.cantidadHuespedes || 1) === 1 ? "" : "s"}`,
         status: r.estado ? r.estado.charAt(0).toUpperCase() + r.estado.slice(1).toLowerCase() : "Pendiente",
         total: r.precioTotal ? `$${r.precioTotal}` : "Pendiente",
         guest: {

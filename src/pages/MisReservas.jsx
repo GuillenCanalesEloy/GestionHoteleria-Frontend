@@ -139,7 +139,7 @@ function MisReservas() {
       image: reservation.habitacionImagenUrl || "",
       title: `Habitación ${reservation.habitacionTipo || ""} #${reservation.habitacionNumero || ""}`.trim(),
       dates: `${reservation.fechaEntrada} - ${reservation.fechaSalida}`,
-      guests: `${reservation.cantidadHuespedes || 1} huesped(es)`,
+      guests: `${reservation.cantidadHuespedes || 1} huésped${(reservation.cantidadHuespedes || 1) === 1 ? "" : "es"}`,
       stage: reservation.estado || "PENDIENTE",
       status: reservation.estado || "PENDIENTE",
       total: reservation.precioTotal ? `$${reservation.precioTotal}` : "Pendiente",
