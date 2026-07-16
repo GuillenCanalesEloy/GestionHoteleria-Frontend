@@ -72,12 +72,17 @@ function formatReservationStay(reservation) {
   return "Sin estadías registradas";
 }
 
+function formatGuestCount(count) {
+  const total = Number(count || 1);
+  return `${total} huésped${total === 1 ? "" : "es"}`;
+}
+
 function normalizeReservation(reservation) {
   return {
     id: reservation.id || "RES-CLIENTE",
     room: reservation.room || reservation.title || "Habitación",
     dates: formatReservationStay(reservation),
-    guests: reservation.guests || "1 Adulto",
+    guests: reservation.guests || formatGuestCount(reservation.cantidadHuespedes),
     status: reservation.status || "Confirmada",
     total: reservation.total || "$0.00",
     guest: {
@@ -302,6 +307,7 @@ function ClientDrawer({
                       <span>
                         {reservation.fechaEntrada} - {reservation.fechaSalida}
                       </span>
+                      <small>{formatGuestCount(reservation.cantidadHuespedes)}</small>
                       <small>ID: {reservation.id}</small>
                     </div>
                     <div

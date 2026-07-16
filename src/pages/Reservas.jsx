@@ -4,6 +4,12 @@ import { Header } from "./Home.jsx";
 import { habitacionesApi, reservasApi } from "../services/hotelApi";
 import { getCurrentUser } from "../services/authService.js";
 
+const guestOptions = [1, 2, 3, 4, 6];
+
+function formatGuestCount(count) {
+  return `${count} huésped${count === 1 ? "" : "es"}`;
+}
+
 function Reservas() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -13,7 +19,7 @@ function Reservas() {
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [checkIn, setCheckIn] = useState(today);
   const [checkOut, setCheckOut] = useState("");
-  const [people, setPeople] = useState("2 Adultos");
+  const [people, setPeople] = useState(formatGuestCount(2));
   const [specialRequests, setSpecialRequests] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -178,11 +184,11 @@ function Reservas() {
                     onChange={(event) => setPeople(event.target.value)}
                     required
                   >
-                    <option>1 Adulto</option>
-                    <option>2 Adultos</option>
-                    <option>2 Adultos, 1 Nino</option>
-                    <option>Familia 4 Personas</option>
-                    <option>Grupo 6 Personas</option>
+                    {guestOptions.map((count) => (
+                      <option key={count} value={formatGuestCount(count)}>
+                        {formatGuestCount(count)}
+                      </option>
+                    ))}
                   </select>
                 </div>
 

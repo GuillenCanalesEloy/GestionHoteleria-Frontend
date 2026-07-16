@@ -11,6 +11,11 @@ const defaultRoom = {
     "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&q=80&w=900",
 };
 
+function formatGuestCountFromText(value) {
+  const count = Number(String(value || "").match(/\d+/)?.[0] || 1);
+  return `${count} huésped${count === 1 ? "" : "es"}`;
+}
+
 function formatCardNumber(value) {
   return value
     .replace(/\D/g, "")
@@ -229,7 +234,7 @@ function Pagos() {
               </div>
               <div className="payment-summary-row">
                 <small>Huespedes</small>
-                <strong>{reservation?.people || "2 Adultos"}</strong>
+                <strong>{formatGuestCountFromText(reservation?.people || "2 huéspedes")}</strong>
               </div>
               <div className="payment-total">
                 <small>Total</small>

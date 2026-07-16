@@ -2,19 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { reservasApi } from "../services/hotelApi.js";
 
-const guestOptions = [
-  "1 Adulto",
-  "2 Adultos",
-  "2 Adultos, 1 Nino",
-  "Familia 4 Personas",
-  "Grupo 6 Personas",
-];
+const guestCounts = [1, 2, 3, 4, 6];
 
 const statusLabels = {
   Confirmada: "Confirmada",
   Pendiente: "Pendiente",
   Cancelada: "Cancelada",
 };
+
+function formatGuestCount(count) {
+  const total = Number(count || 1);
+  return `${total} huésped${total === 1 ? "" : "es"}`;
+}
 
 function normalizeReservation(reservation) {
   const [fallbackCheckIn = "", fallbackCheckOut = ""] = reservation.dates
@@ -27,7 +26,7 @@ function normalizeReservation(reservation) {
     room: reservation.room || reservation.title || "Habitación",
     checkIn: reservation.checkIn || fallbackCheckIn,
     checkOut: reservation.checkOut || fallbackCheckOut,
-    guests: reservation.guests || "1 Adulto",
+    guests: reservation.guests || formatGuestCount(1),
     status: reservation.status || "Confirmada",
     guest: {
       name: reservation.guest?.name || "user",
@@ -50,7 +49,7 @@ function ReservasAdmin() {
     room: "",
     checkIn: "",
     checkOut: "",
-    guests: "1 Adulto",
+    guests: formatGuestCount(1),
     status: "Confirmada",
   });
 
@@ -92,7 +91,7 @@ function ReservasAdmin() {
         checkIn: r.fechaEntrada,
         checkOut: r.fechaSalida,
         dates: `${r.fechaEntrada} - ${r.fechaSalida}`,
-        guests: `${r.cantidadHuespedes || 1} Adulto${(r.cantidadHuespedes || 1) === 1 ? "" : "s"}`,
+        guests: formatGuestCount(r.cantidadHuespedes),
         status: r.estado ? r.estado.charAt(0).toUpperCase() + r.estado.slice(1).toLowerCase() : "Pendiente",
         total: r.precioTotal ? `$${r.precioTotal}` : "Pendiente",
         guest: {
@@ -161,7 +160,7 @@ function ReservasAdmin() {
       room: "",
       checkIn: "",
       checkOut: "",
-      guests: "1 Adulto",
+      guests: formatGuestCount(1),
       status: "Confirmada",
     });
   };
@@ -474,11 +473,14 @@ function ReservasAdmin() {
                 <label>
                   Huespedes
                   <select name="guests" value={form.guests} onChange={handleInputChange} required>
-                    {guestOptions.map((option) => (
+                    {guestCounts.map((count) => {
+                      const option = formatGuestCount(count);
+                      return (
                       <option key={option} value={option}>
                         {option}
                       </option>
-                    ))}
+                      );
+                    })}
                   </select>
                 </label>
                 <label>
