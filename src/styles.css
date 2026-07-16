@@ -3430,10 +3430,22 @@ img {
   margin: 0 0 12px;
 }
 
-.login-title > p:last-child {
+.login-title > p {
   color: #45546a;
   font-size: 0.96rem;
   margin: 0;
+}
+
+.login-access-note {
+  background: #fff8eb;
+  border: 1px solid #f1d8a7;
+  border-radius: 999px;
+  color: #8a6416;
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-top: 14px;
+  padding: 7px 12px;
 }
 
 .login-field {
