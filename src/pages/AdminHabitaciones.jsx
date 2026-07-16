@@ -9,7 +9,8 @@ const emptyRoomForm = {
   price: "",
   capacity: "1",
   floor: "",
-  imagenUrl: "",
+  imageFile: null,
+  imagePreviewUrl: "",
 };
 
 const statusLabels = {
@@ -39,17 +40,29 @@ function fromApi(room) {
   };
 }
 
-// Convierte el form al body que espera el backend
-function toApi(form) {
-  return {
-    numero: Number(form.number),
-    tipo: typeToBackend[form.type] ?? form.type,
-    estado: statusToBackend[form.status] ?? form.status,
-    precioPorNoche: Number(form.price),
-    capacidad: Number(form.capacity),
-    piso: Number(form.floor),
-    imagenUrl: form.imagenUrl.trim() || null,
-  };
+function resolveImageUrl(url) {
+  if (!url) return "";
+  if (/^(https?:|blob:|data:)/i.test(url)) return url;
+
+  const apiUrl = import.meta.env.VITE_API_URL || "";
+  return apiUrl ? `${apiUrl}${url}` : url;
+}
+
+// Convierte el form a multipart/form-data para subir imagenes.
+function toFormData(form) {
+  const data = new FormData();
+  data.append("numero", form.number);
+  data.append("tipo", typeToBackend[form.type] ?? form.type);
+  data.append("estado", statusToBackend[form.status] ?? form.status);
+  data.append("precioPorNoche", form.price);
+  data.append("capacidad", form.capacity);
+  data.append("piso", form.floor);
+
+  if (form.imageFile) {
+    data.append("imagen", form.imageFile);
+  }
+
+  return data;
 }
 
 function AdminHabitaciones() {
@@ -124,7 +137,30 @@ function AdminHabitaciones() {
     setForm((f) => ({ ...f, [name]: value }));
   };
 
-  const resetForm = () => { setEditingId(null); setForm(emptyRoomForm); };
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0] ?? null;
+    setForm((current) => {
+      if (current.imagePreviewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(current.imagePreviewUrl);
+      }
+
+      return {
+        ...current,
+        imageFile: file,
+        imagePreviewUrl: file ? URL.createObjectURL(file) : "",
+      };
+    });
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setForm((current) => {
+      if (current.imagePreviewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(current.imagePreviewUrl);
+      }
+      return emptyRoomForm;
+    });
+  };
 
   const openCreateModal = () => { resetForm(); setCreateModalOpen(true); };
   const closeCreateModal = () => { setCreateModalOpen(false); resetForm(); };
@@ -139,7 +175,8 @@ function AdminHabitaciones() {
       price: String(room.price),
       capacity: String(room.capacity),
       floor: String(room.floor),
-      imagenUrl: room.imagenUrl ?? "",
+      imageFile: null,
+      imagePreviewUrl: room.imagenUrl ?? "",
     });
   };
 
@@ -151,7 +188,7 @@ function AdminHabitaciones() {
     setSaving(true);
     try {
       if (isEditing) {
-        const response = await habitacionesApi.update(editingId, toApi(form));
+        const response = await habitacionesApi.update(editingId, toFormData(form));
         const updated = fromApi(response.data);
         setRooms((current) => current.map((r) => r.id === editingId ? updated : r));
         // Refresca el form con los datos confirmados por el backend
@@ -162,10 +199,11 @@ function AdminHabitaciones() {
           price: String(updated.price),
           capacity: String(updated.capacity),
           floor: String(updated.floor),
-          imagenUrl: updated.imagenUrl ?? "",
+          imageFile: null,
+          imagePreviewUrl: updated.imagenUrl ?? "",
         });
       } else {
-        const response = await habitacionesApi.create(toApi(form));
+        const response = await habitacionesApi.create(toFormData(form));
         const created = fromApi(response.data);
         setRooms((current) => [created, ...current]);
         closeCreateModal();
@@ -412,6 +450,7 @@ function AdminHabitaciones() {
               <RoomForm
                 form={form}
                 onChange={handleInputChange}
+                onImageChange={handleImageChange}
                 onSubmit={handleSubmit}
                 submitLabel={saving ? "Guardando..." : "Crear habitación"}
                 disabled={saving}
@@ -432,7 +471,7 @@ function AdminHabitaciones() {
               </div>
               {selectedRoom.imagenUrl && (
                 <img
-                  src={selectedRoom.imagenUrl}
+                  src={resolveImageUrl(selectedRoom.imagenUrl)}
                   alt={`Habitación ${selectedRoom.number}`}
                   style={{ width: "100%", maxHeight: "200px", objectFit: "cover", borderRadius: "8px", marginBottom: "12px" }}
                 />
@@ -450,6 +489,7 @@ function AdminHabitaciones() {
               <RoomForm
                 form={form}
                 onChange={handleInputChange}
+                onImageChange={handleImageChange}
                 onSubmit={handleSubmit}
                 submitLabel={saving ? "Guardando..." : "Guardar cambios"}
                 disabled={saving}
@@ -469,7 +509,7 @@ function AdminHabitaciones() {
   );
 }
 
-function RoomForm({ form, onChange, onSubmit, submitLabel, disabled }) {
+function RoomForm({ form, onChange, onImageChange, onSubmit, submitLabel, disabled }) {
   return (
     <form className="rooms-modal-form" onSubmit={onSubmit}>
       <label>
@@ -497,18 +537,17 @@ function RoomForm({ form, onChange, onSubmit, submitLabel, disabled }) {
       <label>Capacidad<input name="capacity" type="number" min="1" value={form.capacity} onChange={onChange} required /></label>
       <label>Piso<input name="floor" type="number" min="1" value={form.floor} onChange={onChange} required placeholder="4" /></label>
       <label>
-        URL de imagen
+        Imagen
         <input
-          name="imagenUrl"
-          type="url"
-          value={form.imagenUrl}
-          onChange={onChange}
-          placeholder="https://ejemplo.com/imagen.jpg"
+          name="imagen"
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={onImageChange}
         />
       </label>
-      {form.imagenUrl && (
+      {form.imagePreviewUrl && (
         <img
-          src={form.imagenUrl}
+          src={resolveImageUrl(form.imagePreviewUrl)}
           alt="Vista previa"
           style={{ width: "100%", maxHeight: "160px", objectFit: "cover", borderRadius: "6px", marginTop: "4px" }}
           onError={(e) => { e.currentTarget.style.display = "none"; }}
