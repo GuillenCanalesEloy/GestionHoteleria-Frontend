@@ -4396,6 +4396,39 @@ img {
   box-shadow: 0 0 0 3px rgba(138, 100, 22, 0.14);
 }
 
+.rooms-image-upload-field,
+.rooms-image-preview {
+  grid-column: 1 / -1;
+}
+
+.rooms-image-upload-field span {
+  color: #707885;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.45;
+  text-transform: none;
+}
+
+.rooms-image-upload-field input[type="file"] {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  padding: 10px 12px;
+}
+
+.rooms-image-preview {
+  background: #f4f7fd;
+  border: 1px solid #e4e9f1;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.rooms-image-preview img {
+  aspect-ratio: 2.2;
+  object-fit: cover;
+  width: 100%;
+}
+
 .rooms-modal-form button {
   background: #041120;
   border: 0;

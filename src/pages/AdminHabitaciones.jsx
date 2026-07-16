@@ -536,8 +536,9 @@ function RoomForm({ form, onChange, onImageChange, onSubmit, submitLabel, disabl
       <label>Precio por noche<input name="price" type="number" min="1" value={form.price} onChange={onChange} required placeholder="220" /></label>
       <label>Capacidad<input name="capacity" type="number" min="1" value={form.capacity} onChange={onChange} required /></label>
       <label>Piso<input name="floor" type="number" min="1" value={form.floor} onChange={onChange} required placeholder="4" /></label>
-      <label>
+      <label className="rooms-image-upload-field">
         Imagen
+        <span>Sube una foto en JPG, PNG o WebP para mostrarla en el catalogo.</span>
         <input
           name="imagen"
           type="file"
@@ -546,12 +547,13 @@ function RoomForm({ form, onChange, onImageChange, onSubmit, submitLabel, disabl
         />
       </label>
       {form.imagePreviewUrl && (
-        <img
-          src={resolveImageUrl(form.imagePreviewUrl)}
-          alt="Vista previa"
-          style={{ width: "100%", maxHeight: "160px", objectFit: "cover", borderRadius: "6px", marginTop: "4px" }}
-          onError={(e) => { e.currentTarget.style.display = "none"; }}
-        />
+        <div className="rooms-image-preview">
+          <img
+            src={resolveImageUrl(form.imagePreviewUrl)}
+            alt="Vista previa de la habitacion"
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+          />
+        </div>
       )}
       <button type="submit" disabled={disabled}>{submitLabel}</button>
     </form>
