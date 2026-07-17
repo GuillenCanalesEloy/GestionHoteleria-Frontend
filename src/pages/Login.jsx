@@ -112,7 +112,6 @@ function Login() {
             <p className="section-kicker">Bienvenido</p>
             <h2 id="login-title">Inicia sesión</h2>
             <p>Ingresa con tu correo para continuar.</p>
-            <span className="login-access-note">Acceso unificado para clientes y administradores</span>
           </div>
 
           {error && <p className="login-error">{error}</p>}
