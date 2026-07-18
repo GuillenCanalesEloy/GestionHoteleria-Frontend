@@ -171,10 +171,3 @@ El proyecto incluye `vercel.json` con reglas de rewrite para que las rutas de Re
 ```bash
 npm run build
 ```
-
-## Notas de desarrollo
-
-- No subas archivos `.env` al repositorio.
-- Ejecuta `npm install` despues de actualizar dependencias.
-- Antes de publicar cambios, valida al menos con `npm run build`.
-- Si el backend corre en otra URL, actualiza `VITE_API_URL` en `.env.local`.
